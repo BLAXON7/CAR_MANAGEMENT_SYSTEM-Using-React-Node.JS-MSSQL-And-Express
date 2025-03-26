@@ -1,45 +1,37 @@
-// import React, { useState, useEffect } from 'react';
-
-
-// function App() {
-//     const [message, setMessage] = useState('');
-
-//     useEffect(() => {
-//         fetch('http://localhost:5000')
-//             .then((response) => response.text())
-//             .then((data) => setMessage(data));
-//     }, []);
-
-//     return (
-//         <div style={{ textAlign: 'center', marginTop: '50px' }}>
-//             <h1>React Frontend</h1>
-//             <p>{message}</p>
-//         </div>
-//     );
-// }
-
-// export default App;
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import './App.css'
 import About from "./routes/About_Us";
-import Home from "./routes/Home";
+import Dashboard from "./routes/Dashboard";
+import Setting  from "./routes/Setting";
+import Marketplace from "./routes/Marketplace ";
+import Rent from "./routes/Rent";
+import Compare from "./routes/Car_compare";
 
 const App = () => {
   return (
     <Router>
       <div className="p-4 bg-gray-800 text-white flex space-x-4">
         <div class="navbar">
-        <Link to="/" className="home_on_nav">Home</Link>
-        <Link to="/about" className="about_on_nav">About Us</Link>
+        <Link to="/" className="elements_on_nav">Dashboard</Link>
+        <Link to="/marketplace" className="elements_on_nav">Marketplace</Link>
+        <Link to="/Rental" className="elements_on_nav">Rent A Car</Link>
+        <Link to="/compare" className="elements_on_nav">Compare Cars</Link>
+        <Link to="/about" className="elements_on_nav">About Us</Link>
+        <Link to="/settings" className="elements_on_nav">Settings</Link>
         </div>
       </div>
 
       {/* Page Content Changes Here */}
       <Routes>
-         <Route path="/" element={<Home />} />
+      <Route path="/Rental" element={<Rent/>}/>
+        <Route path="/marketplace" element={<Marketplace/>}/>
+        <Route path="/settings" element={<Setting />} />
+         <Route path="/" element={<Dashboard />} />
         <Route path="/about" element={<About />} />
+        <Route path="/compare" element={<Compare />} />
+
       </Routes>
     </Router>
   );

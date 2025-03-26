@@ -43,23 +43,22 @@
   padding-top: 20px;
   width: 100vw;
   height: 40px;
-  background-color: rgb(0, 2, 40);
+  background: linear-gradient(rgb(10, 10, 10),rgb(0, 2, 40));
+  /* background-color: rgb(0, 2, 40); */
   align-items: center;
   justify-content: center;
 }
-.about_on_nav
+.elements_on_nav
 {
   color: wheat;
   text-decoration: none;
   padding-left: 30px;
   padding-bottom: 20px;
-
+  font-weight: bold;
+  transition: 1s;
 }
-.home_on_nav
+.elements_on_nav:hover
 {
-  color:wheat;
-  text-decoration: none;
-  padding-right: 30px;
-  padding-bottom: 20px;
-
+  color: rgb(190, 253, 255);
+  transition: 1s;
 }
