@@ -1,7 +1,10 @@
 .App {
   text-align: center;
 }
-
+body
+{
+background-color: #212133 ;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -39,12 +42,13 @@
 
 .navbar
 {
+  position: fixed;
   display: flex;
   padding-top: 20px;
   width: 100vw;
+  min-width: 800px; 
   height: 40px;
-  background: linear-gradient(rgb(10, 10, 10),rgb(0, 2, 40));
-  /* background-color: rgb(0, 2, 40); */
+  background: linear-gradient(rgb(10, 10, 10),rgb(0, 2, 31));
   align-items: center;
   justify-content: center;
 }
@@ -56,9 +60,11 @@
   padding-bottom: 20px;
   font-weight: bold;
   transition: 1s;
+  font-size: 14px;
 }
 .elements_on_nav:hover
 {
   color: rgb(190, 253, 255);
   transition: 1s;
+  font-size: 15px;
 }
