@@ -43,7 +43,8 @@ body
     height: 450px;
     color: wheat;
     font-family: 'Oxanium', sans-serif;
-    animation: blink 0.8s infinite;
+    animation: blink 2s infinite;
+    text-shadow:  4px 2px 10px #00ccff; /*x y blurriness */
 
 }
 @keyframes blink {
