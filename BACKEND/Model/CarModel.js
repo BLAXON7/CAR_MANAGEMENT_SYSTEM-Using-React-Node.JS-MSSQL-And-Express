@@ -8,7 +8,7 @@ const AvailableCarsforSale = async() =>
 {
   try{
     const pool=await connectToDB();
-    const result = await pool.request().query('SELECT CS.carID, Make, Model, Price, Availability FROM CARS_ON_SALE CS JOIN CAR_DETAILS CD ON CS.carID = CD.carID WHERE CS.Availability = 1');
+    const result = await pool.request().query('SELECT CS.carID, Make, Model, Price FROM CARS_ON_SALE CS JOIN CAR_DETAILS CD ON CS.carID = CD.carID WHERE CS.Availability = 1');
     return result.recordset;
   }
   catch(err)
