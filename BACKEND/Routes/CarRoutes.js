@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../Controller/CarController');
+const Controller = require('../Controller/CarController');
 
 
-router.get('/Users',userController.getusers);
+router.get('/Users',Controller.getusers);
+router.get('/Salecars',Controller.SaleCars);
+router.get('/Rentcars',Controller.RentCars);
+router.get('/TopRatedCars',Controller.TopRatedCars);
+router.get('/RentalHistory',Controller.RentalHistory);
 
 module.exports = router;
+
