@@ -554,23 +554,23 @@ BEGIN
 END;
 GO
 
--- CREATE PROCEDURE FilterCars2
---     @Brand VARCHAR(100) = NULL,
---     @MinPrice DECIMAL(10,2) = NULL,
---     @MaxPrice DECIMAL(10,2) = NULL,
---     @Transmission VARCHAR(50) = NULL
--- AS
--- BEGIN
---     SELECT *
---     FROM CAR_DETAILS AS CD
---     JOIN CARS_ON_RENT AS CR ON CD.carID = CR.car_id
---     WHERE 
---         (@Brand IS NULL OR Make = @Brand) AND
---         (@MinPrice IS NULL OR total_price >= @MinPrice) AND
---         (@MaxPrice IS NULL OR total_price <= @MaxPrice) AND
---         (@Transmission IS NULL OR transmission = @Transmission);
--- END;
--- GO
+CREATE PROCEDURE FilterCars2
+    @Brand VARCHAR(100) = NULL,
+    @MinPrice DECIMAL(10,2) = NULL,
+    @MaxPrice DECIMAL(10,2) = NULL,
+    @Transmission VARCHAR(50) = NULL
+AS
+BEGIN
+    SELECT *
+    FROM CAR_DETAILS AS CD
+    JOIN CARS_ON_RENT AS CR ON CD.carID = CR.car_id
+    WHERE 
+        (@Brand IS NULL OR Make = @Brand) AND
+        (@MinPrice IS NULL OR total_price >= @MinPrice) AND
+        (@MaxPrice IS NULL OR total_price <= @MaxPrice) AND
+        (@Transmission IS NULL OR transmission = @Transmission);
+END;
+GO
 
 --20
 CREATE PROCEDURE AddCar
