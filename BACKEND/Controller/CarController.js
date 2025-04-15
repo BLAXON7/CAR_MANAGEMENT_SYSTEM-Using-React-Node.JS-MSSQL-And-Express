@@ -13,6 +13,22 @@ exports.getusers = async (req,res) =>
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+exports.loginUser = async (req, res) => {
+  const username = req.query.username;
+  const password = req.query.password;
+  
+  try {
+    const users = await CarCantroller.Login_User(username, password);
+    if (!users) return res.status(404).json({ error: 'User not found' });
+    res.json(users);
+  }
+  catch(error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 exports.SaleCars = async (req,res) =>
 {
         try

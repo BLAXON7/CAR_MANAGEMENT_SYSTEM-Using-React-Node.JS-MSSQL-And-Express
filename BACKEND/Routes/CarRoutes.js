@@ -9,5 +9,8 @@ router.get('/Rentcars',Controller.RentCars);
 router.get('/TopRatedCars',Controller.TopRatedCars);
 router.get('/RentalHistory',Controller.RentalHistory);
 
+router.get('/Login',Controller.loginUser);
+
+
 module.exports = router;
 

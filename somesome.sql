@@ -1,3 +1,8 @@
+CREATE DATABASE Car_Rental_System
+GO
+USE Car_Rental_System
+GO
+
 CREATE TABLE Users (
     userID INT IDENTITY(1,1) PRIMARY KEY,
     UserName VARCHAR(100) UNIQUE NOT NULL,
@@ -300,7 +305,6 @@ BEGIN
     END
 END;
 
-
 GO
 --3
 CREATE PROCEDURE UpdateProfile
@@ -374,6 +378,8 @@ AS
 BEGIN
     SELECT 
         total_rentals,
+        wallet_balance,
+        total_spent
     FROM RENTER
     WHERE Renter_ID = @RenterID;
 END;

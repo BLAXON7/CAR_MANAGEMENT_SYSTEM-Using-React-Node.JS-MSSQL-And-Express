@@ -64,7 +64,7 @@ const AvailableCarsforRent = async() =>
     try {
   
       const pool = await connectToDB(); 
-      const result = await pool.request().input('UserName',sql.VarChar,username).query('SELECT * FROM [[USER]]] where UserName=@UserName');
+      const result = await pool.request().input('UserName',sql.VarChar,username).query('SELECT * FROM Users where UserName=@UserName');
       return result.recordset;
     } catch (err) {
       console.error('Error executing query:', err);
@@ -72,4 +72,20 @@ const AvailableCarsforRent = async() =>
     }
   };
 
- module.exports = { getUserName,AvailableCarsforSale,AvailableCarsforRent,TopRatedCars,CARRentalHistory };
+  const Login_User = async(username, password) => {
+    try{
+      const pool = await connectToDB();
+      const result = await pool.request()
+        .input('UserName', sql.VarChar, username)
+        .input('Password', sql.VarChar, password)
+        .execute('LoginUser');
+      return result.recordset;
+    }
+    catch(err)
+    {
+      console.error('Error executing query:', err);
+      throw err;  
+    }
+  }
+
+ module.exports = { getUserName,AvailableCarsforSale,AvailableCarsforRent,TopRatedCars,CARRentalHistory,Login_User };
