@@ -231,13 +231,14 @@ GO
 -----We have employed error handling and hashing in a few of the following procedures. We will later implement error handling and hashing using JS and its frameworks. 
 -----Additionally, we have also added a few of the Transact-SQL functions like commit and rollback
 --1
+
 CREATE PROCEDURE SignUpUser
     @UserName VARCHAR(100),
     @Name VARCHAR(255),
     @Role VARCHAR(20),
     @Phone_Number VARCHAR(20),
     @Email VARCHAR(255),
-    @Password VARCHAR(255)
+    @Password NVARCHAR(255)
 AS
 BEGIN
     INSERT INTO Users (UserName, Name, Role, Phone_Number, Email, Password)
@@ -693,8 +694,8 @@ GO
 --29
 CREATE PROCEDURE ResetPassword
     @Email VARCHAR(255),
-    @OldPassword VARCHAR(255),
-    @NewPassword VARCHAR(255)
+    @OldPassword NVARCHAR(255),
+    @NewPassword NVARCHAR(255)
 AS
 BEGIN
     BEGIN TRY
@@ -771,7 +772,10 @@ END;
 GO
 
 exec SignUpUser 'john_doe', 'John Doe', 'Seller', '1234567890', 'l@yahoo.com', 'password';
-exec SignUpUser 'jane_doe', 'Jane Doe', 'Renter', '1234567890', 'm@gmail.com', 'password';
+exec SignUpUser 'jane_doe', 'Jane Doe', 'Renter', '1234567891', 'm@gmail.com', 'password';
+exec SignUpUser 'ali', 'Jane Doe', 'Renter', '1234567892', 'p@gmail.com', '123456789';
+
+exec LoginUser 'ali','123456789';
 
 exec LoginUser 'john_doe', 'password';
 exec LoginUser 'jane_doe', 'password';
