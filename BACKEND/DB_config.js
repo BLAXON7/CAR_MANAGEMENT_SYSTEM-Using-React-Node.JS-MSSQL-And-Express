@@ -21,6 +21,7 @@ const connectToDB = async () => {
         return pool;
     } catch (err) {
         console.error('Database connection error: ', err.message);
+        throw err;  // Rethrow error for further handling
     }
 };
 

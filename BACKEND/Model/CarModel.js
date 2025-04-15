@@ -1,16 +1,6 @@
 const { sql , connectToDB } = require('../DB_config'); 
 
-const getUserName = async (username) => {
-  try {
 
-    const pool = await connectToDB(); 
-    const result = await pool.request().input('UserName',sql.VarChar,username).query('SELECT * FROM [[USER]]] where UserName=@UserName');
-    return result.recordset;
-  } catch (err) {
-    console.error('Error executing query:', err);
-    throw err;  
-  }
-};
 
 //VIEWS CONVERTED----------------------------------------------------------------------------------------------------------------------------
 
@@ -70,6 +60,16 @@ const AvailableCarsforRent = async() =>
   }
   //--VIEWS END------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+  const getUserName = async (username) => {
+    try {
+  
+      const pool = await connectToDB(); 
+      const result = await pool.request().input('UserName',sql.VarChar,username).query('SELECT * FROM [[USER]]] where UserName=@UserName');
+      return result.recordset;
+    } catch (err) {
+      console.error('Error executing query:', err);
+      throw err;  
+    }
+  };
 
  module.exports = { getUserName,AvailableCarsforSale,AvailableCarsforRent,TopRatedCars,CARRentalHistory };

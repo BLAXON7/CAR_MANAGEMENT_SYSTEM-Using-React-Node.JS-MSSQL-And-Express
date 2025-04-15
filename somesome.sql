@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+--Drop DATABASE CarRentalSystem
+CREATE DATABASE CarRentalSystem;
+--USE CarRentalSystem;
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
 CREATE TABLE Users (
     userID INT IDENTITY(1,1) PRIMARY KEY,
     UserName VARCHAR(100) UNIQUE NOT NULL,
@@ -36,17 +42,33 @@ CREATE TABLE SELLER (
     userID INT UNIQUE,
     total_cars_sold INT DEFAULT 0,
     rating FLOAT DEFAULT 0.0 CHECK (rating BETWEEN 0.0 AND 5.0),
+<<<<<<< HEAD
     verification_status BIT DEFAULT 0,
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 );
 
+=======
+    wallet_balance DECIMAL(10,2) DEFAULT 0.0,
+    verification_status BIT DEFAULT 0,
+	Client_ID INT UNIQUE,  -- 
+    --FOREIGN KEY (Client_ID) REFERENCES CLIENT(Client_ID) ON DELETE CASCADE,
+    FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
+);
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
 CREATE TABLE RENTER (
     Renter_ID INT IDENTITY(1,1) PRIMARY KEY,
     userID INT UNIQUE, 
     total_rentals INT DEFAULT 0,
+<<<<<<< HEAD
     FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 );
 
+=======
+    wallet_balance DECIMAL(10,2) DEFAULT 0.0,
+    total_spent DECIMAL(10,2) DEFAULT 0.0,
+    FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
+);
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
 CREATE TABLE CLIENT (
     Client_ID INT IDENTITY(1,1) PRIMARY KEY,
     userID INT UNIQUE,
@@ -70,7 +92,10 @@ CREATE TABLE CAR_DETAILS (
     year INT CHECK (year BETWEEN 1900 AND YEAR(GETDATE())),
     Description TEXT,
     Condition VARCHAR(10) CHECK (Condition IN ('New', 'Used')),
+<<<<<<< HEAD
 	Color VARCHAR(10),
+=======
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
     Category VARCHAR(100),
     Location VARCHAR(255),
     fuel_type VARCHAR(50),
@@ -374,6 +399,11 @@ AS
 BEGIN
     SELECT 
         total_rentals,
+<<<<<<< HEAD
+=======
+        wallet_balance,
+        total_spent
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
     FROM RENTER
     WHERE Renter_ID = @RenterID;
 END;
@@ -463,6 +493,7 @@ END;
 GO
 
 --15
+<<<<<<< HEAD
 --CREATE PROCEDURE ApplyDiscount
 --    @RenterID INT,
 --    @Discount DECIMAL(10,2)
@@ -475,6 +506,20 @@ GO
 --    COMMIT;
 --END;
 --GO
+=======
+CREATE PROCEDURE ApplyDiscount
+    @RenterID INT,
+    @Discount DECIMAL(10,2)
+AS
+BEGIN
+    BEGIN TRANSACTION;
+    UPDATE RENTER
+    SET wallet_balance = wallet_balance + @Discount
+    WHERE Renter_ID = @RenterID;
+    COMMIT;
+END;
+GO
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
 
 -- CREATE PROCEDURE ApplyDiscount
 --     @RenterID INT,
@@ -507,13 +552,20 @@ CREATE PROCEDURE GetCarAnalysis
     @CarID INT
 AS
 BEGIN
+<<<<<<< HEAD
     SELECT Make, Model, Variant,Color, year, Description, Condition, Category, fuel_type, transmission
+=======
+    SELECT Make, Model, Variant, year, Description, Condition, Category, fuel_type, transmission
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
     FROM CAR_DETAILS
     WHERE carID = @CarID;
 END;
 GO
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
 --18
 CREATE PROCEDURE UpdateBuyerLevel
     @ClientID INT,
@@ -523,6 +575,12 @@ BEGIN
     UPDATE BUYER
     SET total_spent = total_spent + @TotalSpent
     WHERE Client_ID = @ClientID;
+<<<<<<< HEAD
+=======
+	UPDATE SELLER
+    SET wallet_balance = wallet_balance + @TotalSpent
+    WHERE Client_ID = @ClientID;
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
 END;
 GO
 
@@ -568,7 +626,10 @@ CREATE PROCEDURE AddCar
     @SellerID INT,
     @Make VARCHAR(100),
     @Model VARCHAR(100),
+<<<<<<< HEAD
 	@Color VARCHAR(10),
+=======
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
     @Variant VARCHAR(100),
     @Year INT,
     @Price DECIMAL(10,2),
@@ -578,12 +639,19 @@ CREATE PROCEDURE AddCar
     @Description TEXT
 AS
 BEGIN
+<<<<<<< HEAD
     INSERT INTO Cars (SellerID, Make, Model,Color,Variant, Year, Price, FuelType, Transmission, Condition, Description)
+=======
+    INSERT INTO Cars (SellerID, Make, Model, Variant, Year, Price, FuelType, Transmission, Condition, Description)
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
     VALUES (@SellerID, @Make, @Model, @Variant, @Year, @Price, @FuelType, @Transmission, @Condition, @Description);
 END;
 GO
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> fdae78b684520211ea30518e3b93be35ebc789a5
 --21
 CREATE PROCEDURE DeleteCar
     @CarID INT
