@@ -452,7 +452,6 @@ exports.DeleteCar = async (req, res) => {
     
     try {
       const users = await CarCantroller.DeleteCar(carID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -467,7 +466,6 @@ exports.CancelBooking = async (req, res) => {
     
     try {
       const users = await CarCantroller.CancelBooking(RenterID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -482,7 +480,6 @@ exports.CarReviews = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetCarReviews(carID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -497,7 +494,6 @@ exports.UserMessages = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetUserMessages(UserID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -512,7 +508,6 @@ exports.ReturnCar = async (req, res) => {
     
     try {
       const users = await CarCantroller.ReturnCar(RentalID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -526,7 +521,6 @@ exports.RentalReport = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetRentalReport();
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -540,7 +534,6 @@ exports.TopRatedCars = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetTopRatedCars();
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -555,7 +548,6 @@ exports.SearchCars = async (req, res) => {
     
     try {
       const users = await CarCantroller.SearchCars (SearchTerm);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -572,7 +564,6 @@ exports.ResetPassword = async (req, res) => {
     
     try {
       const users = await CarCantroller.ResetPassword (Email, OldPassword, NewPassword);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -590,7 +581,6 @@ exports.SearchCarsWithFeatures = async (req, res) => {
     
     try {
       const users = await CarCantroller.SearchCarsWithFeatures (SearchTerm, MinPrice, MaxPrice, Features);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {

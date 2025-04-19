@@ -206,7 +206,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('UserID', sql.int, userID)
+        .input('UserID', sql.Int, userID)
         .execute('GetRenterDashboard'); 
   
       //return result.recordset;
@@ -332,8 +332,8 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('RenterID', sql.int, RenterID)
-        .input('Discount', sql.DECIMAL (10, 2), Discount)
+        .input('RenterID', sql.Int, RenterID)
+        .input('Discount', sql.Decimal (10, 2), Discount)
         .execute('ApplyDiscount'); 
   
       //return result.recordset;
@@ -389,8 +389,8 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('ClientID', sql.int, ClientID)
-        .input('TotalSpent', sql.DECIMAL (10, 2), TotalSpent)
+        .input('ClientID', sql.Int, ClientID)
+        .input('TotalSpent', sql.Decimal (10, 2), TotalSpent)
         .execute('UpdateBuyerLevel'); 
   
       //return result.recordset;
@@ -511,7 +511,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.int, CarID)
+        .input('CarID', sql.Int, CarID)
         .execute('DeleteCar'); 
   
       return result.recordset;
@@ -528,7 +528,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('RenterID', sql.int, RenterID)
+        .input('RenterID', sql.Int, RenterID)
         .execute('CancelBooking'); 
   
       return result.recordset;
@@ -545,7 +545,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.int, CarID)
+        .input('CarID', sql.Int, CarID)
         .execute('GetCarReviews'); 
   
       return result.recordset;
@@ -562,7 +562,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('UserID', sql.int, UserID)
+        .input('UserID', sql.Int, UserID)
         .execute('GetUserMessages'); 
   
       return result.recordset;
@@ -579,7 +579,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('RentalID', sql.int, RentalID)
+        .input('RentalID', sql.Int, RentalID)
         .execute('ReturnCar'); 
   
       return result.recordset;
@@ -665,8 +665,8 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const result = await pool
         .request()
         .input('SearchTerm', sql.VarChar (100), SearchTerm)
-        .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
-        .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
+        .input('MinPrice', sql.Decimal (10, 2), MinPrice)
+        .input('MaxPrice', sql.Decimal (10, 2), MaxPrice)
         .input('Features', sql.VarChar (MAX), Features)
         .execute('SearchCarsWithFeatures'); 
   
@@ -734,5 +734,5 @@ const config = {
                       GetCarAnalysis, UpdateBuyerLevel, FilterCars1, FilterCars2,
                       AddCar, DeleteCar, CancelBooking, GetCarReviews, GetUserMessages,
                       ReturnCar, GetRentalReport, GetTopRatedCars, SearchCars, ResetPassword,
-                      SearchCarsWithFeatures
+                      SearchCarsWithFeatures,AddCarForRent,AddCarForSale
                   };
