@@ -9,12 +9,12 @@ router.get('/Rentcars',Controller.RentCars);
 router.get('/TopRatedCars',Controller.TopRatedCars);
 router.get('/RentalHistory',Controller.RentalHistory);
 
-router.get ('/Login', Controller.loginUser);
+router.get ('/Login', Controller.loginUser);  // CROSS
 
-router.get ('/SignUp', Controller.SignUp);
-router.get ('/UpdateProfile', Controller.UpdateProfile);
+router.get ('/SignUp', Controller.SignUp);         // TICK
+router.get ('/UpdateProfile', Controller.UpdateProfile); //Tick
 router.get ('/CompareCars', Controller.CompareCars);
-router.get ('/AddCarReviews', Controller.AddCarReviews);
+router.get ('/AddCarReviews', Controller.AddCarReview);
 router.get ('/SellerDashboard', Controller.SellerDashboard);
 router.get ('/UserDashboard', Controller.UserDashboard);
 router.get ('/RenterDashboard', Controller.RenterDashboard);

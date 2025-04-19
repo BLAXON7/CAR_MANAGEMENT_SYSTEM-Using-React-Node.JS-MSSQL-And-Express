@@ -13,7 +13,6 @@ const dbConfig = {
     }
 };
 
-
 const connectToDB = async () => {
     try {
         const pool= await sql.connect(dbConfig);
@@ -24,6 +23,5 @@ const connectToDB = async () => {
         throw err;  // Rethrow error for further handling
     }
 };
-
 
 module.exports = { sql, connectToDB };

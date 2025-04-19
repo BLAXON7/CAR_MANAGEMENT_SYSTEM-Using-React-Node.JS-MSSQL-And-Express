@@ -1,5 +1,6 @@
 const CarCantroller = require('../Model/CarModel');
 
+
 exports.getusers = async (req,res) =>
 {
     const username = req.query.username; 
@@ -20,7 +21,6 @@ exports.loginUser = async (req, res) => {
   
   try {
     const users = await CarCantroller.Login_User(username, password);
-    if (!users) return res.status(404).json({ error: 'User not found' });
     res.json(users);
   }
   catch(error) {
@@ -28,6 +28,9 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+
+
 
 exports.SaleCars = async (req,res) =>
 {
@@ -91,7 +94,6 @@ exports.SignUp = async (req, res) => {
     
     try {
       const users = await CarCantroller.SignUpUser(username, name, role, phone, email, password);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -110,7 +112,6 @@ exports.UpdateProfile = async (req, res) => {
     
     try {
       const users = await CarCantroller.UpdateProfile(userID, name, phone, email, pfp);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -121,12 +122,11 @@ exports.UpdateProfile = async (req, res) => {
 
   //// 4 ////
 exports.CompareCars = async (req, res) => {
-    const userID = req.query.car_id1;
-    const name = req.query.car_id2;
+    const car_id1 = req.query.car_id1;
+    const car_id2 = req.query.car_id2;
     
     try {
       const users = await CarCantroller.CompareCars(car_id1, car_id2);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -136,7 +136,7 @@ exports.CompareCars = async (req, res) => {
   };
 
   //// 5 ////
-exports.CompareCars = async (req, res) => {
+exports.AddCarReview = async (req, res) => {
     const userID = req.query.userID;
     const car_id = req.query.car_id;
     const rating_Count = req.query.rating_Count;

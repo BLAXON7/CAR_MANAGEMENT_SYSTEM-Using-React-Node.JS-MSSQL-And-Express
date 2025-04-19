@@ -89,7 +89,6 @@ const AvailableCarsforRent = async() =>
   }
 
   ////////////////// Procedures Start /////////////////////
-  //const sql = require('mssql');
   ////// 1 //////
   const SignUpUser = async (userName, name, role, phone, email, password) => {
     try {
@@ -116,7 +115,7 @@ const UpdateProfile = async (userID, name, phone, email, pfp) => {
     const pool = await connectToDB(); 
     const result = await pool
       .request()
-      .input('UserID', sql.int, userID)
+      .input('UserID', sql.Int, userID)
       .input('Name', sql.VarChar(255), name)
       .input('Phone_Number', sql.VarChar(20), phone)
       .input('Email', sql.VarChar(255), email)
@@ -136,11 +135,11 @@ const CompareCars = async (car_id1, car_id2) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID1', sql.int, car_id1)
-        .input('CarID2', sql.int, car_id2)
-        .execute('CompareCars'); 
+        .input('CarID1', sql.Int, car_id1)
+        .input('CarID2', sql.Int, car_id2)
+        .execute('CompareCars')
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -642,7 +641,6 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
 
 //// Triggers ////
 
-const sql = require('mssql');
 
 const config = {
   user: 'yourUsername',
@@ -685,7 +683,7 @@ const config = {
 // //   }
 // // }
 
-createUpdateTimestampTrigger();
+// createUpdateTimestampTrigger();
 
  module.exports = { 
                       getUserName, AvailableCarsforSale, AvailableCarsforRent,TopRatedCars,CARRentalHistory, Login_User, 
