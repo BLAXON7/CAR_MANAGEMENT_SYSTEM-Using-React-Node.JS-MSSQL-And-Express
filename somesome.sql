@@ -571,24 +571,55 @@ GO
 
 --20
 CREATE PROCEDURE AddCar
-    @SellerID INT,
     @Make VARCHAR(100),
     @Model VARCHAR(100),
-	@Color VARCHAR(10),
     @Variant VARCHAR(100),
-    @Year INT,
-    @Price DECIMAL(10,2),
-    @FuelType VARCHAR(50),
-    @Transmission VARCHAR(50),
-    @Condition VARCHAR(50),
-    @Description TEXT
+    @year INT ,
+    @Description TEXT,
+    @Condition VARCHAR(10) ,
+	@Color VARCHAR(10),
+    @Category VARCHAR(100),
+    @Location VARCHAR(255),
+    @fuel_type VARCHAR(50),
+    @transmission VARCHAR(50),
+    @VIN VARCHAR(17),
+    @availability BIT
 AS
 BEGIN
-    INSERT INTO Cars (SellerID, Make, Model,Color,Variant, Year, Price, FuelType, Transmission, Condition, Description)
-    VALUES (@SellerID, @Make, @Model, @Variant, @Year, @Price, @FuelType, @Transmission, @Condition, @Description);
+    INSERT INTO CAR_DETAILS(Make, Model, Variant, year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability)
+    VALUES (@Make, @Model, @Variant, @year, @Description, @Condition, @Color, @Category, @Location, @fuel_type, @transmission, @VIN, @availability);
 END;
 GO
 
+CREATE PROCEDURE AddCarForSale
+    @carID INT,
+    @sellerID INT,
+    @Price DECIMAL(10,2),
+    @negotiable_price BIT = 0,
+    @listing_expiry DATETIME = NULL
+AS
+BEGIN
+    IF @listing_expiry IS NULL
+        SET @listing_expiry = DATEADD(DAY, 30, GETDATE());
+
+    INSERT INTO CARS_ON_SALE (carID, sellerID, Price, negotiable_price, listed_at, listing_expiry, Availability)
+    VALUES (@carID, @sellerID, @Price, @negotiable_price, GETDATE(), @listing_expiry, 1);
+END;
+GO
+
+CREATE PROCEDURE AddCarForRent
+    @carID INT,
+    @renterID INT,
+    @start_date DATE,
+    @end_date DATE,
+    @total_price DECIMAL(10,2),
+    @security_deposit DECIMAL(10,2) = 0.0
+AS
+BEGIN
+    INSERT INTO CARS_ON_RENT (car_id, renter_id, start_date, end_date, total_price, security_deposit, status, rented_at)
+    VALUES (@carID, @renterID, @start_date, @end_date, @total_price, @security_deposit, 'Rented', GETDATE());
+END;
+GO
 
 --21
 CREATE PROCEDURE DeleteCar
@@ -684,8 +715,8 @@ AS
 BEGIN
     SELECT TOP 10 Make, Model, Variant 
     FROM CAR_DETAILS 
-    WHERE Make LIKE '%' + @SearchTerm + '%' 
-       OR Model LIKE '%' + @SearchTerm + '%'
+            WHERE (Make COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @SearchTerm + '%' 
+            OR Model COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @SearchTerm + '%')
     ORDER BY Make, Model, Variant;
 END;
 GO
@@ -741,34 +772,27 @@ CREATE PROCEDURE SearchCarsWithFeatures
     @SearchTerm VARCHAR(100) = NULL,
     @MinPrice DECIMAL(10,2) = NULL,
     @MaxPrice DECIMAL(10,2) = NULL,
-    @Features VARCHAR(MAX) = NULL -- Comma-separated list of feature IDs
+    @Features VARCHAR(100) = NULL
 AS
 BEGIN
-    DECLARE @FeatureTable TABLE (feature_id INT);
-
-    -- Convert @Features string into table format
-    IF @Features IS NOT NULL
-    BEGIN
-        INSERT INTO @FeatureTable (feature_id)
-        SELECT CAST(value AS INT) FROM STRING_SPLIT(@Features, ',');
-    END
-
-    -- Perform search with feature filtering
     SELECT DISTINCT CD.carID, CD.Make, CD.Model, CD.Variant, CS.Price
     FROM CAR_DETAILS CD
-    JOIN CARS_ON_SALE CS ON CD.carID = CS.carID
-    LEFT JOIN CAR_FEATURE_MAPPING CFM ON CD.carID = CFM.car_id
-    LEFT JOIN @FeatureTable FT ON CFM.feature_id = FT.feature_id
+    LEFT JOIN CARS_ON_SALE CS ON CD.carID = CS.carID
     WHERE 
-        (@SearchTerm IS NULL OR 
-         CD.Make LIKE '%' + @SearchTerm + '%' OR 
-         CD.Model LIKE '%' + @SearchTerm + '%')
+        (@SearchTerm IS NULL 
+            OR CD.Make COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @SearchTerm + '%' 
+            OR CD.Model COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @SearchTerm + '%')
         AND (@MinPrice IS NULL OR CS.Price >= @MinPrice)
         AND (@MaxPrice IS NULL OR CS.Price <= @MaxPrice)
-        AND (@Features IS NULL OR FT.feature_id IS NOT NULL)
+        AND (@Features IS NULL 
+            OR CD.Variant COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @Features + '%' 
+            OR CD.Color COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @Features + '%' 
+            OR CD.Condition COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @Features + '%' 
+            OR CD.Category COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @Features + '%' 
+            OR CD.fuel_type COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @Features + '%' 
+            OR CD.transmission COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%' + @Features + '%')
     ORDER BY CD.Make, CD.Model;
-END;
-GO
+END
 
 exec SignUpUser 'john_doe', 'John Doe', 'Seller', '1234567890', 'l@yahoo.com', 'password';
 exec SignUpUser 'jane_doe', 'Jane Doe', 'Renter', '1234567891', 'm@gmail.com', 'password';
