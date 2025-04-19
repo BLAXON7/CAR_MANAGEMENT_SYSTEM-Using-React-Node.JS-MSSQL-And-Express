@@ -143,8 +143,7 @@ exports.AddCarReview = async (req, res) => {
     const review_ID = req.query.review_ID;
     
     try {
-      const users = await CarCantroller.CompareCars(userID, car_id, rating_Count, review_ID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
+      const users = await CarCantroller.AddCarReview(userID, car_id, rating_Count, review_ID);
       res.json(users);
     }
     catch(error) {
@@ -159,7 +158,6 @@ exports.SellerDashboard = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetSellerDashboard(userID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -174,7 +172,6 @@ exports.UserDashboard = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetUserDashboard(userID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -204,7 +201,6 @@ exports.CarPrice = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetCarPricing(carID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -224,7 +220,6 @@ exports.Booking = async (req, res) => {
     
     try {
       const users = await CarCantroller.BookCar(carID, renterID, StartDate, EndDate, TotalPrice, SecurityDeposit);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -240,7 +235,6 @@ exports.UpdateCarPrice = async (req, res) => {
     
     try {
       const users = await CarCantroller.UpdateCarPrice(carID, NewPrice);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -254,7 +248,6 @@ exports.CarPriceTrends = async (req, res) => {
 
     try {
       const users = await CarCantroller.GetCarPriceTrends();
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -271,7 +264,6 @@ exports.AddSupportTicket = async (req, res) => {
     
     try {
       const users = await CarCantroller.AddSupportTicket(SenderID, ReceiverID, Message);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -286,7 +278,6 @@ exports.UserProfile = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetUserProfile(UserID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -314,7 +305,7 @@ exports.ApplyDiscount = async (req, res) => {
     //// 16 ////
 exports.AddRentingAudit = async (req, res) => {
     const CarID = req.query.CarID;
-    const RenterID = req.query.UserID;
+    const RenterID = req.query.RenterID;
     const ClientID = req.query.ClientID;
     const Rent_Date = req.query.Rent_Date;
     const Return_Date = req.query.Return_Date;
@@ -322,7 +313,6 @@ exports.AddRentingAudit = async (req, res) => {
     
     try {
       const users = await CarCantroller.AddRentingAudit(CarID, RenterID, ClientID, Rent_Date, Return_Date, Renter_Feedback);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -337,7 +327,6 @@ exports.CarAnalysis = async (req, res) => {
     
     try {
       const users = await CarCantroller.GetCarAnalysis(CarID);
-      if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }
     catch(error) {
@@ -364,12 +353,13 @@ exports.UpdateBuyerLevel = async (req, res) => {
 
   //// 19 ////
 exports.FilterCars1 = async (req, res) => {
-    const ClientID = req.query.ClientID;
-    const TotalSpent = req.query.TotalSpent;
+    const Brand = req.query.Brand;
+    const MinPrice = req.query.MinPrice;
+    const MaxPrice = req.query.MaxPrice;
+    const Transmission = req.query.Transmission;
     
     try {
-      const users = await CarCantroller.FilterCars1(ClientID, TotalSpent);
-      if (!users) return res.status(404).json({ error: 'User not found' });
+      const users = await CarCantroller.FilterCars1(Brand, MinPrice,MaxPrice,Transmission);
       res.json(users);
     }
     catch(error) {
@@ -379,12 +369,13 @@ exports.FilterCars1 = async (req, res) => {
   };
 
   exports.FilterCars2 = async (req, res) => {
-    const ClientID = req.query.ClientID;
-    const TotalSpent = req.query.TotalSpent;
+    const Brand = req.query.Brand;
+    const MinPrice = req.query.MinPrice;
+    const MaxPrice = req.query.MaxPrice;
+    const Transmission = req.query.Transmission;
     
     try {
-      const users = await CarCantroller.FilterCars2 (ClientID, TotalSpent);
-      if (!users) return res.status(404).json({ error: 'User not found' });
+      const users = await CarCantroller.FilterCars1(Brand, MinPrice,MaxPrice,Transmission);
       res.json(users);
     }
     catch(error) {
@@ -398,6 +389,7 @@ exports.AddCar = async (req, res) => {
     const SellerID = req.query.SellerID;
     const Make = req.query.Make;
     const Model = req.query.Model;
+    const Color = req.query.Color;
     const Variant = req.query.Variant;
     const Year = req.query.Year;
     const Price = req.query.Price;
@@ -407,8 +399,7 @@ exports.AddCar = async (req, res) => {
     const Description = req.query.Description;
 
     try {
-      const users = await CarCantroller.AddCar(SellerID, Make, Model, Variant, Year, Price, FuelType, Transmission, Condition, Description);
-      if (!users) return res.status(404).json({ error: 'User not found' });
+      const users = await CarCantroller.AddCar(SellerID, Make, Model,Color, Variant, Year, Price, FuelType, Transmission, Condition, Description);
       res.json(users);
     }
     catch(error) {
