@@ -89,6 +89,7 @@ const AvailableCarsforRent = async() =>
   }
 
   ////////////////// Procedures Start /////////////////////
+  //const sql = require('mssql');
   ////// 1 //////
   const SignUpUser = async (userName, name, role, phone, email, password) => {
     try {
@@ -115,7 +116,7 @@ const UpdateProfile = async (userID, name, phone, email, pfp) => {
     const pool = await connectToDB(); 
     const result = await pool
       .request()
-      .input('UserID', sql.Int, userID)
+      .input('UserID', sql.int, userID)
       .input('Name', sql.VarChar(255), name)
       .input('Phone_Number', sql.VarChar(20), phone)
       .input('Email', sql.VarChar(255), email)
@@ -135,11 +136,11 @@ const CompareCars = async (car_id1, car_id2) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID1', sql.Int, car_id1)
-        .input('CarID2', sql.Int, car_id2)
-        .execute('CompareCars')
+        .input('CarID1', sql.int, car_id1)
+        .input('CarID2', sql.int, car_id2)
+        .execute('CompareCars'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -152,10 +153,10 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
     const pool = await connectToDB(); 
     const result = await pool
       .request()
-      .input('UserID', sql.Int, userID)
-      .input('CarID', sql.Int, car_id)
-      .input('Rating_Count', sql.Float, rating_Count)
-      .input('Review_ID', sql.Text, review_ID)
+      .input('UserID', sql.int, userID)
+      .input('CarID', sql.int, car_id)
+      .input('Rating_Count', sql.float, rating_Count)
+      .input('Review_ID', sql.TEXT, review_ID)
       .execute('AddCarReview'); 
 
     //return result.recordset;
@@ -172,10 +173,10 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('SellerID', sql.Int, userID)
+        .input('UserID', sql.int, userID)
         .execute('GetSellerDashboard'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -189,10 +190,10 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('UserID', sql.Int, userID)
+        .input('UserID', sql.int, userID)
         .execute('GetUserDashboard'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -223,10 +224,10 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
+        .input('CarID', sql.int, carID)
         .execute('GetCarPricing'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -240,12 +241,12 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
-        .input('RenterID', sql.Int, renterID)
-        .input('StartDate', sql.Date, StartDate)
-        .input('EndDate', sql.Date, EndDate)
-        .input('TotalPrice', sql.Decimal (10, 2), TotalPrice)
-        .input('SecurityDeposit', sql.Decimal (10, 2), SecurityDeposit)
+        .input('CarID', sql.int, carID)
+        .input('RenterID', sql.int, renterID)
+        .input('StartDate', sql.DATE, StartDate)
+        .input('EndDate', sql.DATE, EndDate)
+        .input('TotalPrice', sql.DECIMAL (10, 2), TotalPrice)
+        .input('SecurityDeposit', sql.DECIMAL (10, 2), SecurityDeposit)
         .execute('BookCar'); 
   
       //return result.recordset;
@@ -262,8 +263,8 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
-        .input('NewPrice', sql.Decimal (10, 2), NewPrice)
+        .input('CarID', sql.int, carID)
+        .input('NewPrice', sql.DECIMAL (10, 2), NewPrice)
         .execute('UpdateCarPrice'); 
   
       //return result.recordset;
@@ -282,7 +283,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .request()
         .execute('GetCarPriceTrends'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -296,12 +297,12 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('SenderID', sql.Int, SenderID)
-        .input('ReceiverID', sql.Int, ReceiverID)
-        .input('Message', sql.Text, Message)
+        .input('SenderID', sql.int, SenderID)
+        .input('ReceiverID', sql.int, ReceiverID)
+        .input('Message', sql.TEXT, Message)
         .execute('AddSupportTicket'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -315,10 +316,10 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('UserID', sql.Int, UserID)
+        .input('UserID', sql.int, UserID)
         .execute('GetUserProfile'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -350,12 +351,12 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, CarID)
-        .input('RenterID', sql.Int, RenterID)
-        .input('ClientID', sql.Int, ClientID)
-        .input('Rent_Date', sql.Date, Rent_Date)
-        .input('Return_Date', sql.Date, Return_Date)
-        .input('Renter_Feedback', sql.Text, Renter_Feedback)
+        .input('CarID', sql.int, CarID)
+        .input('RenterID', sql.int, RenterID)
+        .input('ClientID', sql.int, ClientID)
+        .input('Rent_Date', sql.DATE, Rent_Date)
+        .input('Return_Date', sql.DATE, Return_Date)
+        .input('Renter_Feedback', sql.TEXT, Renter_Feedback)
         .execute('AddRentingAudit'); 
   
       //return result.recordset;
@@ -372,10 +373,10 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, CarID)
+        .input('CarID', sql.int, CarID)
         .execute('GetCarAnalysis'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -402,15 +403,15 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 19 ////
-  const FilterCars1 = async (Brand, MinPrice, MaxPrice, Transmission) => {
+  const FilterCars1 = async (Brand = null, MinPrice = null, MaxPrice = null, Transmission = null) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('Brand', sql.VarChar (100), Brand || null)
-        .input('MinPrice', sql.Decimal (10, 2), MinPrice || null)
-        .input('MaxPrice', sql.Decimal (10, 2), MaxPrice || null)
-        .input('Transmission', sql.VarChar (50), Transmission || null)
+        .input('Brand', sql.VarChar (100), Brand)
+        .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
+        .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
+        .input('Transmission', sql.VarChar (50), Transmission)
         .execute('FilterCars'); 
   
       return result.recordset;
@@ -421,14 +422,14 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
     
   };
 
-  const FilterCars2 = async (Brand = NULL, MinPrice = NULL, MaxPrice = NULL, Transmission = NULL) => {
+  const FilterCars2 = async (Brand = null, MinPrice = null, MaxPrice = null, Transmission = null) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
         .input('Brand', sql.VarChar (100), Brand)
-        .input('MinPrice', sql.Decimal (10, 2), MinPrice)
-        .input('MaxPrice', sql.Decimal (10, 2), MaxPrice)
+        .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
+        .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
         .input('Transmission', sql.VarChar (50), Transmission)
         .execute('FilterCars2'); 
   
@@ -441,68 +442,29 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 20 ////
-  const AddCar = async (Make, Model, Variant, Year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability) => {
-    try {
-      const pool = await connectToDB();
-      const result = await pool
-        .request()
-        .input('Make', sql.VarChar(100), Make)
-        .input('Model', sql.VarChar(100), Model)
-        .input('Variant', sql.VarChar(100), Variant)
-        .input('Year', sql.Int, Year)
-        .input('Description', sql.Text, Description)
-        .input('Condition', sql.VarChar(50), Condition)
-        .input('Color', sql.VarChar(50), Color)
-        .input('Category', sql.VarChar(50), Category)
-        .input('Location', sql.VarChar(100), Location)
-        .input('Fuel_Type', sql.VarChar(50), fuel_type)
-        .input('Transmission', sql.VarChar(50), transmission)
-        .input('VIN', sql.VarChar(50), VIN)
-        .input('Availability', sql.Bit, availability)
-        .execute('AddCar');
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
-    }
-  };
-
-  const AddCarForSale = async (carID, sellerID, Price, negotiable_price, listing_expiry) => {
+  const AddCar = async (SellerID, Make, Model, Variant, Year, Price, FuelType, Transmission, Condition, Description) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
-        .input('SellerID', sql.Int, sellerID)
-        .input('Price', sql.Decimal (10, 2), Price)
-        .input('Negotiable_Price', sql.Decimal (10, 2), negotiable_price)
-        .input('Listing_Expiry', sql.Date, listing_expiry)
-        .execute('AddCarForSale'); 
+        .input('SellerID', sql.int, SellerID)
+        .input('Make', sql.VarChar (100), Make)
+        .input('Model', sql.VarChar (100), Model)
+        .input('Variant', sql.VarChar (100), Variant)
+        .input('Year', sql.int, Year)
+        .input('Price', sql.DECIMAL (10, 2), Price)
+        .input('FuelType', sql.VarChar (50), FuelType)
+        .input('Transmission', sql.VarChar (50), Transmission)
+        .input('Condition', sql.VarChar (50), Condition)
+        .input('Description', sql.TEXT, Description)
+        .execute('AddCar'); 
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
     }
     
-  };
-  const AddCarForRent = async (carID, renterID, start_date, end_date, total_price, security_deposit) => {
-    try {
-      const pool = await connectToDB();
-      const result = await pool
-        .request()
-        .input('CarID', sql.Int, carID)
-        .input('RenterID', sql.Int, renterID)
-        .input('Start_Date', sql.Date, start_date)
-        .input('End_Date', sql.Date, end_date)
-        .input('Total_Price', sql.Decimal (10, 2), total_price)
-        .input('Security_Deposit', sql.Decimal (10, 2), security_deposit)
-        .execute('AddCarForRent');
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
-    }
   };
 
   //// 21 ////
@@ -514,7 +476,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('CarID', sql.int, CarID)
         .execute('DeleteCar'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -531,7 +493,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('RenterID', sql.int, RenterID)
         .execute('CancelBooking'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -548,7 +510,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('CarID', sql.int, CarID)
         .execute('GetCarReviews'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -565,7 +527,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('UserID', sql.int, UserID)
         .execute('GetUserMessages'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -582,7 +544,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('RentalID', sql.int, RentalID)
         .execute('ReturnCar'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -598,7 +560,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .request()
         .execute('GetRentalReport'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -650,7 +612,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('NewPassword', sql.VarChar (255), NewPassword)
         .execute('ResetPassword'); 
   
-      return result.recordset;
+      //return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -659,7 +621,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 30 ////
-  const SearchCarsWithFeatures = async (SearchTerm, MinPrice, MaxPrice, Features) => {
+  const SearchCarsWithFeatures = async (SearchTerm = null, MinPrice = null, MaxPrice = null, Features = null) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
@@ -667,7 +629,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('SearchTerm', sql.VarChar (100), SearchTerm)
         .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
         .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
-        .input('Features', sql.VarChar (MAX), Features)
+        .input('Features', sql.VarChar (100), Features)
         .execute('SearchCarsWithFeatures'); 
   
       return result.recordset;
@@ -680,6 +642,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
 
 //// Triggers ////
 
+const sql1 = require('mssql');
 
 const config = {
   user: 'yourUsername',
@@ -697,7 +660,7 @@ const config = {
 // //     await sql.connect(config);
 
 // //     const triggerSQL = `
-// //       IF OBJECT_ID('trg_UpdateTimestamp', 'TR') IS NOT NULL
+// //       IF OBJECT_ID('trg_UpdateTimestamp', 'TR') IS NOT null
 // //           DROP TRIGGER trg_UpdateTimestamp;
       
 // //       CREATE TRIGGER trg_UpdateTimestamp
@@ -722,7 +685,7 @@ const config = {
 // //   }
 // // }
 
-// createUpdateTimestampTrigger();
+//createUpdateTimestampTrigger();
 
  module.exports = { 
                       getUserName, AvailableCarsforSale, AvailableCarsforRent,TopRatedCars,CARRentalHistory, Login_User, 
