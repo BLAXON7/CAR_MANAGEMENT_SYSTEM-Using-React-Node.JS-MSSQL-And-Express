@@ -182,10 +182,10 @@ exports.UserDashboard = async (req, res) => {
 
    //// 8 ////
 exports.RenterDashboard = async (req, res) => {
-    const userID = req.query.userID;
+    const RenterID = req.query.RenterID;
     
     try {
-      const users = await CarCantroller.GetRenterDashboard(userID);
+      const users = await CarCantroller.GetRenterDashboard(RenterID);
       if (!users) return res.status(404).json({ error: 'User not found' });
       res.json(users);
     }

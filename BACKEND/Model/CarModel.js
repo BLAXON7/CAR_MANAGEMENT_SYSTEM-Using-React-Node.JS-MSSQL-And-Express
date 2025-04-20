@@ -201,15 +201,14 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 8 ////
-  const GetRenterDashboard = async (userID) => {
+  const GetRenterDashboard = async (RenterID) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('UserID', sql.Int, userID)
+        .input('RenterID', sql.Int, RenterID)
         .execute('GetRenterDashboard'); 
-  
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -333,10 +332,10 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const result = await pool
         .request()
         .input('RenterID', sql.Int, RenterID)
-        .input('Discount', sql.Decimal (10, 2), Discount)
+        .input('Discount', sql.DECIMAL (10, 2), Discount)
         .execute('ApplyDiscount'); 
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -358,7 +357,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('Renter_Feedback', sql.Text, Renter_Feedback)
         .execute('AddRentingAudit'); 
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -665,11 +664,11 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const result = await pool
         .request()
         .input('SearchTerm', sql.VarChar (100), SearchTerm)
-        .input('MinPrice', sql.Decimal (10, 2), MinPrice)
-        .input('MaxPrice', sql.Decimal (10, 2), MaxPrice)
-        .input('Features', sql.VarChar (MAX), Features)
+        .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
+        .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
+        .input('Features', sql.VarChar (100), Features)
         .execute('SearchCarsWithFeatures'); 
-  
+ 
       return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
