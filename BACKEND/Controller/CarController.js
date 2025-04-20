@@ -530,19 +530,19 @@ exports.RentalReport = async (req, res) => {
   };
 
   //// 27 ////
-exports.TopRatedCars = async (req, res) => {
+// exports.TopRatedCars = async (req, res) => {
     
-    try {
-      const users = await CarCantroller.GetTopRatedCars();
-      res.json(users);
-    }
-    catch(error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+//     try {
+//       const users = await CarCantroller.GetTopRatedCars();
+//       res.json(users);
+//     }
+//     catch(error) {
+//       console.error('Login error:', error);
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     }
+//   };
 
-  
+
 
 //// 28 ////
 exports.SearchCars = async (req, res) => {
@@ -579,10 +579,9 @@ exports.SearchCarsWithFeatures = async (req, res) => {
     const SearchTerm = req.query.SearchTerm;
     const MinPrice = req.query.MinPrice;
     const MaxPrice = req.query.MaxPrice;
-    const Features = req.query.Features;
     
     try {
-      const users = await CarCantroller.SearchCarsWithFeatures (SearchTerm, MinPrice, MaxPrice, Features);
+      const users = await CarCantroller.SearchCarsWithFeatures (SearchTerm, MinPrice, MaxPrice);
       res.json(users);
     }
     catch(error) {

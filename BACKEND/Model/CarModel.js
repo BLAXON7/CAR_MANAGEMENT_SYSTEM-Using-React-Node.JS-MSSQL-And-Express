@@ -110,7 +110,7 @@ const AvailableCarsforRent = async() =>
     }
   }
 
-  
+
 
 const UpdateProfile = async (userID, name, phone, email, pfp) => {
   try {
@@ -607,21 +607,21 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
     
   };
 
-  //// 27 ////
-  const GetTopRatedCars = async () => {
-    try {
-      const pool = await connectToDB(); 
-      const result = await pool
-        .request()
-        .execute('GetTopRatedCars'); 
+  // //// 27 ////
+  // const GetTopRatedCars = async () => {
+  //   try {
+  //     const pool = await connectToDB(); 
+  //     const result = await pool
+  //       .request()
+  //       .execute('GetTopRatedCars'); 
   
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
-    }
+  //     return result.recordset;
+  //   } catch (err) {
+  //     console.error('Error executing stored procedure:', err);
+  //     throw err;
+  //   }
     
-  };
+  // };
 
   //// 28 ////
   const SearchCars = async (SearchTerm) => {
@@ -660,7 +660,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 30 ////
-  const SearchCarsWithFeatures = async (SearchTerm, MinPrice, MaxPrice, Features) => {
+  const SearchCarsWithFeatures = async (SearchTerm, MinPrice, MaxPrice) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
@@ -668,7 +668,6 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('SearchTerm', sql.VarChar (100), SearchTerm)
         .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
         .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
-        .input('Features', sql.VarChar (100), Features)
         .execute('SearchCarsWithFeatures'); 
  
       return result.recordset;
@@ -734,6 +733,6 @@ const config = {
                       GetUserProfile, ApplyDiscount, AddRentingAudit,
                       GetCarAnalysis, UpdateBuyerLevel, FilterCars1, FilterCars2,
                       AddCar, DeleteCar, CancelBooking, GetCarReviews, GetUserMessages,
-                      ReturnCar, GetRentalReport, GetTopRatedCars, SearchCars, ResetPassword,
+                      ReturnCar, GetRentalReport, SearchCars, ResetPassword,
                       SearchCarsWithFeatures,AddCarForRent,AddCarForSale
                   };
