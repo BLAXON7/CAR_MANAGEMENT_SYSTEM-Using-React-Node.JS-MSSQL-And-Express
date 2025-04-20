@@ -103,7 +103,7 @@
 --    end_date DATE NOT NULL,
 --    total_price DECIMAL(10,2) CHECK (total_price >= 0),
 --    security_deposit DECIMAL(10,2) DEFAULT 0.0,
---    status VARCHAR(20) CHECK (status IN ('Available', 'Rented', 'Returned')),
+--    status VARCHAR(20) CHECK (status IN ('Available', 'Rented', 'Returned','Cancelled')),
 --    rented_at DATETIME DEFAULT GETDATE(),
 --    extension_requested BIT DEFAULT 0,
 --    FOREIGN KEY (car_id) REFERENCES CAR_DETAILS(carID) ON DELETE NO ACTION,
@@ -471,18 +471,18 @@
 --GO
 
 ----15
-----CREATE PROCEDURE ApplyDiscount
-----    @RenterID INT,
-----    @Discount DECIMAL(10,2)
-----AS
-----BEGIN
-----    BEGIN TRANSACTION;
-----    UPDATE RENTER
-----    SET wallet_balance = wallet_balance + @Discount
-----    WHERE Renter_ID = @RenterID;
-----    COMMIT;
-----END;
-----GO
+--CREATE PROCEDURE ApplyDiscount
+--    @RenterID INT,
+--    @Discount DECIMAL(10,2)
+--AS
+--BEGIN
+--    BEGIN TRANSACTION;
+--    UPDATE RENTER
+--    SET wallet_balance = wallet_balance + @Discount
+--    WHERE Renter_ID = @RenterID;
+--    COMMIT;
+--END;
+--GO
 
 ---- CREATE PROCEDURE ApplyDiscount
 ----     @RenterID INT,
@@ -723,7 +723,7 @@
 --GO
 
 
-drop procedure SearchCars
+--drop procedure SearchCars
 
 ----29
 --CREATE PROCEDURE ResetPassword
@@ -821,6 +821,99 @@ drop procedure SearchCars
 
 --drop procedure SearchCarsWithFeatures
 
+--CREATE PROCEDURE AddSupportTicket
+--    @SenderID INT,
+--    @ReceiverID INT,
+--    @Message TEXT
+--AS
+--BEGIN
+--    INSERT INTO MESSAGE (Sender_ID, Receiver_ID, Message)
+--    VALUES (@SenderID, @ReceiverID, @Message);
+--END;
+--GO
+
+--CREATE PROCEDURE AddCarForSale
+--    @carID INT,
+--    @sellerID INT,
+--    @Price DECIMAL(10,2),
+--    @negotiable_price BIT = 0,
+--    @listing_expiry DATETIME = NULL
+--AS
+--BEGIN
+--    IF @listing_expiry IS NULL
+--        SET @listing_expiry = DATEADD(DAY, 30, GETDATE());
+
+--    INSERT INTO CARS_ON_SALE (carID, sellerID, Price, negotiable_price, listed_at, listing_expiry, Availability)
+--    VALUES (@carID, @sellerID, @Price, @negotiable_price, GETDATE(), @listing_expiry, 1);
+--END;
+--GO
+
+--CREATE PROCEDURE AddCar
+--    @Make VARCHAR(100),
+--    @Model VARCHAR(100),
+--    @Variant VARCHAR(100),
+--    @year INT ,
+--    @Description TEXT,
+--    @Condition VARCHAR(10) ,
+--	@Color VARCHAR(10),
+--    @Category VARCHAR(100),
+--    @Location VARCHAR(255),
+--    @fuel_type VARCHAR(50),
+--    @transmission VARCHAR(50),
+--    @VIN VARCHAR(17),
+--    @availability BIT
+--AS
+--BEGIN
+--    INSERT INTO CAR_DETAILS(Make, Model, Variant, year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability)
+--    VALUES (@Make, @Model, @Variant, @year, @Description, @Condition, @Color, @Category, @Location, @fuel_type, @transmission, @VIN, @availability);
+--END;
+--GO
+
+--CREATE PROCEDURE AddCarForRent
+--    @carID INT,
+--    @renterID INT,
+--    @start_date DATE,
+--    @end_date DATE,
+--    @total_price DECIMAL(10,2),
+--    @security_deposit DECIMAL(10,2) = 0.0
+--AS
+--BEGIN
+--    INSERT INTO CARS_ON_RENT (car_id, renter_id, start_date, end_date, total_price, security_deposit, status, rented_at)
+--    VALUES (@carID, @renterID, @start_date, @end_date, @total_price, @security_deposit, 'Rented', GETDATE());
+--END;
+--GO
+
+--CREATE PROCEDURE ReturnCar
+--    @RentalID INT
+--AS
+--BEGIN
+--    BEGIN TRANSACTION;
+--    DECLARE @CarID INT;
+--    SELECT @CarID = car_id FROM CARS_ON_RENT WHERE rental_id = @RentalID AND status = 'Rented';
+--    IF @CarID IS NULL
+--    BEGIN
+--        ROLLBACK;
+--        RAISERROR ('Invalid rental or already completed.', 16, 1);
+--        RETURN;
+--    END
+    
+--    UPDATE CARS_ON_RENT SET status = 'Returned' WHERE rental_id = @RentalID;
+--    UPDATE CAR_DETAILS SET Availability = 1 WHERE carID = @CarID;
+--    COMMIT;
+--END;
+--GO
+--CREATE PROCEDURE UpdateBuyerLevel
+--    @ClientID INT,
+--    @TotalSpent DECIMAL(10,2)
+--AS
+--BEGIN
+--    UPDATE BUYER
+--    SET total_spent = total_spent + @TotalSpent
+--    WHERE Client_ID = @ClientID;
+--END;
+--GO
+
+
 --exec SignUpUser 'john_doe', 'John Doe', 'Seller', '1234567890', 'l@yahoo.com', 'password';
 --exec SignUpUser 'jane_doe', 'Jane Doe', 'Renter', '1234567891', 'm@gmail.com', 'password';
 --exec SignUpUser 'ali', 'Jane Doe', 'Renter', '1234567892', 'p@gmail.com', '123456789';
@@ -892,6 +985,108 @@ drop procedure SearchCars
 --	NULL,1200000.00,5000000.00,NULL
 
 
+
+---- Insert into Users table with converted passwords
+--INSERT INTO Users (UserName, Name, Role, Phone_Number, Email, Password, Verification_Status, Account_Status)
+--VALUES 
+--('ali_khan', 'Ali Khan', 'Seller', '03001234567', 'ali.khan@example.com', CONVERT(VARBINARY(256), 'SellerPass123'), 1, 'Active'),
+--('fatima_ahmed', 'Fatima Ahmed', 'Renter', '03011234567', 'fatima.ahmed@example.com', CONVERT(VARBINARY(256), 'RenterPass456'), 1, 'Active'),
+--('usman_malik', 'Usman Malik', 'Client', '03021234567', 'usman.malik@example.com', CONVERT(VARBINARY(256), 'ClientPass789'), 1, 'Active'),
+--('sana_akhtar', 'Sana Akhtar', 'Seller', '03031234567', 'sana.akhtar@example.com', CONVERT(VARBINARY(256), 'SellerPass321'), 1, 'Active'),
+--('bilal_qureshi', 'Bilal Qureshi', 'Renter', '03041234567', 'bilal.qureshi@example.com', CONVERT(VARBINARY(256), 'RenterPass654'), 1, 'Active'),
+--('zainab_rizvi', 'Zainab Rizvi', 'Client', '03051234567', 'zainab.rizvi@example.com', CONVERT(VARBINARY(256), 'ClientPass987'), 1, 'Active');
+
+---- Insert into SELLER table
+--INSERT INTO SELLER (userID, total_cars_sold, rating, verification_status)
+--VALUES 
+--(1, 5, 4.5, 1),
+--(4, 3, 4.2, 1);
+
+---- Insert into RENTER table
+--INSERT INTO RENTER (userID, total_rentals)
+--VALUES 
+--(2, 2),
+--(5, 4);
+
+---- Insert into CLIENT table
+--INSERT INTO CLIENT (userID)
+--VALUES 
+--(3),
+--(6);
+
+---- Insert into BUYER table
+--INSERT INTO BUYER (Client_ID, total_cars_purchased, total_spent, wallet_balance)
+--VALUES 
+--(1, 1, 2500000.00, 50000.00),
+--(2, 0, 0.00, 100000.00);
+
+---- Insert into CAR_DETAILS table (cars for sale and rent)
+--INSERT INTO CAR_DETAILS (Make, Model, Variant, year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability)
+--VALUES 
+---- Cars for sale
+--('Toyota', 'Corolla', 'Altis 1.6', 2020, 'Excellent condition, single owner', 'Used', 'White', 'Sedan', 'Lahore', 'Petrol', 'Automatic', 'JT2BF22K6W0123456', 1),
+--('Honda', 'City', 'Aspire 1.3', 2019, 'Well maintained, full service history', 'Used', 'Silver', 'Sedan', 'Karachi', 'Petrol', 'Automatic', 'MAKGH22K6W0123456', 1),
+--('Suzuki', 'Mehran', 'VX', 2017, 'Good condition, economical', 'Used', 'Red', 'Hatchback', 'Islamabad', 'Petrol', 'Manual', 'SUZGH22K6W0123456', 1),
+
+---- Cars for rent
+--('Toyota', 'Fortuner', 'Legender', 2021, 'Premium SUV with all features', 'New', 'Black', 'SUV', 'Lahore', 'Diesel', 'Automatic', 'JT2BF22K6W0123457', 1),
+--('Honda', 'BR-V', 'i-VTEC', 2022, '7-seater family car', 'New', 'White', 'SUV', 'Karachi', 'Petrol', 'Automatic', 'MAKGH22K6W0123457', 1),
+--('Kia', 'Sportage', 'AWD', 2020, 'Luxury SUV with leather seats', 'Used', 'Grey', 'SUV', 'Islamabad', 'Petrol', 'Automatic', 'KIAH22K6W0123456', 1);
+
+---- Insert into CARS_ON_SALE table
+--INSERT INTO CARS_ON_SALE (carID, sellerID, Price, negotiable_price, listing_expiry)
+--VALUES 
+--(1, 1, 3500000.00, 1, DATEADD(DAY, 30, GETDATE())),
+--(2, 1, 2800000.00, 0, DATEADD(DAY, 30, GETDATE())),
+--(3, 2, 1200000.00, 1, DATEADD(DAY, 30, GETDATE()));
+
+---- Insert into CARS_ON_RENT table
+--INSERT INTO CARS_ON_RENT (car_id, renter_id, start_date, end_date, total_price, security_deposit, status)
+--VALUES 
+--(4, 1, GETDATE(), DATEADD(DAY, 7, GETDATE()), 35000.00, 50000.00, 'Available'),
+--(5, 1, GETDATE(), DATEADD(DAY, 5, GETDATE()), 25000.00, 40000.00, 'Available'),
+--(6, 2, GETDATE(), DATEADD(DAY, 10, GETDATE()), 45000.00, 60000.00, 'Available');
+
+---- Insert into CAR_RENTAL_HISTORY table
+--INSERT INTO CAR_RENTAL_HISTORY (car_id, renter_id, client_id, Rent_Date, Return_Date, renter_feedback)
+--VALUES 
+--(4, 1, 1, DATEADD(DAY, -30, GETDATE()), DATEADD(DAY, -23, GETDATE()), 'Excellent car, very comfortable for family trips'),
+--(5, 2, 2, DATEADD(DAY, -15, GETDATE()), DATEADD(DAY, -10, GETDATE()), 'Good fuel economy and spacious interior');
+
+---- Insert into PURCHASE table
+--INSERT INTO PURCHASE (Client_ID, Seller_ID, Car_ID, Cost_Price, Discount, payment_method)
+--VALUES 
+--(1, 1, 1, 3450000.00, 50000.00, 'Credit Card'),
+--(2, 2, 3, 1150000.00, 50000.00, 'Cash');
+
+---- Insert into RATING table
+--INSERT INTO RATING (User_ID, Car_ID, Rating_Count, Review_ID)
+--VALUES 
+--(3, 1, 4.5, 'Great car, exactly as described'),
+--(6, 4, 5.0, 'Perfect for our family vacation');
+
+---- Insert into MESSAGE table
+--INSERT INTO MESSAGE (Sender_ID, Receiver_ID, Message)
+--VALUES 
+--(3, 1, 'Is the price of the Corolla negotiable?'),
+--(1, 3, 'Yes, we can discuss the price. How much are you offering?'),
+--(6, 2, 'Is the Fortuner available for rent next weekend?');
+
+---- Insert into TRANSACTIONS table
+--INSERT INTO TRANSACTIONS (user_id, amount, transaction_type, payment_method, status, Reference_ID)
+--VALUES 
+--(3, 3400000.00, 'Car Purchase', 'Credit Card', 'Completed', 1),
+--(6, 35000.00, 'Rental Payment', 'Wallet', 'Completed', 1),
+--(1, 50000.00, 'Wallet Recharge', 'Credit Card', 'Completed', NULL);
+
+--drop procedure AddSupportTicket
+--drop procedure UpdateBuyerLevel
+--drop procedure AddCar
+--drop procedure AddCarForSale
+--drop procedure AddCarForRent
+--drop procedure ReturnCar
+
+
 SELECT * FROM Users;
 SELECT * FROM BUYER;
 SELECT * FROM SELLER;
@@ -905,4 +1100,5 @@ SELECT * FROM PURCHASE;
 SELECT * FROM RATING;
 SELECT * FROM MESSAGE;
 SELECT * FROM TRANSACTIONS;
+
 

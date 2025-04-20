@@ -334,7 +334,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const result = await pool
         .request()
         .input('RenterID', sql.Int, RenterID)
-        .input('Discount', sql.DECIMAL (10, 2), Discount)
+        .input('Discount', sql.Decimal (10, 2), Discount)
         .execute('ApplyDiscount'); 
   
       return result.recordset;
@@ -473,11 +473,11 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
-        .input('SellerID', sql.Int, sellerID)
+        .input('carID', sql.Int, carID)
+        .input('sellerID', sql.Int, sellerID)
         .input('Price', sql.Decimal (10, 2), Price)
         .input('Negotiable_Price', sql.Decimal (10, 2), negotiable_price)
-        .input('Listing_Expiry', sql.Date, listing_expiry)
+        .input('listing_expiry', sql.Date, listing_expiry)
         .execute('AddCarForSale'); 
   
       //return result.recordset;
@@ -529,7 +529,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('RenterID', sql.Int, RenterID)
+        .input('RentalID', sql.Int, RenterID)
         .execute('CancelBooking'); 
   
       return result.recordset;
@@ -666,9 +666,9 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const result = await pool
         .request()
         .input('SearchTerm', sql.VarChar (100), SearchTerm)
-        .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
-        .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
-        .execute('SearchCarsWithFeatures'); 
+        .input('MinPrice', sql.Decimal (10, 2), MinPrice)
+        .input('MaxPrice', sql.Decimal (10, 2), MaxPrice)
+        .execute('SearchCarsWithPrice'); 
  
       return result.recordset;
     } catch (err) {

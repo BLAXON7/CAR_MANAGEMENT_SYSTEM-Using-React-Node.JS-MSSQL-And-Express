@@ -20,22 +20,21 @@ router.get ('/CarPrice', Controller.CarPrice);
 router.get ('/Booking', Controller.Booking);
 router.get ('/UpdateCarPrice', Controller.UpdateCarPrice);
 router.get ('/CarPriceTrends', Controller.CarPriceTrends);
-router.get ('/AddSupportTicket', Controller.AddSupportTicket);        ////----
-router.get ('/UserProfile', Controller.UserProfile);
-router.get ('/ApplyDiscount', Controller.ApplyDiscount);         ////----
+router.get ('/AddSupportTicket', Controller.AddSupportTicket); 
+// router.get ('/ApplyDiscount', Controller.ApplyDiscount);
 router.get ('/AddRentingAudit', Controller.AddRentingAudit);
 router.get ('/CarAnalysis', Controller.CarAnalysis);
-router.get ('/UpdateBuyerLevel', Controller.UpdateBuyerLevel);      ////----
+// router.get ('/UpdateBuyerLevel', Controller.UpdateBuyerLevel);
 router.get ('/FilterCars1', Controller.FilterCars1);
 router.get ('/FilterCars2', Controller.FilterCars2);
-router.get ('/AddCar', Controller.AddCar);           ////---
-router.get ('/AddCarForSale', Controller.AddCarForSale);           ////---
-router.get ('/AddCarForRent', Controller.AddCarForRent);           ////---
+router.get ('/AddCar', Controller.AddCar);      
+router.get ('/AddCarForSale', Controller.AddCarForSale); 
+router.get ('/AddCarForRent', Controller.AddCarForRent);    
 router.get ('/DeleteCar', Controller.DeleteCar);
 router.get ('/CancelBooking', Controller.CancelBooking);
 router.get ('/CarReviews', Controller.CarReviews);
 router.get ('/UserMessages', Controller.UserMessages);
-router.get ('/ReturnCar', Controller.ReturnCar);   ////----
+router.get ('/ReturnCar', Controller.ReturnCar);
 router.get ('/RentalReport', Controller.RentalReport);
 router.get ('/SearchCars', Controller.SearchCars);
 router.get ('/ResetPassword', Controller.ResetPassword);
