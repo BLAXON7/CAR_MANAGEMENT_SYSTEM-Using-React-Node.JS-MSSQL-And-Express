@@ -208,7 +208,6 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .request()
         .input('RenterID', sql.Int, RenterID)
         .execute('GetRenterDashboard'); 
-  
       return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
@@ -336,7 +335,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('Discount', sql.DECIMAL (10, 2), Discount)
         .execute('ApplyDiscount'); 
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -358,7 +357,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('Renter_Feedback', sql.Text, Renter_Feedback)
         .execute('AddRentingAudit'); 
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -390,7 +389,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const result = await pool
         .request()
         .input('ClientID', sql.Int, ClientID)
-        .input('TotalSpent', sql.DECIMAL (10, 2), TotalSpent)
+        .input('TotalSpent', sql.Decimal (10, 2), TotalSpent)
         .execute('UpdateBuyerLevel'); 
   
       //return result.recordset;
@@ -734,5 +733,5 @@ const config = {
                       GetCarAnalysis, UpdateBuyerLevel, FilterCars1, FilterCars2,
                       AddCar, DeleteCar, CancelBooking, GetCarReviews, GetUserMessages,
                       ReturnCar, GetRentalReport, GetTopRatedCars, SearchCars, ResetPassword,
-                      SearchCarsWithFeatures
+                      SearchCarsWithFeatures,AddCarForRent,AddCarForSale
                   };
