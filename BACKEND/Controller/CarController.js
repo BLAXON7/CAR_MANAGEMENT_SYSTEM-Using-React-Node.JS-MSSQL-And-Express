@@ -542,6 +542,8 @@ exports.TopRatedCars = async (req, res) => {
     }
   };
 
+  
+
 //// 28 ////
 exports.SearchCars = async (req, res) => {
     const SearchTerm = req.query.SearchTerm;

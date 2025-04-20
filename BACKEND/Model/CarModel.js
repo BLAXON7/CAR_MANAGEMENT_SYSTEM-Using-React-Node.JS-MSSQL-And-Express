@@ -110,6 +110,8 @@ const AvailableCarsforRent = async() =>
     }
   }
 
+  
+
 const UpdateProfile = async (userID, name, phone, email, pfp) => {
   try {
     const pool = await connectToDB(); 
