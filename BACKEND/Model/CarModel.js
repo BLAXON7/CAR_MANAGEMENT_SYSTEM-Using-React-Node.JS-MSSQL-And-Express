@@ -201,15 +201,15 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 8 ////
-  const GetRenterDashboard = async (userID) => {
+  const GetRenterDashboard = async (RenterID) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('UserID', sql.int, userID)
+        .input('RenterID', sql.Int, RenterID)
         .execute('GetRenterDashboard'); 
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;
@@ -332,7 +332,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('RenterID', sql.int, RenterID)
+        .input('RenterID', sql.Int, RenterID)
         .input('Discount', sql.DECIMAL (10, 2), Discount)
         .execute('ApplyDiscount'); 
   
@@ -389,7 +389,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('ClientID', sql.int, ClientID)
+        .input('ClientID', sql.Int, ClientID)
         .input('TotalSpent', sql.DECIMAL (10, 2), TotalSpent)
         .execute('UpdateBuyerLevel'); 
   
@@ -511,7 +511,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.int, CarID)
+        .input('CarID', sql.Int, CarID)
         .execute('DeleteCar'); 
   
       return result.recordset;
@@ -528,7 +528,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('RenterID', sql.int, RenterID)
+        .input('RenterID', sql.Int, RenterID)
         .execute('CancelBooking'); 
   
       return result.recordset;
@@ -545,7 +545,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.int, CarID)
+        .input('CarID', sql.Int, CarID)
         .execute('GetCarReviews'); 
   
       return result.recordset;
@@ -562,7 +562,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('UserID', sql.int, UserID)
+        .input('UserID', sql.Int, UserID)
         .execute('GetUserMessages'); 
   
       return result.recordset;
@@ -579,7 +579,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('RentalID', sql.int, RentalID)
+        .input('RentalID', sql.Int, RentalID)
         .execute('ReturnCar'); 
   
       return result.recordset;
@@ -667,9 +667,9 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('SearchTerm', sql.VarChar (100), SearchTerm)
         .input('MinPrice', sql.DECIMAL (10, 2), MinPrice)
         .input('MaxPrice', sql.DECIMAL (10, 2), MaxPrice)
-        .input('Features', sql.VarChar (MAX), Features)
+        .input('Features', sql.VarChar (100), Features)
         .execute('SearchCarsWithFeatures'); 
-  
+ 
       return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);

@@ -1,7 +1,6 @@
 CREATE DATABASE Car_Rental_System
 GO
-USE Car_Rental_System
-GO
+
 
 CREATE TABLE Users (
     userID INT IDENTITY(1,1) PRIMARY KEY,
@@ -372,20 +371,20 @@ END;
 
 GO
 --8
+
 CREATE PROCEDURE GetRenterDashboard
     @RenterID INT
 AS
 BEGIN
     SELECT 
-        total_rentals,
-        wallet_balance,
-        total_spent
-    FROM RENTER
-    WHERE Renter_ID = @RenterID;
+        (SELECT COUNT(*) FROM CAR_RENTAL_HISTORY WHERE renter_id = @RenterID) AS TotalRentals,
+        (SELECT COUNT(*) FROM CAR_RENTAL_HISTORY WHERE renter_id = @RenterID AND Return_Date IS NOT NULL) AS TotalReturns,
+        (SELECT ISNULL(SUM(total_price),0) FROM CARS_ON_RENT WHERE renter_id = @RenterID) AS TotalSpent
 END;
 GO
 
 --9
+
 CREATE PROCEDURE GetCarPricing
     @CarID INT
 AS
@@ -444,6 +443,7 @@ END;
 GO
 
 --13
+
 CREATE PROCEDURE AddSupportTicket
     @SenderID INT,
     @ReceiverID INT,
@@ -469,18 +469,20 @@ END;
 GO
 
 --15
---CREATE PROCEDURE ApplyDiscount
+-- use Car_Rental_System
+-- GO
+-- CREATE PROCEDURE ApplyDiscount
 --    @RenterID INT,
 --    @Discount DECIMAL(10,2)
---AS
---BEGIN
+-- AS
+-- BEGIN
 --    BEGIN TRANSACTION;
 --    UPDATE RENTER
 --    SET wallet_balance = wallet_balance + @Discount
 --    WHERE Renter_ID = @RenterID;
 --    COMMIT;
---END;
---GO
+-- END;
+-- GO
 
 -- CREATE PROCEDURE ApplyDiscount
 --     @RenterID INT,
@@ -521,6 +523,7 @@ GO
 
 
 --18
+
 CREATE PROCEDURE UpdateBuyerLevel
     @ClientID INT,
     @TotalSpent DECIMAL(10,2)
@@ -626,7 +629,7 @@ CREATE PROCEDURE DeleteCar
     @CarID INT
 AS
 BEGIN
-    DELETE FROM Cars WHERE CarID = @CarID;
+    DELETE FROM CAR_DETAILS WHERE CarID = @CarID;
 END;
 GO
 
@@ -635,7 +638,7 @@ CREATE PROCEDURE CancelBooking
     @RentalID INT
 AS
 BEGIN
-    UPDATE CarRentals SET Status = 'Cancelled' WHERE RentalID = @RentalID;
+    UPDATE CARS_ON_RENT SET Status = 'Cancelled' WHERE RentalID = @RentalID;
 END;
 GO
 
@@ -644,10 +647,10 @@ CREATE PROCEDURE GetCarReviews
     @CarID INT
 AS
 BEGIN
-    SELECT Users.UserName, CarReviews.Rating, CarReviews.ReviewText, CarReviews.ReviewDate
-    FROM CarReviews
-    JOIN Users ON CarReviews.UserID = Users.UserID
-    WHERE CarReviews.CarID = @CarID;
+    SELECT Users.UserName, CarReviews.Rating_Count, CarReviews.Review_ID
+    FROM RATING AS CarReviews
+    JOIN Users ON CarReviews.User_ID = Users.UserID
+    WHERE CarReviews.Car_ID = @CarID;
 END;
 GO
 
