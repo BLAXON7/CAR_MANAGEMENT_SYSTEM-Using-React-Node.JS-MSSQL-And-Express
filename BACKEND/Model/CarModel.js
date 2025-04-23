@@ -8,7 +8,7 @@ const AvailableCarsforSale = async() =>
 {
   try{
     const pool=await connectToDB();
-    const result = await pool.request().query('SELECT CS.carID, Make, Model, Price FROM CARS_ON_SALE CS JOIN CAR_DETAILS CD ON CS.carID = CD.carID WHERE CS.Availability = 1');
+    const result = await pool.request().query('select * from AvailableCarsForSale');
     return result.recordset;
   }
   catch(err)
@@ -22,7 +22,7 @@ const AvailableCarsforRent = async() =>
   {
     try{
       const pool=await connectToDB();
-      const result = await pool.request().query('SELECT CR.car_id, Make, Model, total_price, start_date, end_date, status FROM CARS_ON_RENT CR JOIN CAR_DETAILS CD ON CR.car_id = CD.carID WHERE CR.status = \'Available\'');
+      const result = await pool.request().query('select * from AvailableCarsForRent');
       return result.recordset;
     }
     catch(err)
@@ -36,7 +36,7 @@ const AvailableCarsforRent = async() =>
   {
     try{
       const pool=await connectToDB();
-      const result = await pool.request().query('SELECT C.carID,C.Make, C.Model, AVG(R.Rating_Count) AS avgRating FROM RATING R JOIN CAR_DETAILS C ON R.Car_ID = C.carID GROUP BY C.carID, C.Make, C.Model HAVING AVG(R.Rating_Count) >= 4.0 ORDER BY AVG(R.Rating_Count) DESC');
+      const result = await pool.request().query('select * from TopRatedCars');
       return result.recordset;
     }
     catch(err)
@@ -50,7 +50,7 @@ const AvailableCarsforRent = async() =>
   {
     try{
       const pool=await connectToDB();
-      const result = await pool.request().query('SELECT CRH.renter_id, CD.Make, CD.Model, CRH.Rent_Date, CRH.Return_Date FROM CAR_RENTAL_HISTORY CRH JOIN CAR_DETAILS CD ON CRH.car_id = CD.carID;');
+      const result = await pool.request().query('select * from UserRentalHistory');
       return result.recordset;
     }
     catch(err)
@@ -64,7 +64,7 @@ const AvailableCarsforRent = async() =>
     try {
   
       const pool = await connectToDB(); 
-      const result = await pool.request().input('UserName',sql.VarChar,username).query('SELECT * FROM Users where UserName=@UserName');
+      const result = await pool.request().input('UserName',sql.VarChar,username).query('SELECT * FROM UserBio WHERE UserName = @UserName;');
       return result.recordset;
     } catch (err) {
       console.error('Error executing query:', err);
@@ -155,7 +155,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
     const result = await pool
       .request()
       .input('UserID', sql.Int, userID)
-      .input('CarID', sql.Int, car_id)
+      .input('Client_Car_ID', sql.Int, car_id)
       .input('Rating_Count', sql.Float, rating_Count)
       .input('Review_ID', sql.Text, review_ID)
       .execute('AddCarReview'); 
@@ -224,7 +224,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
+        .input('Client_Car_ID', sql.Int, carID)
         .execute('GetCarPricing'); 
   
       return result.recordset;
@@ -241,8 +241,8 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
-        .input('RenterID', sql.Int, renterID)
+        .input('Client_Car_ID', sql.Int, carID)
+        .input('Customer_User_ID', sql.Int, renterID)
         .input('StartDate', sql.Date, StartDate)
         .input('EndDate', sql.Date, EndDate)
         .input('TotalPrice', sql.Decimal (10, 2), TotalPrice)
@@ -263,7 +263,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, carID)
+        .input('Client_Car_ID', sql.Int, carID)
         .input('NewPrice', sql.Decimal (10, 2), NewPrice)
         .execute('UpdateCarPrice'); 
   
@@ -346,14 +346,13 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 16 ////
-  const AddRentingAudit = async (CarID, RenterID, ClientID, Rent_Date, Return_Date, Renter_Feedback) => {
+  const AddRentingAudit = async (CarID, RenterID, Rent_Date, Return_Date, Renter_Feedback) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, CarID)
-        .input('RenterID', sql.Int, RenterID)
-        .input('ClientID', sql.Int, ClientID)
+        .input('Client_Car_ID', sql.Int, CarID)
+        .input('Customer_User_ID', sql.Int, RenterID)
         .input('Rent_Date', sql.Date, Rent_Date)
         .input('Return_Date', sql.Date, Return_Date)
         .input('Renter_Feedback', sql.Text, Renter_Feedback)
@@ -412,7 +411,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('MinPrice', sql.Decimal (10, 2), MinPrice || null)
         .input('MaxPrice', sql.Decimal (10, 2), MaxPrice || null)
         .input('Transmission', sql.VarChar (50), Transmission || null)
-        .execute('FilterCars'); 
+        .execute('FilterCars_Sale'); 
   
       return result.recordset;
     } catch (err) {
@@ -431,7 +430,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('MinPrice', sql.Decimal (10, 2), MinPrice)
         .input('MaxPrice', sql.Decimal (10, 2), MaxPrice)
         .input('Transmission', sql.VarChar (50), Transmission)
-        .execute('FilterCars2'); 
+        .execute('FilterCars_Rent'); 
   
       return result.recordset;
     } catch (err) {
@@ -442,24 +441,15 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 20 ////
-  const AddCar = async (Make, Model, Variant, Year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability) => {
+  const AddCar = async ( Variant, Year, Description, Color) => {
     try {
       const pool = await connectToDB();
       const result = await pool
         .request()
-        .input('Make', sql.VarChar(100), Make)
-        .input('Model', sql.VarChar(100), Model)
-        .input('Variant', sql.VarChar(100), Variant)
+        .input('VariantID', sql.Int, Variant)
+        .input('Color', sql.VarChar(50), Color)
         .input('Year', sql.Int, Year)
         .input('Description', sql.Text, Description)
-        .input('Condition', sql.VarChar(50), Condition)
-        .input('Color', sql.VarChar(50), Color)
-        .input('Category', sql.VarChar(50), Category)
-        .input('Location', sql.VarChar(100), Location)
-        .input('Fuel_Type', sql.VarChar(50), fuel_type)
-        .input('Transmission', sql.VarChar(50), transmission)
-        .input('VIN', sql.VarChar(50), VIN)
-        .input('Availability', sql.Bit, availability)
         .execute('AddCar');
       return result.recordset;
     } catch (err) {
@@ -468,16 +458,19 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
     }
   };
 
-  const AddCarForSale = async (carID, sellerID, Price, negotiable_price, listing_expiry) => {
+  const AddCarForSale = async (carID, sellerID,VIN,Condition,Loc,State,Price, negotiable_price) => {
     try {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
         .input('carID', sql.Int, carID)
-        .input('sellerID', sql.Int, sellerID)
+        .input('Client_ID', sql.Int, sellerID)
+        .input('VIN',sql.VarChar,VIN)
+        .input('Condition',sql.VarChar,Condition)
+        .input('Location', sql.VarChar, Loc)
+        .input('State', sql.VarChar, State)
         .input('Price', sql.Decimal (10, 2), Price)
-        .input('Negotiable_Price', sql.Decimal (10, 2), negotiable_price)
-        .input('listing_expiry', sql.Date, listing_expiry)
+        .input('Negotiable', sql.Decimal (10, 2), negotiable_price)
         .execute('AddCarForSale'); 
   
       //return result.recordset;
@@ -546,7 +539,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
       const pool = await connectToDB(); 
       const result = await pool
         .request()
-        .input('CarID', sql.Int, CarID)
+        .input('Client_Car_ID', sql.Int, CarID)
         .execute('GetCarReviews'); 
   
       return result.recordset;
@@ -668,7 +661,7 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
         .input('SearchTerm', sql.VarChar (100), SearchTerm)
         .input('MinPrice', sql.Decimal (10, 2), MinPrice)
         .input('MaxPrice', sql.Decimal (10, 2), MaxPrice)
-        .execute('SearchCarsWithPrice'); 
+        .execute('SearchCarsWithFeatures'); 
  
       return result.recordset;
     } catch (err) {

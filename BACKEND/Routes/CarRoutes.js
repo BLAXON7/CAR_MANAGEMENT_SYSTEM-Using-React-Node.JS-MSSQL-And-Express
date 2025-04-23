@@ -11,6 +11,7 @@ router.get('/RentalHistory',Controller.RentalHistory);
 router.get ('/Login', Controller.loginUser);
 router.get ('/SignUp', Controller.SignUp);
 router.get ('/UpdateProfile', Controller.UpdateProfile);
+router.get ('/UserProfile', Controller.UserProfile);
 router.get ('/CompareCars', Controller.CompareCars);
 router.get ('/AddCarReviews', Controller.AddCarReview);
 router.get ('/SellerDashboard', Controller.SellerDashboard);

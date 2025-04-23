@@ -1,238 +1,440 @@
---CREATE DATABASE Car_Rental_System
+--CREATE DATABASE Car_Rental_System_try
 --GO
---USE Car_Rental_System
+--USE Car_Rental_System_try
 --GO
 
---CREATE TABLE Users (
---    userID INT IDENTITY(1,1) PRIMARY KEY,
---    UserName VARCHAR(100) UNIQUE NOT NULL,
---    Name VARCHAR(255) NOT NULL,
---    Role VARCHAR(20) CHECK (Role IN ('Seller', 'Renter', 'Client')) NOT NULL,
---    Phone_Number VARCHAR(20) UNIQUE,
---    Email VARCHAR(255) UNIQUE NOT NULL,
---    Password VARBINARY(256) NOT NULL,  -- Store Hashed Passwords
---    Previous_Password VARBINARY(256),
---    CreatedAt DATETIME DEFAULT GETDATE(),
---    UpdatedAt DATETIME DEFAULT GETDATE(), -- Tracks Last Update
---    Last_Login DATETIME NULL,
---    Profile_Pic VARCHAR(255),
---    Verification_Status BIT DEFAULT 0,
---    Account_Status VARCHAR(20) CHECK (Account_Status IN ('Active', 'Suspended', 'Banned')) DEFAULT 'Active',
---    Failed_Login_Attempts INT DEFAULT 0,
---    Last_Failed_Login DATETIME NULL
+--CREATE TABLE Users 
+--(
+--   userID INT IDENTITY(1,1) PRIMARY KEY
 --);
+
+--CREATE TABLE UserBio 
+--(
+--   userID INT PRIMARY KEY,
+--   UserName VARCHAR(100) UNIQUE NOT NULL,
+--   CNIC_No CHAR(16),
+--   Date_of_Birth DATE CHECK (Date_of_Birth < GETDATE()),
+--   [Name] VARCHAR(255) NOT NULL,
+--   [Role] VARCHAR(20) CHECK ([Role] IN ('Seller', 'Renter', 'Customer')) NOT NULL,
+--   Profile_Pic VARCHAR(255),
+--   Verification_Status BIT DEFAULT 0,
+--   FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
+--);
+--CREATE TABLE UserAuth 
+--(
+--   userID INT PRIMARY KEY,
+--   Email VARCHAR(255) UNIQUE NOT NULL,
+--   Phone_Number VARCHAR(20) UNIQUE,
+--   [Password] VARBINARY(256) NOT NULL,
+--   Previous_Password VARBINARY(256),
+--   CreatedAt DATETIME DEFAULT GETDATE(),
+--   UpdatedAt DATETIME DEFAULT GETDATE(),
+--   Last_Login DATETIME NULL,
+--   Account_Status VARCHAR(20) CHECK (Account_Status IN ('Active', 'Suspended', 'Banned')) DEFAULT 'Active',
+--   Failed_Login_Attempts INT DEFAULT 0,
+--   Last_Failed_Login DATETIME NULL,
+--   FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
+--);
+
 
 --GO
 --CREATE TRIGGER trg_UpdateTimestamp
---ON Users
+--ON UserAuth
 --AFTER UPDATE
 --AS
 --BEGIN
---    SET NOCOUNT ON;
---    UPDATE Users
---    SET UpdatedAt = GETDATE()
---    FROM Users u
---    INNER JOIN inserted i ON u.userID = i.userID;
+--   SET NOCOUNT ON;
+
+--   UPDATE ua
+--   SET UpdatedAt = GETDATE()
+--   FROM UserAuth ua
+--   INNER JOIN inserted i ON ua.userID = i.userID;
 --END;
 --GO
 
---CREATE TABLE SELLER (
---    Seller_ID INT IDENTITY(1,1) PRIMARY KEY,
---    userID INT UNIQUE,
---    total_cars_sold INT DEFAULT 0,
---    rating FLOAT DEFAULT 0.0 CHECK (rating BETWEEN 0.0 AND 5.0),
---    verification_status BIT DEFAULT 0,
---    FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
+---- -- -- -- -- -- -- GO
+---- -- -- -- -- -- -- CREATE TRIGGER trg_UpdateTimestamp_UserAuth
+---- -- -- -- -- -- -- ON UserAuth
+---- -- -- -- -- -- -- AFTER UPDATE
+---- -- -- -- -- -- -- AS
+---- -- -- -- -- -- -- BEGIN
+---- -- -- -- -- -- --    SET NOCOUNT ON;
+
+---- -- -- -- -- -- --    -- Update only if relevant columns have changed
+---- -- -- -- -- -- --    UPDATE ua
+---- -- -- -- -- -- --    SET UpdatedAt = GETDATE()
+---- -- -- -- -- -- --    FROM UserAuth ua
+---- -- -- -- -- -- --    INNER JOIN inserted i ON ua.userID = i.userID
+---- -- -- -- -- -- --    INNER JOIN deleted d ON d.userID = i.userID
+---- -- -- -- -- -- --    WHERE
+---- -- -- -- -- -- --        ISNULL(i.Email, '') <> ISNULL(d.Email, '') OR
+---- -- -- -- -- -- --        ISNULL(i.Phone_Number, '') <> ISNULL(d.
+--][][=Phone_Number, '') OR
+---- -- -- -- -- -- --        ISNULL(i.Password, 0x0) <> ISNULL(d.Password, 0x0) OR
+---- -- -- -- -- -- --        ISNULL(i.Previous_Password, 0x0) <> ISNULL(d.Previous_Password, 0x0) OR
+---- -- -- -- -- -- --        ISNULL(i.Account_Status, '') <> ISNULL(d.Account_Status, '') OR
+---- -- -- -- -- -- --        ISNULL(i.Failed_Login_Attempts, -1) <> ISNULL(d.Failed_Login_Attempts, -1) OR
+---- -- -- -- -- -- --        ISNULL(i.Last_Login, '1900-01-01') <> ISNULL(d.Last_Login, '1900-01-01') OR
+---- -- -- -- -- -- --        ISNULL(i.Last_Failed_Login, '1900-01-01') <> ISNULL(d.Last_Failed_Login, '1900-01-01');
+---- -- -- -- -- -- -- END;
+---- -- -- -- -- -- -- GO
+
+
+
+--CREATE TABLE CLIENT 
+--(
+--   Client_ID INT IDENTITY(1,1) PRIMARY KEY,
+--   userID INT UNIQUE NOT NULL,
+--   FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
 --);
 
---CREATE TABLE RENTER (
---    Renter_ID INT IDENTITY(1,1) PRIMARY KEY,
---    userID INT UNIQUE, 
---    total_rentals INT DEFAULT 0,
---    FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
+--CREATE TABLE SELLER 
+--(
+--   Seller_ID INT PRIMARY KEY,
+--   total_cars_sold INT DEFAULT 0,
+--   rating FLOAT DEFAULT 0.0 CHECK (rating BETWEEN 0.0 AND 5.0),
+--   verification_status BIT DEFAULT 0,
+--   FOREIGN KEY (Seller_ID) REFERENCES CLIENT(Client_ID) ON DELETE CASCADE
 --);
 
---CREATE TABLE CLIENT (
---    Client_ID INT IDENTITY(1,1) PRIMARY KEY,
---    userID INT UNIQUE,
---    FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
+--CREATE TABLE RENTER 
+--(
+--   Renter_ID INT PRIMARY KEY,
+--   total_rentals INT DEFAULT 0,
+--   FOREIGN KEY (Renter_ID) REFERENCES CLIENT(Client_ID) ON DELETE CASCADE
 --);
 
---CREATE TABLE BUYER (
---    Buyer_ID INT IDENTITY(1,1) PRIMARY KEY,
---    Client_ID INT UNIQUE,  -- A buyer is also a client
---    total_cars_purchased INT DEFAULT 0,
---    total_spent DECIMAL(10,2) DEFAULT 0.0,
---    wallet_balance DECIMAL(10,2) DEFAULT 0.0,
+--CREATE TABLE Customer 
+--(
+--   Customer_ID INT PRIMARY KEY,
+--   total_cars_purchased INT DEFAULT 0,
+--   total_spent DECIMAL(10,2) DEFAULT 0.0,
+--   wallet_balance DECIMAL(10,2) DEFAULT 0.0,
+--   FOREIGN KEY (Customer_ID) REFERENCES CLIENT(Client_ID) ON DELETE CASCADE
+--);
+
+--CREATE TABLE Make 
+--(
+--    MakeID INT IDENTITY (1,1) PRIMARY KEY,
+--    MakeName VARCHAR (100) UNIQUE NOT NULL,
+--    Country VARCHAR (100) NOT NULL
+--);
+
+--CREATE TABLE Model 
+--(
+--    ModelID INT IDENTITY(1,1) PRIMARY KEY,
+--    MakeID INT NOT NULL,
+--    ModelName VARCHAR(100) NOT NULL,
+--    Category VARCHAR(100),
+--    UNIQUE (MakeID, ModelName),
+--    FOREIGN KEY (MakeID) REFERENCES Make(MakeID) ON DELETE CASCADE
+--);
+
+--CREATE TABLE Variant 
+--(
+--    VariantID INT IDENTITY(1,1) PRIMARY KEY,
+--    ModelID INT NOT NULL,
+--    VariantName VARCHAR(100) NOT NULL,
+--    FuelType VARCHAR(50),
+--    Transmission VARCHAR(50),
+--    -- -- -- Category VARCHAR(100),
+--    -- -- -- UNIQUE (ModelID, VariantName),
+--    FOREIGN KEY (ModelID) REFERENCES Model(ModelID) ON DELETE CASCADE
+--);
+
+--CREATE TABLE VariantColor 
+--(
+--    VariantID INT NOT NULL,
+--    Color VARCHAR(50) NOT NULL,
+--    PRIMARY KEY (VariantID, Color),
+--    FOREIGN KEY (VariantID) REFERENCES Variant(VariantID) ON DELETE CASCADE
+--);
+
+--CREATE TABLE Car 
+--(
+--    CarID INT IDENTITY(1,1) PRIMARY KEY,
+--    VariantID INT NOT NULL,
+--    Color VARCHAR(50) NOT NULL,
+--    Year INT CHECK (Year BETWEEN 1900 AND YEAR(GETDATE())),
+--    Description TEXT,
+--    FOREIGN KEY (VariantID) REFERENCES Variant(VariantID) ON DELETE CASCADE
+--);
+
+--CREATE TABLE Client_Car -- Car Listings
+--(
+--    Client_Car_ID INT IDENTITY (1, 1) PRIMARY KEY,
+--    VIN VARCHAR(17) UNIQUE NOT NULL,
+--    carID INT NOT NULL,
+--    Client_ID INT NOT NULL,
+--    -- -- -- Color VARCHAR(10) NOT NULL,
+--    Condition VARCHAR(10) CHECK (Condition IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')),
+--    [Location] VARCHAR(255),
+--    [Availability] BIT DEFAULT 1,  
+--    FOREIGN KEY (carID) REFERENCES Car(CarID) ON DELETE CASCADE,
 --    FOREIGN KEY (Client_ID) REFERENCES CLIENT(Client_ID) ON DELETE CASCADE
 --);
 
---CREATE TABLE CAR_DETAILS (
---    carID INT IDENTITY(1,1) PRIMARY KEY,
---    Make VARCHAR(100),
---    Model VARCHAR(100),
---    Variant VARCHAR(100),
---    year INT CHECK (year BETWEEN 1900 AND YEAR(GETDATE())),
---    Description TEXT,
---    Condition VARCHAR(10) CHECK (Condition IN ('New', 'Used')),
---	Color VARCHAR(10),
---    Category VARCHAR(100),
---    Location VARCHAR(255),
---    fuel_type VARCHAR(50),
---    transmission VARCHAR(50),
---    VIN VARCHAR(17) UNIQUE,
---    availability BIT DEFAULT 1  -- 1 = Available, 0 = Not Available
---);
-
---CREATE TABLE CARS_ON_SALE (
---    carID INT PRIMARY KEY,
---    sellerID INT,
---    Availability BIT DEFAULT 1,
---    Price DECIMAL(10,2) CHECK (Price >= 0),
+--CREATE TABLE CARS_ON_SALE 
+--(
+--    Sale_Cars_ID INT IDENTITY (1, 1) PRIMARY KEY,
+--    Client_Car_ID INT NOT NULL,
+--    [State] VARCHAR (10) CHECK ([State] IN ('NEW', 'USED')),
+--    Price DECIMAL (10,2) CHECK (Price >= 0),
 --    negotiable_price BIT DEFAULT 0,
 --    listed_at DATETIME DEFAULT GETDATE(),
---    listing_expiry DATETIME DEFAULT DATEADD(DAY, 30, GETDATE()), -- Expires in 30 days
---    FOREIGN KEY (carID) REFERENCES CAR_DETAILS(carID) ON DELETE CASCADE,
---    FOREIGN KEY (sellerID) REFERENCES SELLER(Seller_ID) ON DELETE CASCADE
+--    listing_expiry DATETIME DEFAULT DATEADD (DAY, 30, GETDATE()), -- Expires in 30 days
+--    FOREIGN KEY (Client_Car_ID) REFERENCES Client_Car(Client_Car_ID) ON DELETE CASCADE
 --);
---CREATE TABLE CARS_ON_RENT (
---    rental_id INT IDENTITY(1,1) PRIMARY KEY,
---    car_id INT,
---    renter_id INT,
---    start_date DATE NOT NULL,
+
+--CREATE TABLE CARS_ON_RENT 
+--(
+--    rental_id INT IDENTITY (1,1) PRIMARY KEY,
+--    Client_Car_ID INT NOT NULL,
+--    [start_date] DATE NOT NULL,
 --    end_date DATE NOT NULL,
 --    total_price DECIMAL(10,2) CHECK (total_price >= 0),
 --    security_deposit DECIMAL(10,2) DEFAULT 0.0,
---    status VARCHAR(20) CHECK (status IN ('Available', 'Rented', 'Returned','Cancelled')),
+--    [status] VARCHAR(20) CHECK ([status] IN ('Available', 'Rented', 'Returned','Cancelled')),
 --    rented_at DATETIME DEFAULT GETDATE(),
 --    extension_requested BIT DEFAULT 0,
---    FOREIGN KEY (car_id) REFERENCES CAR_DETAILS(carID) ON DELETE NO ACTION,
---    FOREIGN KEY (renter_id) REFERENCES RENTER(Renter_ID) ON DELETE NO ACTION,
---    CONSTRAINT CHK_EndDate CHECK (end_date >= start_date)
+--    CONSTRAINT CHK_EndDate CHECK (end_date >= start_date),
+--    FOREIGN KEY (Client_Car_ID) REFERENCES Client_Car(Client_Car_ID) ON DELETE CASCADE
 --);
 
 
 --CREATE TABLE CAR_RENTAL_HISTORY (
---    history_id INT IDENTITY(1,1) PRIMARY KEY,
---    car_id INT NOT NULL,
---    renter_id INT NOT NULL,
---    client_id INT NOT NULL,
---    Rent_Date DATE NOT NULL,
---    Return_Date DATE NOT NULL,
---    renter_feedback TEXT,
---    FOREIGN KEY (car_id) REFERENCES CAR_DETAILS(carID) ON DELETE NO ACTION,
---    FOREIGN KEY (renter_id) REFERENCES RENTER(Renter_ID) ON DELETE NO ACTION,
---    FOREIGN KEY (client_id) REFERENCES CLIENT(Client_ID) ON DELETE NO ACTION,
---    CONSTRAINT CHK_ReturnDate CHECK (Return_Date >= Rent_Date)
+--   history_id INT IDENTITY(1,1) PRIMARY KEY,
+--   Customer_User_ID INT NOT NULL,
+--   Client_Car_ID INT NOT NULL,
+--   Rent_Date DATE NOT NULL,
+--   Return_Date DATE NOT NULL,
+--   renter_feedback TEXT,
+--   FOREIGN KEY (Client_Car_ID) REFERENCES Client_Car(Client_Car_ID) ON DELETE NO ACTION,
+--   FOREIGN KEY (Customer_User_ID) REFERENCES Customer(Customer_ID) ON DELETE CASCADE,
+--   CONSTRAINT CHK_ReturnDate CHECK (Return_Date >= Rent_Date)
 --);
 
---CREATE TABLE PURCHASE (
---    Purchase_ID INT IDENTITY(1,1) PRIMARY KEY,
---    Client_ID INT ,
---    Seller_ID INT ,
---    Car_ID INT NOT NULL,
---    Cost_Price DECIMAL(10,2) CHECK (Cost_Price >= 0),
---    Discount DECIMAL(10,2) DEFAULT 0.0,
---    Sale_Price AS (Cost_Price - Discount) PERSISTED,
---    Time DATETIME DEFAULT GETDATE(),
---    payment_method VARCHAR(50) CHECK (payment_method IN ('Cash', 'Credit Card', 'Wallet')),
---    FOREIGN KEY (Client_ID) REFERENCES CLIENT(Client_ID) ON DELETE NO ACTION,
---    FOREIGN KEY (Seller_ID) REFERENCES SELLER(Seller_ID) ON DELETE SET NULL,
---    FOREIGN KEY (Car_ID) REFERENCES CAR_DETAILS(carID) ON DELETE CASCADE
+--CREATE TABLE RATING 
+--(
+--   Rating_ID INT IDENTITY(1,1) PRIMARY KEY,
+--   User_ID INT NOT NULL,
+--   Client_Car_ID INT NOT NULL,
+--   Rating_Count FLOAT CHECK (Rating_Count BETWEEN 1.0 AND 5.0),
+--   Review_ID TEXT NULL,
+--   FOREIGN KEY (User_ID) REFERENCES Users(userID) ON DELETE NO ACTION,
+--   FOREIGN KEY (Client_Car_ID) REFERENCES Client_Car(Client_Car_ID) ON DELETE NO ACTION
 --);
---CREATE TABLE RATING (
---    Rating_ID INT IDENTITY(1,1) PRIMARY KEY,
---    User_ID INT NOT NULL,
---    Car_ID INT NOT NULL,
---    Rating_Count FLOAT CHECK (Rating_Count BETWEEN 1.0 AND 5.0),
---    Review_ID TEXT NULL,
---    FOREIGN KEY (User_ID) REFERENCES Users(userID) ON DELETE CASCADE,
---    FOREIGN KEY (Car_ID) REFERENCES CAR_DETAILS(carID) ON DELETE CASCADE
---);
+
 --CREATE TABLE MESSAGE (
---    Message_ID INT IDENTITY(1,1) PRIMARY KEY,
---    Sender_ID INT NOT NULL,
---    Receiver_ID INT ,
---    Message TEXT NOT NULL,
---    Sent_Time DATETIME DEFAULT GETDATE(),
---    FOREIGN KEY (Sender_ID) REFERENCES Users(userID) ON DELETE NO ACTION,
---    FOREIGN KEY (Receiver_ID) REFERENCES Users(userID) ON DELETE SET NULL
---);
---CREATE TABLE TRANSACTIONS (
---    transaction_id INT IDENTITY(1,1) PRIMARY KEY,
---    user_id INT NOT NULL,
---    amount DECIMAL(10,2) NOT NULL,
---    transaction_type VARCHAR(50) CHECK (transaction_type IN ('Rental Payment', 'Car Purchase', 'Refund', 'Penalty', 'Wallet Recharge')) NOT NULL,
---    payment_method VARCHAR(50) CHECK (payment_method IN ('Cash', 'Credit Card', 'Wallet')) DEFAULT 'Wallet',
---    status VARCHAR(20) CHECK (status IN ('Pending', 'Completed', 'Failed')) DEFAULT 'Pending',
---    transaction_date DATETIME DEFAULT GETDATE(),
---    Reference_ID INT NULL,
---    FOREIGN KEY (user_id) REFERENCES Users(userID) ON DELETE CASCADE
+--   Message_ID INT IDENTITY(1,1) PRIMARY KEY,
+--   Sender_ID INT NOT NULL,
+--   Receiver_ID INT ,
+--   [Message] TEXT NOT NULL,
+--   Sent_Time DATETIME DEFAULT GETDATE(),
+--   FOREIGN KEY (Sender_ID) REFERENCES Users(userID) ON DELETE NO ACTION,
+--   FOREIGN KEY (Receiver_ID) REFERENCES Users(userID) ON DELETE SET NULL
 --);
 
----- Indexes
+--CREATE TABLE TRANSACTIONS 
+--(
+--   transaction_id INT IDENTITY(1,1) PRIMARY KEY,
+--   Sender_ID INT NOT NULL,
+--   Receiver_ID INT NOT NULL,
+--   amount DECIMAL(10,2) NOT NULL,
+--   transaction_type VARCHAR(50) CHECK (transaction_type IN ('Rental Payment', 'Car Purchase', 'Refund', 'Penalty', 'Wallet Recharge')) NOT NULL,
+--   payment_method VARCHAR(50) CHECK (payment_method IN ('Cash', 'Credit Card', 'Wallet')) DEFAULT 'Wallet',
+--   [status] VARCHAR(20) CHECK (status IN ('Pending', 'Completed', 'Failed')) DEFAULT 'Pending',
+--   transaction_date DATETIME DEFAULT GETDATE(),
+--   Reference_ID INT NULL,
+--   FOREIGN KEY (Sender_ID) REFERENCES Users(userID) ON DELETE NO ACTION,
+--   FOREIGN KEY (Receiver_ID) REFERENCES Users(userID) ON DELETE NO ACTION
+--);
 
----- We have created indexes over here. We will later analyze which indexes are not needed and then drop them.
+-----------------------------------------------------------------------------------------------------------------------
 
---CREATE INDEX idx_UserName ON Users(UserName);
---CREATE INDEX idx_CarMakeModel ON CAR_DETAILS(Make, Model);
---CREATE INDEX idx_SellerID ON CARS_ON_SALE(sellerID);
---CREATE INDEX idx_RenterID ON CARS_ON_RENT(renter_id);
---CREATE INDEX idx_UserEmail ON Users(Email);
---CREATE INDEX idx_CarPrice ON CARS_ON_SALE(Price);
---CREATE INDEX idx_CarRentalStatus ON CARS_ON_RENT(status);
---CREATE INDEX idx_PurchaseDate ON PURCHASE(Time);
---CREATE INDEX idx_FailedLogins ON Users(Failed_Login_Attempts);
---CREATE INDEX idx_TransactionUser ON TRANSACTIONS(user_id);
---------CREATE FULLTEXT INDEX idx_CarDetails ON CAR_DETAILS (Make, Model, Variant);
----- We need to first verify if full text is installed or not for the following queries
---CREATE FULLTEXT CATALOG CarDetails_FTC AS DEFAULT;
---CREATE FULLTEXT INDEX ON CAR_DETAILS (Make LANGUAGE 1033, Model LANGUAGE 1033, Variant LANGUAGE 1033)
---KEY INDEX UQ_CarDetails
---ON CarDetails_FTC;
+---- Inserting into Users (Base table, no dependencies)
+--INSERT INTO Users DEFAULT VALUES; -- userID 1
+--INSERT INTO Users DEFAULT VALUES; -- userID 2
+--INSERT INTO Users DEFAULT VALUES; -- userID 3
+
+---- Inserting into UserBio (Depends on Users)
+--INSERT INTO UserBio (userID, UserName, CNIC_No, Date_of_Birth, [Name], [Role], Profile_Pic)
+--VALUES (1, 'john_doe', '12345678901234', '1990-05-15', 'John Doe', 'Customer', 'john_doe.jpg');
+
+--INSERT INTO UserBio (userID, UserName, CNIC_No, Date_of_Birth, [Name], [Role], Profile_Pic)
+--VALUES (2, 'jane_smith', '98765432109876', '1985-10-22', 'Jane Smith', 'Seller', 'jane_smith.jpg');
+
+--INSERT INTO UserBio (userID, UserName, CNIC_No, Date_of_Birth, [Name], [Role], Profile_Pic)
+--VALUES (3, 'peter_parker', '56789012345678', '2000-01-01', 'Peter Parker', 'Renter', 'peter_parker.jpg');
+
+---- Inserting into UserAuth (Depends on Users)
+--INSERT INTO UserAuth (userID, Email, Phone_Number, [Password])
+--VALUES (1, 'john.doe@example.com', '123-456-7890', HASHBYTES('SHA2_256', N'password123'));
+
+--INSERT INTO UserAuth (userID, Email, Phone_Number, [Password])
+--VALUES (2, 'jane.smith@example.com', '987-654-3210', HASHBYTES('SHA2_256', N'password456'));
+
+--INSERT INTO UserAuth (userID, Email, Phone_Number, [Password])
+--VALUES (3, 'peter.parker@example.com', '555-123-4567', HASHBYTES('SHA2_256', N'password789'));
 
 
+---- Inserting into CLIENT (Depends on Users)
+--INSERT INTO CLIENT (userID) VALUES (1); -- Client_ID 1
+--INSERT INTO CLIENT (userID) VALUES (2); -- Client_ID 2
+--INSERT INTO CLIENT (userID) VALUES (3);  -- Client_ID 3
+
+
+--INSERT INTO SELLER (Seller_ID, total_cars_sold, rating) VALUES (2, 10, 4.5);
+
+
+--INSERT INTO RENTER (Renter_ID, total_rentals) VALUES (3, 5);
+
+
+
+--INSERT INTO Customer (Customer_ID, total_cars_purchased, total_spent, wallet_balance)
+--VALUES (1, 2, 50000.00, 1000.00);
+
+---- Inserting into Make (Independent table)
+--INSERT INTO Make (MakeName, Country) VALUES ('Toyota', 'Japan');
+--INSERT INTO Make (MakeName, Country) VALUES ('Honda', 'Japan');
+--INSERT INTO Make (MakeName, Country) VALUES ('Ford', 'USA');
+
+---- Inserting into Model (Depends on Make)
+--INSERT INTO Model (MakeID, ModelName, Category) VALUES (1, 'Corolla', 'Sedan');
+--INSERT INTO Model (MakeID, ModelName, Category) VALUES (1, 'Camry', 'Sedan');
+--INSERT INTO Model (MakeID, ModelName, Category) VALUES (2, 'Civic', 'Sedan');
+
+---- Inserting into Variant (Depends on Model)
+--INSERT INTO Variant (ModelID, VariantName, FuelType, Transmission) VALUES (1, 'LE', 'Gasoline', 'Automatic');
+--INSERT INTO Variant (ModelID, VariantName, FuelType, Transmission) VALUES (1, 'XLE', 'Gasoline', 'Automatic');
+--INSERT INTO Variant (ModelID, VariantName, FuelType, Transmission) VALUES (3, 'EX', 'Gasoline', 'Manual');
+
+---- Inserting into VariantColor (Depends on Variant)
+--INSERT INTO VariantColor (VariantID, Color) VALUES (1, 'Red');
+--INSERT INTO VariantColor (VariantID, Color) VALUES (1, 'Blue');
+--INSERT INTO VariantColor (VariantID, Color) VALUES (3, 'Silver');
+
+---- Inserting into Car (Depends on Variant, VariantColor)
+--INSERT INTO Car (VariantID, Color, Year, Description) VALUES (1, 'Red', 2022, 'Excellent condition, low mileage.');
+--INSERT INTO Car (VariantID, Color, Year, Description) VALUES (2, 'Blue', 2023, 'Fully loaded, sunroof.');
+--INSERT INTO Car (VariantID, Color, Year, Description) VALUES (3, 'Silver', 2020, 'Good Condition');
+
+---- Inserting into Client_Car (Depends on Car, CLIENT)
+--INSERT INTO Client_Car (VIN, carID, Client_ID, Condition, [Location])
+--VALUES ('JTDKAR3345JK67890', 1, 2, '9', 'Lahore');  -- Seller 2 lists Car 1
+--INSERT INTO Client_Car (VIN, carID, Client_ID, Condition, [Location])
+--VALUES ('1FADP5CU2CDL12345', 2, 2, '8', 'Karachi');  -- Seller 2 lists Car 2
+--INSERT INTO Client_Car (VIN, carID, Client_ID, Condition, [Location])
+--VALUES ('ABCD123EFGHI45678', 3, 3, '7', 'Rawalpindi');  -- Renter 3 lists Car 3
+
+---- Inserting into CARS_ON_SALE (Depends on Client_Car)
+--INSERT INTO CARS_ON_SALE (Client_Car_ID, [State], Price) VALUES (1, 'USED', 25000.00);
+--INSERT INTO CARS_ON_SALE (Client_Car_ID, [State], Price, negotiable_price) VALUES (2, 'NEW', 35000.00, 1);
+
+---- Inserting into CARS_ON_RENT (Depends on Client_Car)
+--INSERT INTO CARS_ON_RENT (Client_Car_ID, [start_date], end_date, total_price, [status])
+--VALUES (3, '2025-05-01', '2025-05-05', 200.00, 'Available');
+--INSERT INTO CARS_ON_RENT (Client_Car_ID, [start_date], end_date, total_price, [status], security_deposit)
+--VALUES (3, '2025-05-10', '2025-05-15', 250.00, 'Available', 50.00);
+
+---- Inserting into CAR_RENTAL_HISTORY (Depends on Customer, Client_Car)
+--INSERT INTO CAR_RENTAL_HISTORY (Customer_User_ID, Client_Car_ID, Rent_Date, Return_Date, renter_feedback)
+--VALUES (1, 3, '2025-04-20', '2025-04-25', 'Great car, smooth rental process.');
+--INSERT INTO CAR_RENTAL_HISTORY (Customer_User_ID, Client_Car_ID, Rent_Date, Return_Date, renter_feedback)
+--VALUES (1, 3, '2025-04-26', '2025-04-28', 'Good car');
+
+---- Inserting into RATING (Depends on Users, Client_Car)
+--INSERT INTO RATING (User_ID, Client_Car_ID, Rating_Count, Review_ID)
+--VALUES (1, 3, 4.8, 'Review123');
+--INSERT INTO RATING (User_ID, Client_Car_ID, Rating_Count, Review_ID)
+--VALUES (2, 1, 4.2, 'Review456');
+
+---- Inserting into MESSAGE (Depends on Users)
+--INSERT INTO MESSAGE (Sender_ID, Receiver_ID, [Message])
+--VALUES (1, 2, 'Hello Jane, I am interested in your car.');
+--INSERT INTO MESSAGE (Sender_ID, Receiver_ID, [Message])
+--VALUES (2, 1, 'Hi John, which car are you referring to?');
+
+---- Inserting into TRANSACTIONS (Depends on Users)
+--INSERT INTO TRANSACTIONS (Sender_ID, Receiver_ID, amount, transaction_type, payment_method, [status])
+--VALUES (1, 2, 200.00, 'Rental Payment', 'Credit Card', 'Completed');
+--INSERT INTO TRANSACTIONS (Sender_ID, Receiver_ID, amount, transaction_type, payment_method, [status])
+--VALUES (1, 2, 35000.00, 'Car Purchase', 'Cash', 'Completed');
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
 ---- Views
---GO
+
+--GO  -- Remove GO statements, not needed inside an immersive
+
+-- View: Available Cars For Sale
 --CREATE VIEW AvailableCarsForSale AS
---SELECT CS.carID, Make, Model, Price, CS.Availability
+--SELECT 
+--    CS.Client_Car_ID,
+--    MA.MakeName AS Make,
+--    MO.ModelName AS Model,
+--    CS.Price,
+--    CC.[Availability]
 --FROM CARS_ON_SALE CS
---JOIN CAR_DETAILS CD ON CS.carID = CD.carID
---WHERE CS.Availability = 1;
---GO
+--JOIN Client_Car CC ON CS.Client_Car_ID = CC.Client_Car_ID
+--JOIN Car C ON CC.carID = C.CarID
+--JOIN Variant V ON C.VariantID = V.VariantID
+--JOIN Model MO ON V.ModelID = MO.ModelID
+--JOIN Make MA ON MO.MakeID = MA.MakeID
+--WHERE CC.[Availability] = 1;
 
---GO
+-- View: Available Cars For Rent
 --CREATE VIEW AvailableCarsForRent AS
---SELECT CR.car_id, Make, Model, total_price, start_date, end_date, status
+--SELECT 
+--    CR.rental_id,
+--    MA.MakeName AS Make,
+--    MO.ModelName AS Model,
+--    CR.total_price,
+--    CR.[start_date],
+--    CR.end_date,
+--    CR.[status]
 --FROM CARS_ON_RENT CR
---JOIN CAR_DETAILS CD ON CR.car_id = CD.carID
---WHERE CR.status = 'Available';
---GO
+--JOIN Client_Car CC ON CR.Client_Car_ID = CC.Client_Car_ID
+--JOIN Car C ON CC.carID = C.CarID
+--JOIN Variant V ON C.VariantID = V.VariantID
+--JOIN Model MO ON V.ModelID = MO.ModelID
+--JOIN Make MA ON MO.MakeID = MA.MakeID
+--WHERE CR.[status] = 'Available';
 
---GO
+-- View: Top Rated Cars
 --CREATE VIEW TopRatedCars AS
 --SELECT 
---    C.carID, 
---    C.Make, 
---    C.Model, 
+--    C.CarID, 
+--    MA.MakeName AS Make, 
+--    MO.ModelName AS Model, 
 --    AVG(R.Rating_Count) AS avgRating
 --FROM RATING R
---JOIN CAR_DETAILS C ON R.Car_ID = C.carID
---GROUP BY C.carID, C.Make, C.Model
---HAVING AVG(R.Rating_Count) >= 4.0;  -- NOTE: to get the topratedcars, we need to use order by in that query
---GO
+--JOIN Client_Car CC ON R.Client_Car_ID = CC.Client_Car_ID
+--JOIN Car C ON CC.carID = C.CarID
+--JOIN Variant V ON C.VariantID = V.VariantID
+--JOIN Model MO ON V.ModelID = MO.ModelID
+--JOIN Make MA ON MO.MakeID = MA.MakeID
+--GROUP BY C.CarID, MA.MakeName, MO.ModelName
+--HAVING AVG(R.Rating_Count) >= 4.0;
 
---GO
+-- View: User Rental History
 --CREATE VIEW UserRentalHistory AS
---SELECT CRH.renter_id, CD.Make, CD.Model, CRH.Rent_Date, CRH.Return_Date
+--SELECT 
+--    CRH.Customer_User_ID AS RenterID,  -- Changed to Customer_User_ID
+--    MA.MakeName AS Make,
+--    MO.ModelName AS Model,
+--    CRH.Rent_Date, 
+--    CRH.Return_Date
 --FROM CAR_RENTAL_HISTORY CRH
---JOIN CAR_DETAILS CD ON CRH.car_id = CD.carID;
---GO
----- Procedures
--------We have employed error handling and hashing in a few of the following procedures. We will later implement error handling and hashing using JS and its frameworks. 
--------Additionally, we have also added a few of the Transact-SQL functions like commit and rollback
-----1
+--JOIN Client_Car CC ON CRH.Client_Car_ID = CC.Client_Car_ID
+--JOIN Car C ON CC.carID = C.CarID
+--JOIN Variant V ON C.VariantID = V.VariantID
+--JOIN Model MO ON V.ModelID = MO.ModelID
+--JOIN Make MA ON MO.MakeID = MA.MakeID;
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 1 SignUpUser
+--DROP PROCEDURE IF EXISTS SignUpUser;
+--GO
 --CREATE PROCEDURE SignUpUser
 --    @UserName VARCHAR(100),
 --    @Name VARCHAR(255),
@@ -242,72 +444,101 @@
 --    @Password NVARCHAR(255)
 --AS
 --BEGIN
---    INSERT INTO Users (UserName, Name, Role, Phone_Number, Email, Password)
---    VALUES (@UserName, @Name, @Role, @Phone_Number, @Email, HASHBYTES('SHA2_256', @Password));
+--    SET NOCOUNT ON;
 
+--    BEGIN TRY
+--        BEGIN TRANSACTION;
 
---    -- If the user is a Seller, insert into SELLER table
---    DECLARE @UserID INT = SCOPE_IDENTITY();
---    IF @Role = 'Seller'
---    BEGIN
---        INSERT INTO SELLER (userID) VALUES (@UserID);
---    END
-    
---    -- If the user is a Renter, insert into RENTER table
---    IF @Role = 'Renter'
---    BEGIN    
---        INSERT INTO RENTER (userID) VALUES (@UserID);
---    END
+--        INSERT INTO Users DEFAULT VALUES;
+--        DECLARE @UserID INT = SCOPE_IDENTITY();
 
---    -- If the user is a Client, insert into CLIENT table
---    IF @Role = 'Client'
---    BEGIN
---        INSERT INTO CLIENT (userID) VALUES (@UserID);
---    END
+--        INSERT INTO UserBio(userID, UserName, [Name], [Role])
+--        VALUES(@UserID, @UserName, @Name, @Role);
+
+--        INSERT INTO UserAuth(userID, Email, Phone_Number, [Password])
+--        VALUES(@UserID, @Email, @Phone_Number, HASHBYTES('SHA2_256', @Password));
+
+--        INSERT INTO CLIENT(userID) VALUES(@UserID);
+
+--        IF @Role = 'Seller'
+--            INSERT INTO SELLER(Seller_ID) SELECT Client_ID FROM CLIENT WHERE userID = @UserID;
+--        ELSE IF @Role = 'Renter'
+--            INSERT INTO RENTER(Renter_ID) SELECT Client_ID FROM CLIENT WHERE userID = @UserID;
+--        ELSE IF @Role = 'Customer'
+--            INSERT INTO Customer(Customer_ID) SELECT Client_ID FROM CLIENT WHERE userID = @UserID;
+
+--        COMMIT;
+--    END TRY
+--    BEGIN CATCH
+--        ROLLBACK;
+--        THROW;
+--    END CATCH
 --END;
 --GO
 
-----2
+-- 2 LoginUser
+--DROP PROCEDURE IF EXISTS LoginUser;
 --GO
 --CREATE PROCEDURE LoginUser
 --    @UserName VARCHAR(100),
 --    @Password NVARCHAR(255)
 --AS
 --BEGIN
---    DECLARE @StoredPassword VARBINARY(256), @FailedAttempts INT;
-    
---    SELECT @StoredPassword = Password, @FailedAttempts = Failed_Login_Attempts 
---    FROM Users WHERE UserName = @UserName;
-    
---    IF @StoredPassword IS NULL
+--    SET NOCOUNT ON;
+
+--    DECLARE @UserID INT,
+--            @StoredPassword VARBINARY(256),
+--            @FailedAttempts INT,
+--            @AccountStatus VARCHAR(20);
+
+--    SELECT @UserID=ua.userID, @StoredPassword=ua.[Password], @FailedAttempts=ua.Failed_Login_Attempts, @AccountStatus=ua.Account_Status 
+--    FROM UserAuth ua
+--    JOIN UserBio ub ON ua.userID = ub.userID
+--    WHERE ub.UserName = @UserName;
+
+--    IF @UserID IS NULL
 --    BEGIN
 --        RAISERROR ('User not found.', 16, 1);
 --        RETURN;
 --    END
 
---    -- Check if user is already suspended
 --    IF @FailedAttempts >= 5
 --    BEGIN
---        UPDATE Users SET Account_Status = 'Suspended' WHERE UserName = @UserName;
+--        UPDATE UserAuth SET Account_Status = 'Suspended' WHERE userID = @UserID;
 --        RAISERROR ('Account is suspended due to too many failed login attempts.', 16, 1);
 --        RETURN;
 --    END
 
---    -- Compare hashed password securely
 --    IF @StoredPassword = HASHBYTES('SHA2_256', @Password)
 --    BEGIN
---        UPDATE Users SET Last_Login = GETDATE(), Failed_Login_Attempts = 0 WHERE UserName = @UserName;
---        SELECT UserID, UserName, Role, Last_Login FROM Users WHERE UserName = @UserName;
+--        UPDATE UserAuth 
+--        SET Last_Login = GETDATE(), Failed_Login_Attempts = 0 
+--        WHERE userID = @UserID;
+
+--        SELECT ub.userID, ub.UserName, ub.Role, ua.Last_Login
+--        FROM UserBio ub
+--        JOIN UserAuth ua ON ub.userID = ua.userID
+--        WHERE ub.userID = @UserID;
 --    END
 --    ELSE
 --    BEGIN
---        UPDATE Users SET Failed_Login_Attempts = Failed_Login_Attempts + 1 WHERE UserName = @UserName;
+--        UPDATE UserAuth SET Failed_Login_Attempts = Failed_Login_Attempts + 1 WHERE userID = @UserID;
 --        RAISERROR ('Invalid login credentials!', 16, 1);
 --    END
 --END;
-
 --GO
-----3
+
+
+--BTW don't use because of password123 going as VARCHAR
+--INSERT INTO UserAuth (userID, Email, Phone_Number, [Password])
+--VALUES (1, 'john.doe@example.com', '123-456-7890', HASHBYTES('SHA2_256', 'password123'));
+--Instead, for NVARCHAR
+--INSERT INTO UserAuth (userID, Email, Phone_Number, [Password])
+--VALUES (1, 'john.doe@example.com', '123-456-7890', HASHBYTES('SHA2_256', N'password123'));
+
+-- 3 UpdateProfile
+-- DROP PROCEDURE IF EXISTS UpdateProfile;
+-- GO
 --CREATE PROCEDURE UpdateProfile
 --    @UserID INT,
 --    @Name VARCHAR(255) = NULL,
@@ -316,136 +547,236 @@
 --    @Profile_Pic VARCHAR(255) = NULL
 --AS
 --BEGIN
---    UPDATE Users
+--    SET NOCOUNT ON;
+
+--    UPDATE UserBio
+--    SET Name = ISNULL(@Name, Name)
+--    WHERE userID = @UserID;
+
+--    UPDATE UserAuth
 --    SET 
---        Name = ISNULL(@Name, Name),
 --        Phone_Number = ISNULL(@Phone_Number, Phone_Number),
 --        Email = ISNULL(@Email, Email),
---        Profile_Pic = ISNULL(@Profile_Pic, Profile_Pic)
+--        UpdatedAt = GETDATE()
 --    WHERE userID = @UserID;
---END;
 
+--    IF @Profile_Pic IS NOT NULL
+--    BEGIN
+--        UPDATE UserBio SET Profile_Pic = @Profile_Pic WHERE userID = @UserID;
+--    END
+--END;
 --GO
-----4
---CREATE PROCEDURE CompareCars
---    @CarID1 INT,
---    @CarID2 INT
+-- 4 AddCar
+-- DROP PROCEDURE IF EXISTS AddCar;
+-- GO
+--CREATE PROCEDURE AddCar
+--    @VariantID INT,
+--    @Color VARCHAR(50),
+--    @Year INT,
+--    @Description TEXT
 --AS
 --BEGIN
---    SELECT * FROM CAR_DETAILS WHERE carID IN (@CarID1, @CarID2);
---END;
+--    SET NOCOUNT ON;
 
+--    INSERT INTO Car (VariantID, Color, Year, Description)
+--    VALUES (@VariantID, @Color, @Year, @Description);
+--END;
 --GO
-----5
+
+-- 5 AddCarForSale
+--DROP PROCEDURE IF EXISTS AddCarForSale;
+-- GO
+--CREATE PROCEDURE AddCarForSale
+--    @carID INT,
+--    @Client_ID INT,
+--    @VIN VARCHAR(17),
+--    @Condition VARCHAR(10),
+--    @Location VARCHAR(255),
+--    @State VARCHAR(10),
+--    @Price DECIMAL(10,2),
+--    @Negotiable BIT = 0
+--AS
+--BEGIN
+--    SET NOCOUNT ON;
+
+--    DECLARE @ClientCarID INT;
+
+--    INSERT INTO Client_Car (VIN, carID, Client_ID, Condition, Location)
+--    VALUES (@VIN, @carID, @Client_ID, @Condition, @Location);
+
+--    SET @ClientCarID = SCOPE_IDENTITY();
+
+--    INSERT INTO CARS_ON_SALE (Client_Car_ID, [State], Price, negotiable_price)
+--    VALUES (@carID, @State, @Price, @Negotiable);
+--END;
+--GO
+
+-- 6 AddCarReview
+--DROP PROCEDURE IF EXISTS AddCarReview;
+--GO
 --CREATE PROCEDURE AddCarReview
 --    @UserID INT,
---    @CarID INT,
+--    @Client_Car_ID INT,
 --    @Rating_Count FLOAT,
 --    @Review_ID TEXT
 --AS
 --BEGIN
---    INSERT INTO RATING (User_ID, Car_ID, Rating_Count, Review_ID)
---    VALUES (@UserID, @CarID, @Rating_Count, @Review_ID);
+--    INSERT INTO RATING (User_ID, Client_Car_ID, Rating_Count, Review_ID)
+--    VALUES (@UserID, @Client_Car_ID, @Rating_Count, @Review_ID);
 --END;
-
 --GO
-----6
---CREATE PROCEDURE GetSellerDashboard 
+
+-- 7 GetSellerDashboard
+-- DROP PROCEDURE IF EXISTS GetSellerDashboard;
+-- GO
+--CREATE PROCEDURE GetSellerDashboard
 --    @SellerID INT
 --AS
 --BEGIN
+--    SET NOCOUNT ON;
+
 --    SELECT 
---        (SELECT COUNT(*) FROM CARS_ON_SALE WHERE sellerID = @SellerID) AS TotalListedCars,
---        (SELECT COUNT(*) FROM PURCHASE WHERE Seller_ID = @SellerID) AS TotalSoldCars,
---        (SELECT AVG(Rating_Count) FROM RATING WHERE Car_ID IN (SELECT carID FROM CARS_ON_SALE WHERE sellerID = @SellerID)) AS SellerRating;
+--        (SELECT COUNT(*) 
+--         FROM CARS_ON_SALE COS
+--         JOIN Client_Car CC ON COS.Client_Car_ID = CC.Client_Car_ID
+--         WHERE CC.Client_ID = @SellerID) AS TotalListedCars,
+
+--        (SELECT COUNT(*)
+--         FROM TRANSACTIONS T
+--         JOIN Client_Car CC ON T.Receiver_ID = CC.Client_ID
+--         WHERE CC.Client_ID = @SellerID AND T.transaction_type = 'Car Purchase') AS TotalSoldCars,
+
+--        (SELECT AVG(R.Rating_Count)
+--         FROM RATING R
+--         JOIN Client_Car CC ON R.Client_Car_ID = CC.Client_Car_ID
+--         WHERE CC.Client_ID = @SellerID) AS SellerRating;
 --END;
 --GO
 
-----7
---CREATE PROCEDURE GetUserDashboard 
+-- 8 GetUserDashboard
+--DROP PROCEDURE IF EXISTS GetUserDashboard;
+--GO
+--CREATE PROCEDURE GetUserDashboard
 --    @UserID INT
 --AS
 --BEGIN
+--    SET NOCOUNT ON;
+
 --    SELECT 
 --        (SELECT COUNT(*) FROM RATING WHERE User_ID = @UserID) AS TotalReviewsGiven,
---        (SELECT COUNT(*) FROM CAR_RENTAL_HISTORY WHERE renter_id = @UserID) AS TotalRentals;
+--        (SELECT COUNT(*) FROM CAR_RENTAL_HISTORY WHERE Customer_User_ID = @UserID) AS TotalRentals;
 --END;
-
 --GO
-----8
+
+-- 9 GetRenterDashboard
+--DROP PROCEDURE IF EXISTS GetRenterDashboard;
+--GO
 --CREATE PROCEDURE GetRenterDashboard
 --    @RenterID INT
 --AS
 --BEGIN
+--    SET NOCOUNT ON;
+
 --    SELECT 
---		userID,
---        total_rentals
---    FROM RENTER
---    WHERE Renter_ID = @RenterID;
+--        (SELECT COUNT(*) FROM CAR_RENTAL_HISTORY WHERE Client_Car_ID IN 
+--            (SELECT Client_Car_ID FROM Client_Car WHERE Client_ID = @RenterID)) AS TotalRentals,
+
+--        (SELECT COUNT(*) FROM CAR_RENTAL_HISTORY WHERE Client_Car_ID IN 
+--            (SELECT Client_Car_ID FROM Client_Car WHERE Client_ID = @RenterID) 
+--            AND Return_Date IS NOT NULL) AS TotalReturns,
+
+--        (SELECT ISNULL(SUM(total_price),0) FROM CARS_ON_RENT CR 
+--         JOIN Client_Car CC ON CR.Client_Car_ID = CC.Client_Car_ID 
+--         WHERE CC.Client_ID = @RenterID) AS TotalSpent;
 --END;
 --GO
 
-
-
-----9
+-- 10 GetCarPricing
+-- DROP PROCEDURE IF EXISTS GetCarPricing;
+-- GO
 --CREATE PROCEDURE GetCarPricing
---    @CarID INT
+--    @Client_Car_ID INT
 --AS
 --BEGIN
+--    SET NOCOUNT ON;
+
 --    SELECT Price, negotiable_price, listing_expiry
 --    FROM CARS_ON_SALE
---    WHERE carID = @CarID;
+--    WHERE Client_Car_ID = @Client_Car_ID;
 --END;
 --GO
 
-----10
+
+-- 11 BookCar
+-- DROP PROCEDURE IF EXISTS BookCar;
+-- GO
 --CREATE PROCEDURE BookCar
---    @CarID INT,
---    @RenterID INT,
+--    @Client_Car_ID INT,
+--    @Customer_User_ID INT,
 --    @StartDate DATE,
 --    @EndDate DATE,
 --    @TotalPrice DECIMAL(10,2),
 --    @SecurityDeposit DECIMAL(10,2)
 --AS
 --BEGIN
+--    SET NOCOUNT ON;
+
 --    BEGIN TRANSACTION;
---    IF EXISTS (SELECT 1 FROM CARS_ON_RENT WHERE car_id = @CarID AND status = 'Rented')
+--    IF EXISTS (SELECT 1 FROM CARS_ON_RENT WHERE Client_Car_ID = @Client_Car_ID AND status = 'Rented')
 --    BEGIN
 --        ROLLBACK;
---        RAISERROR ('Car is already booked!', 16, 1);
+--        RAISERROR ('Car is already rented!', 16, 1);
 --        RETURN;
 --    END
 
---    INSERT INTO CARS_ON_RENT (car_id, renter_id, start_date, end_date, total_price, security_deposit, status)
---    VALUES (@CarID, @RenterID, @StartDate, @EndDate, @TotalPrice, @SecurityDeposit, 'Rented');
+--    INSERT INTO CARS_ON_RENT (Client_Car_ID, start_date, end_date, total_price, security_deposit, status)
+--    VALUES (@Client_Car_ID, @StartDate, @EndDate, @TotalPrice, @SecurityDeposit, 'Rented');
+
 --    COMMIT;
 --END;
 --GO
 
-----11
+
+-- 12 UpdateCarPrice
+-- DROP PROCEDURE IF EXISTS UpdateCarPrice;
+-- GO
 --CREATE PROCEDURE UpdateCarPrice
---    @CarID INT,
+--    @Client_Car_ID INT,
 --    @NewPrice DECIMAL(10,2)
 --AS
 --BEGIN
+--    SET NOCOUNT ON;
+
 --    UPDATE CARS_ON_SALE
 --    SET Price = @NewPrice
---    WHERE carID = @CarID;
+--    WHERE Client_Car_ID = @Client_Car_ID;
 --END;
 --GO
 
-----12
---CREATE PROCEDURE GetCarPriceTrends 
+
+-- 13 GetCarPriceTrends
+-- DROP PROCEDURE IF EXISTS GetCarPriceTrends;
+-- GO
+--CREATE PROCEDURE GetCarPriceTrends
 --AS
 --BEGIN
---    SELECT CD.carID, Model, Make, Price, listed_at 
---    FROM CARS_ON_SALE AS CS
---    JOIN CAR_DETAILS AS CD ON CS.carID = CD.carID
---    ORDER BY listed_at DESC;
+--    SET NOCOUNT ON;
+
+--    SELECT CC.Client_Car_ID, M.MakeName, MO.ModelName, V.VariantName, CS.Price, CS.listed_at
+--    FROM CARS_ON_SALE CS
+--    JOIN Client_Car CC ON CS.Client_Car_ID = CC.Client_Car_ID
+--    JOIN Car C ON CC.carID = C.CarID
+--    JOIN Variant V ON C.VariantID = V.VariantID
+--    JOIN Model MO ON V.ModelID = MO.ModelID
+--    JOIN Make M ON MO.MakeID = M.MakeID
+--    ORDER BY CS.listed_at DESC;
 --END;
 --GO
 
-----13
+
+-- 14 AddSupportTicket
+-- DROP PROCEDURE IF EXISTS AddSupportTicket;
+-- GO
 --CREATE PROCEDURE AddSupportTicket
 --    @SenderID INT,
 --    @ReceiverID INT,
@@ -457,648 +788,465 @@
 --END;
 --GO
 
-----14
+
+-- 15 GetUserProfile
+-- DROP PROCEDURE IF EXISTS GetUserProfile;
+-- GO
 --CREATE PROCEDURE GetUserProfile
 --    @UserID INT
 --AS
 --BEGIN
 --    SELECT 
---        UserName, Name, Phone_Number, Email, Profile_Pic,
---        (SELECT car_id FROM CARS_ON_RENT WHERE renter_id = @UserID) AS BookedCars
---    FROM Users
---    WHERE userID = @UserID;
---END;
---GO
-
-----15
---CREATE PROCEDURE ApplyDiscount
---    @RenterID INT,
---    @Discount DECIMAL(10,2)
---AS
---BEGIN
---    BEGIN TRANSACTION;
---    UPDATE RENTER
---    SET wallet_balance = wallet_balance + @Discount
---    WHERE Renter_ID = @RenterID;
---    COMMIT;
---END;
---GO
-
----- CREATE PROCEDURE ApplyDiscount
-----     @RenterID INT,
-----     @Discount DECIMAL(10,2)
----- AS
----- BEGIN
-----     UPDATE RENTER
-----     SET wallet_balance = wallet_balance + @Discount
-----     WHERE Renter_ID = @RenterID;
----- END;
----- GO
-
-----16
---CREATE PROCEDURE AddRentingAudit
---    @CarID INT,
---    @RenterID INT,
---    @ClientID INT,
---    @Rent_Date DATE,
---    @Return_Date DATE,
---    @Renter_Feedback TEXT
---AS
---BEGIN
---    INSERT INTO CAR_RENTAL_HISTORY (car_id, renter_id, client_id, Rent_Date, Return_Date, renter_feedback)
---    VALUES (@CarID, @RenterID, @ClientID, @Rent_Date, @Return_Date, @Renter_Feedback);
---END;
---GO
-
-----17
---CREATE PROCEDURE GetCarAnalysis
---    @CarID INT
---AS
---BEGIN
---    SELECT Make, Model, Variant,Color, year, Description, Condition, Category, fuel_type, transmission
---    FROM CAR_DETAILS
---    WHERE carID = @CarID;
+--        ub.UserName,
+--        ub.Name,
+--        ua.Phone_Number,
+--        ua.Email,
+--        ub.Profile_Pic,
+--        (SELECT TOP 1 CR.Client_Car_ID FROM CARS_ON_RENT CR 
+--         JOIN Client_Car CC ON CR.Client_Car_ID = CC.Client_Car_ID 
+--         WHERE CC.Client_ID = (SELECT Client_ID FROM CLIENT WHERE userID = @UserID) 
+--         AND CR.status = 'Rented') AS BookedCarID
+--    FROM UserBio ub
+--    JOIN UserAuth ua ON ub.userID = ua.userID
+--    WHERE ub.userID = @UserID;
 --END;
 --GO
 
 
-----18
---CREATE PROCEDURE UpdateBuyerLevel
---    @ClientID INT,
---    @TotalSpent DECIMAL(10,2)
---AS
---BEGIN
---    UPDATE BUYER
---    SET total_spent = total_spent + @TotalSpent
---    WHERE Client_ID = @ClientID;
---END;
---GO
-
-----19
---CREATE PROCEDURE FilterCars
---    @Brand VARCHAR(100) = NULL,
---    @MinPrice DECIMAL(10,2) = NULL,
---    @MaxPrice DECIMAL(10,2) = NULL,
---    @Transmission VARCHAR(50) = NULL
---AS
---BEGIN
---    SELECT *
---    FROM CAR_DETAILS AS CD
---    JOIN CARS_ON_SALE AS CS ON CD.carID = CS.carID
---    WHERE 
---        (@Brand IS NULL OR Make = @Brand) AND
---        (@MinPrice IS NULL OR Price >= @MinPrice) AND
---        (@MaxPrice IS NULL OR Price <= @MaxPrice) AND
---        (@Transmission IS NULL OR transmission = @Transmission);
---END;
---GO
-
---CREATE PROCEDURE FilterCars2
---    @Brand VARCHAR(100) = NULL,
---    @MinPrice DECIMAL(10,2) = NULL,
---    @MaxPrice DECIMAL(10,2) = NULL,
---    @Transmission VARCHAR(50) = NULL
---AS
---BEGIN
---    SELECT *
---    FROM CAR_DETAILS AS CD
---    JOIN CARS_ON_RENT AS CR ON CD.carID = CR.car_id
---    WHERE 
---        (@Brand IS NULL OR Make = @Brand) AND
---        (@MinPrice IS NULL OR total_price >= @MinPrice) AND
---        (@MaxPrice IS NULL OR total_price <= @MaxPrice) AND
---        (@Transmission IS NULL OR transmission = @Transmission);
---END;
---GO
-
-----20
---CREATE PROCEDURE AddCar
---    @SellerID INT,
---    @Make VARCHAR(100),
---    @Model VARCHAR(100),
---	@Color VARCHAR(10),
---    @Variant VARCHAR(100),
---    @Year INT,
---    @Price DECIMAL(10,2),
---    @FuelType VARCHAR(50),
---    @Transmission VARCHAR(50),
---    @Condition VARCHAR(50),
---    @Description TEXT
---AS
---BEGIN
---    INSERT INTO Car_DETAILS(Make, Model,Color,Variant, Year, Price, FuelType, Transmission, Condition, Description)
---    VALUES (@Make, @Model,@Color, @Variant, @Year, @Price, @FuelType, @Transmission, @Condition, @Description);
---END;
---BEGIN
---	INSERT INTO 
---GO
-
-----21
---CREATE PROCEDURE DeleteCar
---    @CarID INT
---AS
---BEGIN
---	DELETE FROM CARS_ON_RENT WHERE  car_id=@CarID
---END;
---BEGIN
---	DELETE FROM CARS_ON_SALE WHERE carID=@CarID
---END;
---BEGIN
---    DELETE FROM CAR_DETAILS WHERE carID = @CarID;
---END;
---GO
-
---DROP PROCEDURE DeleteCar
-
-----22
---CREATE PROCEDURE CancelBooking
---    @RentalID INT
---AS
---BEGIN
---    UPDATE CARS_ON_RENT SET Status = 'Cancelled' WHERE rental_id = @RentalID AND Status='Rented';
---END;
---GO
-
---drop procedure GetCarReviews
-
---23
---CREATE PROCEDURE GetCarReviews
---    @CarID INT
---AS
---BEGIN
---    SELECT U.UserName, R.Rating_Count,R.Review_ID
---    FROM RATING AS R
---    JOIN Users AS U ON R.User_ID = U.UserID
---    WHERE R.Car_ID = @CarID;
---END;
---GO
-
-----24
+-- 16 GetUserMessages
+-- DROP PROCEDURE IF EXISTS GetUserMessages;
+-- GO
 --CREATE PROCEDURE GetUserMessages
 --    @UserID INT
 --AS
 --BEGIN
 --    SELECT Sender_ID, Receiver_ID, Message, Sent_Time
 --    FROM MESSAGE
---    Where Sender_ID = @UserID
+--    WHERE Sender_ID = @UserID OR Receiver_ID = @UserID
 --    ORDER BY Sent_Time DESC;
 --END;
 --GO
 
-----25
+
+-- 17 CancelBooking
+-- DROP PROCEDURE IF EXISTS CancelBooking;
+-- GO
+--CREATE PROCEDURE CancelBooking
+--    @RentalID INT
+--AS
+--BEGIN
+--    UPDATE CARS_ON_RENT
+--    SET status = 'Cancelled'
+--    WHERE rental_id = @RentalID;
+--END;
+--GO
+
+
+-- 18 ReturnCar
+-- DROP PROCEDURE IF EXISTS ReturnCar;
+-- GO
 --CREATE PROCEDURE ReturnCar
 --    @RentalID INT
 --AS
 --BEGIN
+--    SET NOCOUNT ON;
+
 --    BEGIN TRANSACTION;
 --    DECLARE @CarID INT;
---    SELECT @CarID = car_id FROM CARS_ON_RENT WHERE rental_id = @RentalID AND status = 'Rented';
+
+--    SELECT @CarID = carID 
+--    FROM Car 
+--    WHERE CarID = (SELECT carID FROM Client_Car 
+--                   WHERE Client_Car_ID = (SELECT Client_Car_ID FROM CARS_ON_RENT WHERE rental_id = @RentalID));
+
 --    IF @CarID IS NULL
 --    BEGIN
 --        ROLLBACK;
---        RAISERROR ('Invalid rental or already completed.', 16, 1);
+--        RAISERROR ('Invalid rental or already returned.', 16, 1);
 --        RETURN;
 --    END
-    
+
 --    UPDATE CARS_ON_RENT SET status = 'Returned' WHERE rental_id = @RentalID;
---    UPDATE CAR_DETAILS SET Availability = 1 WHERE carID = @CarID;
+--    UPDATE Client_Car SET Availability = 1 WHERE Client_Car_ID = (SELECT Client_Car_ID FROM CARS_ON_RENT WHERE rental_id = @RentalID);
+
 --    COMMIT;
 --END;
 --GO
 
-----26
--- Reporting: Get Total Revenue & Active Rentals
+-- 19 ApplyDiscount
+-- DROP PROCEDURE IF EXISTS ApplyDiscount;
+-- GO
+--CREATE PROCEDURE ApplyDiscount
+--    @RenterID INT,
+--    @Discount DECIMAL(10,2)
+--AS
+--BEGIN
+--    UPDATE Customer
+--    SET wallet_balance = wallet_balance + @Discount
+--    WHERE Customer_ID = @RenterID;
+--END;
+--GO
+
+-- 20 AddRentingAudit
+-- DROP PROCEDURE IF EXISTS AddRentingAudit;
+-- GO
+--CREATE PROCEDURE AddRentingAudit
+--    @Client_Car_ID INT,
+--    @Customer_User_ID INT,
+--    @Rent_Date DATE,
+--    @Return_Date DATE,
+--    @Renter_Feedback TEXT = NULL
+--AS
+--BEGIN
+--    INSERT INTO CAR_RENTAL_HISTORY (Client_Car_ID, Customer_User_ID, Rent_Date, Return_Date, renter_feedback)
+--    VALUES (@Client_Car_ID, @Customer_User_ID, @Rent_Date, @Return_Date, @Renter_Feedback);
+--END;
+--GO
+
+-- 21 GetCarAnalysis
+-- DROP PROCEDURE IF EXISTS GetCarAnalysis;
+-- GO
+--CREATE PROCEDURE GetCarAnalysis
+--    @CarID INT
+--AS
+--BEGIN
+--    SELECT M.MakeName, MO.ModelName, V.VariantName, C.Color, C.Year, C.Description, CC.Condition, MO.Category, V.FuelType, V.Transmission
+--    FROM Car C
+--    JOIN Variant V ON C.VariantID = V.VariantID
+--    JOIN Model MO ON V.ModelID = MO.ModelID
+--    JOIN Make M ON MO.MakeID = M.MakeID
+--    JOIN Client_Car CC ON CC.carID = C.CarID
+--    WHERE C.CarID = @CarID;
+--END;
+--GO
+
+-- 22 UpdateBuyerLevel
+-- DROP PROCEDURE IF EXISTS UpdateBuyerLevel;
+-- GO
+--CREATE PROCEDURE UpdateBuyerLevel
+--    @ClientID INT,
+--    @TotalSpent DECIMAL(10,2)
+--AS
+--BEGIN
+--    UPDATE Customer
+--    SET total_spent = total_spent + @TotalSpent
+--    WHERE Customer_ID = @ClientID;
+--END;
+--GO
+
+-- 23 FilterCars_Sale
+--DROP PROCEDURE IF EXISTS FilterCars_Sale;
+--GO
+--CREATE PROCEDURE FilterCars_Sale
+--    @Brand VARCHAR(100) = NULL,
+--    @MinPrice DECIMAL(10,2) = NULL,
+--    @MaxPrice DECIMAL(10,2) = NULL,
+--    @Transmission VARCHAR(50) = NULL
+--AS
+--BEGIN
+--    SELECT *
+--    FROM Car C
+--    JOIN Variant V ON C.VariantID = V.VariantID
+--    JOIN Model M ON V.ModelID = M.ModelID
+--    JOIN Make MK ON M.MakeID = MK.MakeID
+--    JOIN Client_Car CC ON CC.carID = C.CarID
+--    JOIN CARS_ON_SALE CS ON CC.Client_Car_ID = CS.Client_Car_ID
+--    WHERE
+--        (@Brand IS NULL OR MK.MakeName = @Brand) AND
+--        (@MinPrice IS NULL OR CS.Price >= @MinPrice) AND
+--        (@MaxPrice IS NULL OR CS.Price <= @MaxPrice) AND
+--        (@Transmission IS NULL OR V.Transmission = @Transmission);
+--END;
+--GO
+
+
+-- 24 FilterCars_Rent
+--DROP PROCEDURE IF EXISTS FilterCars_Rent;
+--GO
+--CREATE PROCEDURE FilterCars_Rent
+--    @Brand VARCHAR(100) = NULL,
+--    @MinPrice DECIMAL(10,2) = NULL,
+--    @MaxPrice DECIMAL(10,2) = NULL,
+--    @Transmission VARCHAR(50) = NULL
+--AS
+--BEGIN
+--    SELECT *
+--    FROM Car C
+--    JOIN Variant V ON C.VariantID = V.VariantID
+--    JOIN Model M ON V.ModelID = M.ModelID
+--    JOIN Make MK ON M.MakeID = MK.MakeID
+--    JOIN Client_Car CC ON CC.carID = C.CarID
+--    JOIN CARS_ON_RENT CR ON CC.Client_Car_ID = CR.Client_Car_ID
+--    WHERE
+--        (@Brand IS NULL OR MK.MakeName = @Brand) AND
+--        (@MinPrice IS NULL OR CR.total_price >= @MinPrice) AND
+--        (@MaxPrice IS NULL OR CR.total_price <= @MaxPrice) AND
+--        (@Transmission IS NULL OR V.Transmission = @Transmission);
+--END;
+--GO
+
+-- 25 DeleteCar
+--DROP PROCEDURE IF EXISTS DeleteCar;
+--GO
+--CREATE PROCEDURE DeleteCar
+--    @CarID INT
+--AS
+--BEGIN
+--    DELETE FROM RATING WHERE Client_Car_ID IN (
+--        SELECT Client_Car_ID FROM Client_Car WHERE carID = @CarID
+--    );
+
+--    DELETE FROM CARS_ON_RENT WHERE Client_Car_ID IN (
+--        SELECT Client_Car_ID FROM Client_Car WHERE carID = @CarID
+--    );
+
+--    DELETE FROM CARS_ON_SALE WHERE Client_Car_ID IN (
+--        SELECT Client_Car_ID FROM Client_Car WHERE carID = @CarID
+--    );
+
+--    DELETE FROM Client_Car WHERE carID = @CarID;
+
+--    DELETE FROM Car WHERE CarID = @CarID;
+--END;
+--GO
+
+
+-- 26 GetCarReviews
+--DROP PROCEDURE IF EXISTS GetCarReviews;
+--GO
+--CREATE PROCEDURE GetCarReviews
+--    @Client_Car_ID INT
+--AS
+--BEGIN
+--    SELECT UB.UserName, R.Rating_Count, R.Review_ID
+--    FROM RATING R
+--    JOIN UserBio UB ON R.User_ID = UB.userID
+--    WHERE R.Client_Car_ID = @Client_Car_ID;
+--END;
+--GO
+
+
+-- 27 GetRentalReport
+-- DROP PROCEDURE IF EXISTS GetRentalReport;
+-- GO
 --CREATE PROCEDURE GetRentalReport
 --AS
 --BEGIN
 --    SELECT 
---        (SELECT COUNT(*) FROM CARS_ON_RENT WHERE status = 'Rented') AS activeRentals,
---        (SELECT COALESCE(SUM(total_price), 0) FROM CARS_ON_RENT WHERE status = 'Returned') AS totalRevenue;
+--        (SELECT COUNT(*) FROM CARS_ON_RENT WHERE status = 'Rented') AS ActiveRentals,
+--        (SELECT ISNULL(SUM(total_price), 0.00) FROM CARS_ON_RENT WHERE status = 'Returned') AS TotalRevenue;
 --END;
 --GO
 
---DROP procedure GetRentalReport
 
-----27
----- Reporting: Top 5 Cars by Rating
+-- 28 GetTopRatedCars
+-- DROP PROCEDURE IF EXISTS GetTopRatedCars;
+-- GO
 --CREATE PROCEDURE GetTopRatedCars
 --AS
 --BEGIN
---    SELECT C.carID, C.Make, C.Model, AVG(R.Rating_Count) AS avgRating
+--    SELECT TOP 5
+--        CC.Client_Car_ID,
+--        M.MakeName,
+--        MO.ModelName,
+--        V.VariantName,
+--        AVG(R.Rating_Count) AS AvgRating
 --    FROM RATING R
---    INNER JOIN CAR_DETAILS C ON R.Car_ID = C.carID
---    GROUP BY C.carID, C.Make, C.Model
---    ORDER BY avgRating DESC, C.carID
---    OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;
+--    JOIN Client_Car CC ON R.Client_Car_ID = CC.Client_Car_ID
+--    JOIN Car C ON CC.carID = C.CarID
+--    JOIN Variant V ON C.VariantID = V.VariantID
+--    JOIN Model MO ON V.ModelID = MO.ModelID
+--    JOIN Make M ON MO.MakeID = M.MakeID
+--    GROUP BY CC.Client_Car_ID, M.MakeName, MO.ModelName, V.VariantName
+--    ORDER BY AvgRating DESC;
 --END;
 --GO
 
-----28
---CREATE PROCEDURE SearchCars(@SearchTerm VARCHAR(100))
+
+-- 29 SearchCars
+-- DROP PROCEDURE IF EXISTS SearchCars;
+-- GO
+--CREATE PROCEDURE SearchCars
+--    @SearchTerm VARCHAR(100)
 --AS
 --BEGIN
---    SELECT TOP 10 Make, Model, Variant 
---    FROM CAR_DETAILS 
---    WHERE Make LIKE '%' + @SearchTerm + '%' 
---       OR Model LIKE '%' + @SearchTerm + '%'
---    ORDER BY Make, Model, Variant;
+--    SELECT DISTINCT TOP 10 M.MakeName, MO.ModelName, V.VariantName
+--    FROM Make M
+--    JOIN Model MO ON M.MakeID = MO.MakeID
+--    JOIN Variant V ON MO.ModelID = V.ModelID
+--    WHERE M.MakeName LIKE '%' + @SearchTerm + '%'
+--       OR MO.ModelName LIKE '%' + @SearchTerm + '%'
+--       OR V.VariantName LIKE '%' + @SearchTerm + '%';
 --END;
 --GO
 
---CREATE PROCEDURE SearchCars(@SearchTerm VARCHAR(100))
---AS
---BEGIN
---    SELECT DISTINCT TOP 10 Make, Model, Variant
---    FROM CAR_DETAILS
---    WHERE EXISTS (
---        SELECT 1 
---        FROM STRING_SPLIT(@SearchTerm, ' ') AS word
---        WHERE 
---            Make LIKE '%' + word.value + '%' 
---            OR Model LIKE '%' + word.value + '%' 
---            OR Variant LIKE '%' + word.value + '%'
---    )
---    ORDER BY Make, Model, Variant;
---END;
---GO
-
-
---drop procedure SearchCars
-
-----29
+-- 30 ResetPassword
+-- DROP PROCEDURE IF EXISTS ResetPassword;
+-- GO
 --CREATE PROCEDURE ResetPassword
 --    @Email VARCHAR(255),
 --    @OldPassword NVARCHAR(255),
 --    @NewPassword NVARCHAR(255)
 --AS
 --BEGIN
---    BEGIN TRY
---        BEGIN TRANSACTION;
-        
---        DECLARE @UserID INT, @StoredPassword VARBINARY(256);
-        
---        SELECT @UserID = userID, @StoredPassword = Password 
---        FROM Users 
---        WHERE LOWER(Email) = LOWER(@Email);
-        
---        IF @UserID IS NULL
---        BEGIN
---            ROLLBACK TRANSACTION;
---            RAISERROR('User not found.', 16, 1);
---            RETURN;
---        END
-        
---        IF @StoredPassword != HASHBYTES('SHA2_256', @OldPassword)
---        BEGIN
---            ROLLBACK TRANSACTION;
---            RAISERROR('Current password is incorrect.', 16, 1);
---            RETURN;
---        END
-        
---        UPDATE Users 
---        SET 
---            Previous_Password = Password,
---            Password = HASHBYTES('SHA2_256', @NewPassword),
---            UpdatedAt = GETDATE()
---        WHERE userID = @UserID;
-        
---        COMMIT TRANSACTION;
---    END TRY
---    BEGIN CATCH
---        ROLLBACK TRANSACTION;
---        THROW;
---    END CATCH
---END;
---GO
+--    DECLARE @UserID INT, @StoredPassword VARBINARY(256);
 
---30
---CREATE PROCEDURE SearchCarsWithPrice
---    @SearchTerm VARCHAR(100) = NULL,
---    @MinPrice DECIMAL(10,2) = NULL,
---    @MaxPrice DECIMAL(10,2) = NULL
---AS
---BEGIN
---    -- Table to store split search terms
---    DECLARE @Words TABLE (Word VARCHAR(100));
+--    SELECT @UserID = userID, @StoredPassword = [Password]
+--    FROM UserAuth
+--    WHERE LOWER(Email) = LOWER(@Email);
 
---    -- Split the search term into words
---    IF @SearchTerm IS NOT NULL
+--    IF @UserID IS NULL
 --    BEGIN
---        INSERT INTO @Words (Word)
---        SELECT value FROM STRING_SPLIT(@SearchTerm, ' ');
---    END
-
---    SELECT DISTINCT 
---        CD.carID, CD.Make, CD.Model, CD.Variant, 
---        CS.Price AS SalePrice, CR.total_price AS RentPrice
---    FROM CAR_DETAILS CD
---    LEFT JOIN CARS_ON_SALE CS ON CD.carID = CS.carID
---    LEFT JOIN CARS_ON_RENT CR ON CD.carID = CR.car_id
---    WHERE 
---        (
---            @SearchTerm IS NULL OR
---            EXISTS (
---                SELECT 1 FROM @Words W
---                WHERE 
---                    CD.Make LIKE '%' + W.Word + '%' OR
---                    CD.Model LIKE '%' + W.Word + '%'
---            )
---        )
---        AND (
---            @MinPrice IS NULL OR 
---            (CS.Price IS NOT NULL AND CS.Price >= @MinPrice) OR 
---            (CR.total_price IS NOT NULL AND CR.total_price >= @MinPrice)
---        )
---        AND (
---            @MaxPrice IS NULL OR 
---            (CS.Price IS NOT NULL AND CS.Price <= @MaxPrice) OR 
---            (CR.total_price IS NOT NULL AND CR.total_price <= @MaxPrice)
---        )
---    ORDER BY CD.Make, CD.Model;
---END;
---GO
-
-
---drop procedure SearchCarsWithFeatures
-
---CREATE PROCEDURE AddSupportTicket
---    @SenderID INT,
---    @ReceiverID INT,
---    @Message TEXT
---AS
---BEGIN
---    INSERT INTO MESSAGE (Sender_ID, Receiver_ID, Message)
---    VALUES (@SenderID, @ReceiverID, @Message);
---END;
---GO
-
---CREATE PROCEDURE AddCarForSale
---    @carID INT,
---    @sellerID INT,
---    @Price DECIMAL(10,2),
---    @negotiable_price BIT = 0,
---    @listing_expiry DATETIME = NULL
---AS
---BEGIN
---    IF @listing_expiry IS NULL
---        SET @listing_expiry = DATEADD(DAY, 30, GETDATE());
-
---    INSERT INTO CARS_ON_SALE (carID, sellerID, Price, negotiable_price, listed_at, listing_expiry, Availability)
---    VALUES (@carID, @sellerID, @Price, @negotiable_price, GETDATE(), @listing_expiry, 1);
---END;
---GO
-
---CREATE PROCEDURE AddCar
---    @Make VARCHAR(100),
---    @Model VARCHAR(100),
---    @Variant VARCHAR(100),
---    @year INT ,
---    @Description TEXT,
---    @Condition VARCHAR(10) ,
---	@Color VARCHAR(10),
---    @Category VARCHAR(100),
---    @Location VARCHAR(255),
---    @fuel_type VARCHAR(50),
---    @transmission VARCHAR(50),
---    @VIN VARCHAR(17),
---    @availability BIT
---AS
---BEGIN
---    INSERT INTO CAR_DETAILS(Make, Model, Variant, year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability)
---    VALUES (@Make, @Model, @Variant, @year, @Description, @Condition, @Color, @Category, @Location, @fuel_type, @transmission, @VIN, @availability);
---END;
---GO
-
---CREATE PROCEDURE AddCarForRent
---    @carID INT,
---    @renterID INT,
---    @start_date DATE,
---    @end_date DATE,
---    @total_price DECIMAL(10,2),
---    @security_deposit DECIMAL(10,2) = 0.0
---AS
---BEGIN
---    INSERT INTO CARS_ON_RENT (car_id, renter_id, start_date, end_date, total_price, security_deposit, status, rented_at)
---    VALUES (@carID, @renterID, @start_date, @end_date, @total_price, @security_deposit, 'Rented', GETDATE());
---END;
---GO
-
---CREATE PROCEDURE ReturnCar
---    @RentalID INT
---AS
---BEGIN
---    BEGIN TRANSACTION;
---    DECLARE @CarID INT;
---    SELECT @CarID = car_id FROM CARS_ON_RENT WHERE rental_id = @RentalID AND status = 'Rented';
---    IF @CarID IS NULL
---    BEGIN
---        ROLLBACK;
---        RAISERROR ('Invalid rental or already completed.', 16, 1);
+--        RAISERROR('User not found.', 16, 1);
 --        RETURN;
 --    END
-    
---    UPDATE CARS_ON_RENT SET status = 'Returned' WHERE rental_id = @RentalID;
---    UPDATE CAR_DETAILS SET Availability = 1 WHERE carID = @CarID;
---    COMMIT;
+
+--    IF @StoredPassword != HASHBYTES('SHA2_256', @OldPassword)
+--    BEGIN
+--        RAISERROR('Current password is incorrect.', 16, 1);
+--        RETURN;
+--    END
+
+--    UPDATE UserAuth
+--    SET
+--        Previous_Password = [Password],
+--        [Password] = HASHBYTES('SHA2_256', @NewPassword),
+--        UpdatedAt = GETDATE()
+--    WHERE userID = @UserID;
 --END;
 --GO
---CREATE PROCEDURE UpdateBuyerLevel
---    @ClientID INT,
---    @TotalSpent DECIMAL(10,2)
+
+-- 31 SearchCarsWithFeatures
+--DROP PROCEDURE IF EXISTS SearchCarsWithFeatures;
+--GO
+--CREATE PROCEDURE SearchCarsWithFeatures
+--    @SearchTerm VARCHAR(100) = NULL,
+--    @MinPrice DECIMAL(10,2) = NULL,
+--    @MaxPrice DECIMAL(10,2) = NULL,
+--    @Features VARCHAR(100) = NULL
 --AS
 --BEGIN
---    UPDATE BUYER
---    SET total_spent = total_spent + @TotalSpent
---    WHERE Client_ID = @ClientID;
+--    SELECT DISTINCT CC.Client_Car_ID, M.MakeName, MO.ModelName, V.VariantName, CS.Price
+--    FROM Client_Car CC
+--    JOIN Car C ON CC.carID = C.CarID
+--    JOIN Variant V ON C.VariantID = V.VariantID
+--    JOIN Model MO ON V.ModelID = MO.ModelID
+--    JOIN Make M ON MO.MakeID = M.MakeID
+--    JOIN CARS_ON_SALE CS ON CS.Client_Car_ID = CC.Client_Car_ID
+--    WHERE
+--        (@SearchTerm IS NULL OR M.MakeName LIKE '%' + @SearchTerm + '%' OR MO.ModelName LIKE '%' + @SearchTerm + '%') AND
+--        (@MinPrice IS NULL OR CS.Price >= @MinPrice) AND
+--        (@MaxPrice IS NULL OR CS.Price <= @MaxPrice) AND
+--        (@Features IS NULL OR
+--            V.VariantName LIKE '%' + @Features + '%' OR
+--            CC.Condition LIKE '%' + @Features + '%' OR
+--            V.FuelType LIKE '%' + @Features + '%' OR
+--            V.Transmission LIKE '%' + @Features + '%');
 --END;
 --GO
 
+---- 1. AvailableCarsForSale
+--SELECT * FROM AvailableCarsForSale;
+---- Expected Result: Should show Car 1 and Car 2, as they were added to CARS_ON_SALE and their availability is 1.
 
---exec SignUpUser 'john_doe', 'John Doe', 'Seller', '1234567890', 'l@yahoo.com', 'password';
---exec SignUpUser 'jane_doe', 'Jane Doe', 'Renter', '1234567891', 'm@gmail.com', 'password';
---exec SignUpUser 'ali', 'Jane Doe', 'Renter', '1234567892', 'p@gmail.com', '123456789';
+---- 2. AvailableCarsForRent
+-- SELECT * FROM AvailableCarsForRent;
+---- Expected Result: Should show Car 3, as it was added to CARS_ON_RENT and its status is 'Available'.
 
---exec LoginUser 'ali','123456789';
+---- 3. TopRatedCars
+--SELECT * FROM TopRatedCars;
+---- Expected Result: Should show cars with an average rating of 4.0 or higher.  Based on the inserts, Car 3 and Car 1 should appear.
 
---exec LoginUser 'john_doe', 'password';
---exec LoginUser 'jane_doe', 'password';
---exec LoginUser 'john_doe', 'password123';
-
---exec UpdateProfile 1, 'John Doe', '1234567890', 'ba', 'profile.jpg';
-
---exec AddCar 1, 'Toyota', 'Corolla', 'GLI', 2020, 1500, 'Petrol', 'Automatic', 'New car';
---exec AddCar 2, 'Honda', 'Civic', 'VTI', 2019, 2000, 'Petrol', 'Automatic', 'Used car';
-
---SELECT * FROM CAR_DETAILS;
-
---exec CompareCars 1, 2;
-
---exec AddCarReview 1, 1, 4.5, 'Good car';
---exec AddCarReview 2, 1, 3.5, 'Average car';
-
---exec GetSellerDashboard 1;
---exec GetUserDashboard 1;
---exec GetRenterDashboard 2;
-
---exec GetCarPricing 1;
---exec BookCar 1, 2, '2021-01-01', '2021-01-10', 1000, 100;
---exec UpdateCarPrice 1, 1200;
---exec GetCarPriceTrends;
-
---exec AddSupportTicket 1, 2, 'Help needed';
---exec GetUserProfile 1;
---exec ApplyDiscount 2, 50;
---exec AddRentingAudit 1, 2, 1, '2021-01-01', '2021-01-10', 'Good experience';
-
---exec GetCarAnalysis 1;
---exec UpdateBuyerLevel 1, 1000;
-
---exec FilterCars1 'Toyota', 1000, 2000, 'Automatic';
---exec FilterCars2 'Toyota', 1000, 2000, 'Automatic';
-
---exec AddCar 1, 'Toyota', 'Corolla', 'GLI', 2020, 1500, 'Petrol', 'Automatic', 'New car';
---SELECT * FROM Cars;
---exec DeleteCar 1;
---exec CancelBooking 1;
---exec GetCarReviews 1;
---exec GetUserMessages 1;
---exec ReturnCar 1;
-
---exec GetRentalReport;
---exec GetTopRatedCars;
+---- 4. UserRentalHistory
+--SELECT * FROM UserRentalHistory;
+---- Expected Result: Should show the rental history for each customer.
+--------------------------------------------------------------------------------------------------------------------------
 
 
+---------------------------------------------------------------------------------------------------------------------------
+---- Authentication Procedures
+--DROP PROCEDURE IF EXISTS SignUpUser;
+--DROP PROCEDURE IF EXISTS LoginUser;
+--DROP PROCEDURE IF EXISTS ResetPassword;
 
+---- User Profile Procedures
+--DROP PROCEDURE IF EXISTS UpdateProfile;
+--DROP PROCEDURE IF EXISTS GetUserProfile;
+--DROP PROCEDURE IF EXISTS GetUserMessages;
 
---UPDATE Users
---SET 
---    Previous_Password = NULL,
---    CreatedAt = GETDATE(),
---    UpdatedAt = GETDATE(),
---    Last_Login = NULL,
---    Profile_Pic = NULL,
---    Verification_Status = 1,
---    Account_Status = 'Active',
---    Failed_Login_Attempts = 0,
---    Last_Failed_Login = NULL;
---	exec FilterCars
---	NULL,1200000.00,5000000.00,NULL
+---- Car Management Procedures
+--DROP PROCEDURE IF EXISTS AddCar;
+--DROP PROCEDURE IF EXISTS AddCarForSale;
+--DROP PROCEDURE IF EXISTS AddCarReview;
+--DROP PROCEDURE IF EXISTS GetCarPricing;
+--DROP PROCEDURE IF EXISTS UpdateCarPrice;
+--DROP PROCEDURE IF EXISTS DeleteCar;
+--DROP PROCEDURE IF EXISTS GetCarAnalysis;
+--DROP PROCEDURE IF EXISTS GetCarReviews;
 
+---- Rental Procedures
+--DROP PROCEDURE IF EXISTS BookCar;
+--DROP PROCEDURE IF EXISTS CancelBooking;
+--DROP PROCEDURE IF EXISTS ReturnCar;
+--DROP PROCEDURE IF EXISTS AddRentingAudit;
 
+---- Dashboard Procedures
+--DROP PROCEDURE IF EXISTS GetSellerDashboard;
+--DROP PROCEDURE IF EXISTS GetUserDashboard;
+--DROP PROCEDURE IF EXISTS GetRenterDashboard;
+--DROP PROCEDURE IF EXISTS GetRentalReport;
 
----- Insert into Users table with converted passwords
---INSERT INTO Users (UserName, Name, Role, Phone_Number, Email, Password, Verification_Status, Account_Status)
---VALUES 
---('ali_khan', 'Ali Khan', 'Seller', '03001234567', 'ali.khan@example.com', CONVERT(VARBINARY(256), 'SellerPass123'), 1, 'Active'),
---('fatima_ahmed', 'Fatima Ahmed', 'Renter', '03011234567', 'fatima.ahmed@example.com', CONVERT(VARBINARY(256), 'RenterPass456'), 1, 'Active'),
---('usman_malik', 'Usman Malik', 'Client', '03021234567', 'usman.malik@example.com', CONVERT(VARBINARY(256), 'ClientPass789'), 1, 'Active'),
---('sana_akhtar', 'Sana Akhtar', 'Seller', '03031234567', 'sana.akhtar@example.com', CONVERT(VARBINARY(256), 'SellerPass321'), 1, 'Active'),
---('bilal_qureshi', 'Bilal Qureshi', 'Renter', '03041234567', 'bilal.qureshi@example.com', CONVERT(VARBINARY(256), 'RenterPass654'), 1, 'Active'),
---('zainab_rizvi', 'Zainab Rizvi', 'Client', '03051234567', 'zainab.rizvi@example.com', CONVERT(VARBINARY(256), 'ClientPass987'), 1, 'Active');
+---- Search & Filter Procedures
+--DROP PROCEDURE IF EXISTS FilterCars;
+--DROP PROCEDURE IF EXISTS FilterCars2;
+--DROP PROCEDURE IF EXISTS SearchCars;
+--DROP PROCEDURE IF EXISTS SearchCarsWithFeatures;
+--DROP PROCEDURE IF EXISTS GetCarPriceTrends;
 
----- Insert into SELLER table
---INSERT INTO SELLER (userID, total_cars_sold, rating, verification_status)
---VALUES 
---(1, 5, 4.5, 1),
---(4, 3, 4.2, 1);
-
----- Insert into RENTER table
---INSERT INTO RENTER (userID, total_rentals)
---VALUES 
---(2, 2),
---(5, 4);
-
----- Insert into CLIENT table
---INSERT INTO CLIENT (userID)
---VALUES 
---(3),
---(6);
-
----- Insert into BUYER table
---INSERT INTO BUYER (Client_ID, total_cars_purchased, total_spent, wallet_balance)
---VALUES 
---(1, 1, 2500000.00, 50000.00),
---(2, 0, 0.00, 100000.00);
-
----- Insert into CAR_DETAILS table (cars for sale and rent)
---INSERT INTO CAR_DETAILS (Make, Model, Variant, year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability)
---VALUES 
----- Cars for sale
---('Toyota', 'Corolla', 'Altis 1.6', 2020, 'Excellent condition, single owner', 'Used', 'White', 'Sedan', 'Lahore', 'Petrol', 'Automatic', 'JT2BF22K6W0123456', 1),
---('Honda', 'City', 'Aspire 1.3', 2019, 'Well maintained, full service history', 'Used', 'Silver', 'Sedan', 'Karachi', 'Petrol', 'Automatic', 'MAKGH22K6W0123456', 1),
---('Suzuki', 'Mehran', 'VX', 2017, 'Good condition, economical', 'Used', 'Red', 'Hatchback', 'Islamabad', 'Petrol', 'Manual', 'SUZGH22K6W0123456', 1),
-
----- Cars for rent
---('Toyota', 'Fortuner', 'Legender', 2021, 'Premium SUV with all features', 'New', 'Black', 'SUV', 'Lahore', 'Diesel', 'Automatic', 'JT2BF22K6W0123457', 1),
---('Honda', 'BR-V', 'i-VTEC', 2022, '7-seater family car', 'New', 'White', 'SUV', 'Karachi', 'Petrol', 'Automatic', 'MAKGH22K6W0123457', 1),
---('Kia', 'Sportage', 'AWD', 2020, 'Luxury SUV with leather seats', 'Used', 'Grey', 'SUV', 'Islamabad', 'Petrol', 'Automatic', 'KIAH22K6W0123456', 1);
-
----- Insert into CARS_ON_SALE table
---INSERT INTO CARS_ON_SALE (carID, sellerID, Price, negotiable_price, listing_expiry)
---VALUES 
---(1, 1, 3500000.00, 1, DATEADD(DAY, 30, GETDATE())),
---(2, 1, 2800000.00, 0, DATEADD(DAY, 30, GETDATE())),
---(3, 2, 1200000.00, 1, DATEADD(DAY, 30, GETDATE()));
-
----- Insert into CARS_ON_RENT table
---INSERT INTO CARS_ON_RENT (car_id, renter_id, start_date, end_date, total_price, security_deposit, status)
---VALUES 
---(4, 1, GETDATE(), DATEADD(DAY, 7, GETDATE()), 35000.00, 50000.00, 'Available'),
---(5, 1, GETDATE(), DATEADD(DAY, 5, GETDATE()), 25000.00, 40000.00, 'Available'),
---(6, 2, GETDATE(), DATEADD(DAY, 10, GETDATE()), 45000.00, 60000.00, 'Available');
-
----- Insert into CAR_RENTAL_HISTORY table
---INSERT INTO CAR_RENTAL_HISTORY (car_id, renter_id, client_id, Rent_Date, Return_Date, renter_feedback)
---VALUES 
---(4, 1, 1, DATEADD(DAY, -30, GETDATE()), DATEADD(DAY, -23, GETDATE()), 'Excellent car, very comfortable for family trips'),
---(5, 2, 2, DATEADD(DAY, -15, GETDATE()), DATEADD(DAY, -10, GETDATE()), 'Good fuel economy and spacious interior');
-
----- Insert into PURCHASE table
---INSERT INTO PURCHASE (Client_ID, Seller_ID, Car_ID, Cost_Price, Discount, payment_method)
---VALUES 
---(1, 1, 1, 3450000.00, 50000.00, 'Credit Card'),
---(2, 2, 3, 1150000.00, 50000.00, 'Cash');
-
----- Insert into RATING table
---INSERT INTO RATING (User_ID, Car_ID, Rating_Count, Review_ID)
---VALUES 
---(3, 1, 4.5, 'Great car, exactly as described'),
---(6, 4, 5.0, 'Perfect for our family vacation');
-
----- Insert into MESSAGE table
---INSERT INTO MESSAGE (Sender_ID, Receiver_ID, Message)
---VALUES 
---(3, 1, 'Is the price of the Corolla negotiable?'),
---(1, 3, 'Yes, we can discuss the price. How much are you offering?'),
---(6, 2, 'Is the Fortuner available for rent next weekend?');
-
----- Insert into TRANSACTIONS table
---INSERT INTO TRANSACTIONS (user_id, amount, transaction_type, payment_method, status, Reference_ID)
---VALUES 
---(3, 3400000.00, 'Car Purchase', 'Credit Card', 'Completed', 1),
---(6, 35000.00, 'Rental Payment', 'Wallet', 'Completed', 1),
---(1, 50000.00, 'Wallet Recharge', 'Credit Card', 'Completed', NULL);
-
---drop procedure AddSupportTicket
---drop procedure UpdateBuyerLevel
---drop procedure AddCar
---drop procedure AddCarForSale
---drop procedure AddCarForRent
---drop procedure ReturnCar
-
-
-SELECT * FROM Users;
-SELECT * FROM BUYER;
-SELECT * FROM SELLER;
-SELECT * FROM RENTER;
-SELECT * FROM CLIENT;
-SELECT * FROM CAR_DETAILS;
-SELECT * FROM CARS_ON_SALE;
-SELECT * FROM CARS_ON_RENT;
-SELECT * FROM CAR_RENTAL_HISTORY;
-SELECT * FROM PURCHASE;
-SELECT * FROM RATING;
-SELECT * FROM MESSAGE;
-SELECT * FROM TRANSACTIONS;
-
+---- Miscellaneous Procedures
+--DROP PROCEDURE IF EXISTS AddSupportTicket;
+--DROP PROCEDURE IF EXISTS ApplyDiscount;
+--DROP PROCEDURE IF EXISTS UpdateBuyerLevel;
+--DROP PROCEDURE IF EXISTS GetTopRatedCars;
+--------------------------------------------------------------------------------------------------------------------------
+-- Drop tables in the correct order to avoid dependency issues
+--DROP TABLE IF EXISTS CARS_ON_RENT;
+--DROP TABLE IF EXISTS CARS_ON_SALE;
+--DROP TABLE IF EXISTS CAR_RENTAL_HISTORY;
+--DROP TABLE IF EXISTS RATING;
+--DROP TABLE IF EXISTS MESSAGE;
+--DROP TABLE IF EXISTS TRANSACTIONS;
+--DROP TABLE IF EXISTS SELLER;
+--DROP TABLE IF EXISTS RENTER;
+--DROP TABLE IF EXISTS Customer;
+--DROP TABLE IF EXISTS Client_Car;
+--DROP TABLE IF EXISTS CLIENT;
+--DROP TABLE IF EXISTS Car;
+--DROP TABLE IF EXISTS Variant;
+--DROP TABLE IF EXISTS VariantColor;
+--DROP TABLE IF EXISTS Model;
+--DROP TABLE IF EXISTS Make;
+--DROP TABLE IF EXISTS UserAuth;
+--DROP TABLE IF EXISTS UserBio;
+--DROP TABLE IF EXISTS Users;
+---------------------------------------------------------------------------------------------------------------------------
+-- SELECT * FROM Users;
+-- SELECT * FROM UserBio;
+-- SELECT * FROM UserAuth;
+-- SELECT * FROM CLIENT;
+-- SELECT * FROM SELLER;
+-- SELECT * FROM RENTER;
+-- SELECT * FROM Customer;
+-- SELECT * FROM Make;
+-- SELECT * FROM Model;
+-- SELECT * FROM Variant;
+-- SELECT * FROM VariantColor;
+-- SELECT * FROM Car;
+-- SELECT * FROM Client_Car;
+-- SELECT * FROM CARS_ON_SALE;
+-- SELECT * FROM CARS_ON_RENT;
+-- SELECT * FROM CAR_RENTAL_HISTORY;
+-- SELECT * FROM RATING;
+-- SELECT * FROM MESSAGE;
+-- SELECT * FROM TRANSACTIONS;
 

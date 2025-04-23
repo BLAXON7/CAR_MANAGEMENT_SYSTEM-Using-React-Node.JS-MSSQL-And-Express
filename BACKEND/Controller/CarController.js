@@ -306,13 +306,12 @@ exports.ApplyDiscount = async (req, res) => {
 exports.AddRentingAudit = async (req, res) => {
     const CarID = req.query.CarID;
     const RenterID = req.query.RenterID;
-    const ClientID = req.query.ClientID;
     const Rent_Date = req.query.Rent_Date;
     const Return_Date = req.query.Return_Date;
     const Renter_Feedback = req.query.Renter_Feedback;
     
     try {
-      const users = await CarCantroller.AddRentingAudit(CarID, RenterID, ClientID, Rent_Date, Return_Date, Renter_Feedback);
+      const users = await CarCantroller.AddRentingAudit(CarID, RenterID, Rent_Date, Return_Date, Renter_Feedback);
       res.json(users);
     }
     catch(error) {
@@ -386,21 +385,12 @@ exports.FilterCars1 = async (req, res) => {
 
   //// 20 ////
 exports.AddCar = async (req, res) => {
-    const Make = req.query.Make;
-    const Model = req.query.Model;
-    const Variant = req.query.Variant;
+    const VariantID = req.query.Variant;
     const Year = req.query.Year;
     const Description = req.query.Description;
-    const Condition = req.query.Condition;
 	  const  Color = req.query.Color;
-    const Category = req.query.Category;
-    const Location = req.query.Location;
-    const fuel_type = req.query.fuel_type;
-    const transmission = req.query.transmission;
-    const VIN = req.query.VIN;
-    const availability = req.query.availability;
     try{
-      const users = await CarCantroller.AddCar(Make, Model, Variant, Year, Description, Condition, Color, Category, Location, fuel_type, transmission, VIN, availability);
+      const users = await CarCantroller.AddCar(VariantID, Year, Description, Color);
       res.json(users);
     }
     catch(error)
@@ -416,9 +406,12 @@ exports.AddCar = async (req, res) => {
     const sellerID = req.query.sellerID;
     const Price = req.query.Price;
     const negotiable_price = req.query.negotiable_price;
-    const listing_expiry = req.query.listing_expiry;
+    const Loc = req.query.Loc;
+    const VIN = req.query.VIN;
+    const State = req.query.State;
+    const Condition=req.query.Condition;
     try{
-      const users = await CarCantroller.AddCarForSale(carID, sellerID, Price, negotiable_price, listing_expiry);
+      const users = await CarCantroller.AddCarForSale(carID, sellerID,VIN,Condition,Loc,State,Price, negotiable_price);
       res.json(users);
     }
     catch(error)
@@ -427,6 +420,8 @@ exports.AddCar = async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
+
+  
 
   exports.AddCarForRent = async (req, res) => {
     const carID = req.query.carID;
