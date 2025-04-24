@@ -7,189 +7,22 @@ body
 }
 .login
 {
+    display: flex;
     background-image: url("./login_back.jpg");
     background-size: cover;
     background-position: center;
     height: 100vh;
     width: 100%;
 }
-.login::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(4, 0, 12, 0.8);  /* Darken with a semi-transparent black */
-  }
-.container
+.Form-container
 {
-    display: flex;
+    margin-left: 450px;
+    width: 500px;
     justify-content: center;
-    /* background-color: red; */
-    height: 550px;
-    justify-content: center;  /* Centers horizontally */
-    align-items: center;
-    width: 1100px;
-    transform: translate(12%,6%);
-}
-.Intro
-{
-       
-    font-size: 55px;
-    padding-top: 200px;
-    font-weight: bold;
-    width: 47%;
-    height: 450px;
-    color: wheat;
-    font-family: 'Oxanium', sans-serif;
-    animation: blink 2s infinite;
-    text-shadow:  4px 2px 10px #00ccff; /*x y blurriness */
-
-}
-@keyframes blink {
-    30% {
-      opacity: 0; 
-    }
-  }
-.Tab
-{
-    width: 37%;
-    height: 450px;
-    background: rgba(29, 71, 68, 0.1); 
-    -webkit-backdrop-filter: blur(7px); 
-    backdrop-filter: blur(7px);      
-    border: 1px solid rgba(0, 255, 221, 0.2); 
-    border-radius: 7px;
-    text-align: center;
-}
-.line
-{
-    display: block;
-    width: 400px;
-}
-.end
-{
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color:  rgb(118, 239, 255);
-    margin-left: 10px;
-}
-.HeaderName
-{
-    color: wheat;
-    text-align: center;
-    font-size: 20px;
-    font-family: 'Oxanium', sans-serif;
-    font-weight: bold;
-}
-.LSWITCH,.SSWITCH
-{
-    width: 100px;
-    height:30px;
-    border: none;
-    background: rgba(29, 71, 68, 0); 
-    -webkit-backdrop-filter: blur(7px); 
-    backdrop-filter: blur(7px);      
-    border: 1px solid rgba(0, 255, 221, 0.2); 
-    border-radius: 7px;
-    color: wheat;
-    font-family: 'Oxanium', sans-serif;
-
-}
-.Ulogin,.Plogin
-{
- padding: 5px;
- margin: 30px;
- width:  230px;
- height: 30px;
- border-radius: 7px;
- border: 1px solid rgba(0, 255, 221, 0.2);
- background: rgba(29, 71, 68, 0); 
--webkit-backdrop-filter: blur(7px); 
- backdrop-filter: blur(7px); 
- color: wheat;
- font-family: 'Oxanium', sans-serif;
-}
-.Ulogin::placeholder, .Plogin::placeholder
-{
-    color: #d7d7d7bb;
-}
-.Ulogin:focus, .Plogin:focus
-{
- outline: wheat;
- caret-color: transparent;
- border-color: wheat;
-}
-.Blogin
-{
-    padding: 5px;
-    margin-top: 20px;
-    margin-bottom: 35px;
-    width:  130px;
-    height: 30px;
-    border-radius: 7px;
-    border: 1px solid rgba(0, 255, 221, 0.2);
-    background: rgba(29, 71, 68, 0); 
-   -webkit-backdrop-filter: blur(7px); 
-    backdrop-filter: blur(7px); 
-    color: wheat;   
-    font-family: 'Oxanium', sans-serif;
-}
-.ltext,.stext
-{
-    margin-right: 40px;
-    color: wheat;   
-    font-family: 'Oxanium', sans-serif;
-}
-
-.Blogin:hover , .LSWITCH:hover, .SSWITCH:hover ,.Bsign:hover
-{
-    background: rgba(39, 147, 140, 0.526); 
-    transition: 0.2s;
-}
-.Blogin:active , .LSWITCH:active, .SSWITCH:active,.Bsign:active
-{
-    background: rgba(29, 71, 68, 0); 
-}
-
-.Usign,.Psign,.Csign
-{
-    padding: 5px;
-    margin: 20px;
-    width:  230px;
-    height: 30px;
-    border-radius: 7px;
-    border: 1px solid rgba(0, 255, 221, 0.2);
-    background: rgba(29, 71, 68, 0); 
-    -webkit-backdrop-filter: blur(7px); 
-    backdrop-filter: blur(7px); 
-    color: wheat;
-    font-family: 'Oxanium', sans-serif;
-}
-.Bsign
-{
-    padding: 5px;
-    margin-top: 20px;
-    margin-bottom: 35px;
-    width:  130px;
-    height: 30px;
-    border-radius: 7px;
-    border: 1px solid rgba(0, 255, 221, 0.2);
-    background: rgba(29, 71, 68, 0); 
-   -webkit-backdrop-filter: blur(7px); 
-    backdrop-filter: blur(7px); 
-    color: wheat;   
-    font-family: 'Oxanium', sans-serif;
-}
-.Usign::placeholder, .Psign::placeholder , .Csign::placeholder
-{
-    color: #d7d7d7bb;
-}
-.Usign:focus, .Psign:focus, .Csign:focus
-{
-    outline: wheat;
-    caret-color: transparent;
-    border-color: wheat;
+    margin-top: 75px;
+    height: 500px;
+    background-color: rgb(20, 14, 35);
+    border-radius: 10px;
+    padding-left: 60px;
+    padding-top: 25px;
 }
