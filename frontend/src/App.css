@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600&display=swap');
+
+
 .App {
   text-align: center;
 }
@@ -36,31 +39,3 @@
   }
 }
 
-.navbar
-{
-  position: fixed;
-  display: flex;
-  padding-top: 20px;
-  width: 100vw;
-  min-width: 800px; 
-  height: 40px;
-  background: linear-gradient(rgb(10, 10, 10),rgb(0, 2, 31));
-  align-items: center;
-  justify-content: center;
-}
-.elements_on_nav
-{
-  color: wheat;
-  text-decoration: none;
-  padding-left: 30px;
-  padding-bottom: 20px;
-  font-weight: bold;
-  transition: 1s;
-  font-size: 14px;
-}
-.elements_on_nav:hover
-{
-  color: rgb(190, 253, 255);
-  transition: 1s;
-  font-size: 15px;
-}

@@ -1,12 +1,11 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // Adjust based on your file types
-  ],
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        oxanium: ['Oxanium', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };
-

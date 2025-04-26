@@ -103,7 +103,7 @@ const AvailableCarsforRent = async() =>
         .input('Password', sql.VarChar(255), password)
         .execute('SignUpUser'); 
   
-      //return result.recordset;
+      return result.recordset;
     } catch (err) {
       console.error('Error executing stored procedure:', err);
       throw err;

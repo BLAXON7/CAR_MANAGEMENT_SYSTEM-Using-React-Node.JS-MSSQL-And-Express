@@ -94,7 +94,7 @@ exports.SignUp = async (req, res) => {
     
     try {
       const users = await CarCantroller.SignUpUser(username, name, role, phone, email, password);
-      res.json(users);
+      res.status(200).json({ success: true });
     }
     catch(error) {
       console.error('Login error:', error);
