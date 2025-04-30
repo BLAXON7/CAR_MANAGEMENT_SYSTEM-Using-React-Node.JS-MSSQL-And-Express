@@ -1,10 +1,16 @@
-import React, { useState} from "react";
+import React, {  useEffect,useState} from "react";
 import {useNavigate } from "react-router-dom";
 
 import "./SignIn.css"
 
-const SignIn = () => {
+const SignIn = ({Islogged}) => {
+    const Navigate = useNavigate();
     const [Login, SetLogin] = useState(true);
+
+    useEffect(() => {
+      Islogged(false); 
+      localStorage.removeItem("loggedIn"); 
+    }, [Navigate,Islogged]);
 
    const [login_username,setluser]=useState("");
    const [login_pass,setlpass]=useState("");
@@ -18,7 +24,6 @@ const SignIn = () => {
 
 
 
-   const Navigate = useNavigate();
 
 
 const handleSubmit = async (event) => {
@@ -34,7 +39,8 @@ const handleSubmit = async (event) => {
         console.log("Login Status:", data);
         if(response.ok)
         {
-            Navigate('/home');
+            Islogged(true);
+            Navigate('/Dashboard');
         }
         else
         {
@@ -53,7 +59,9 @@ const handleSubmit = async (event) => {
             console.log("SignIn Status:", data);
             if (response.ok && data.success) {
                 alert('SignIn Successful!');
-                Navigate('/home');
+                Islogged(true);
+                localStorage.setItem("loggedIn", "true");
+                Navigate('/Dashboard');
               } else {
                 alert('SignIn failed!');
               }
@@ -63,6 +71,7 @@ const handleSubmit = async (event) => {
           }
     }
   };
+
   
 
     return (
