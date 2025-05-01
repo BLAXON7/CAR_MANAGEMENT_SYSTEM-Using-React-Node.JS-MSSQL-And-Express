@@ -2,7 +2,7 @@ import React, { useEffect  } from "react";
 import {useNavigate } from "react-router-dom";
 
 
-const Compare = ({loggedIn}) => {
+const Seller = ({loggedIn}) => {
   const Navigate = useNavigate();
 
   useEffect (()=>
@@ -15,10 +15,10 @@ const Compare = ({loggedIn}) => {
     },[[Navigate, loggedIn]])
   return (
     <div style={{textAlign:"center", fontFamily: "Impact, sans-serif",fontSize:30}}>
-      Compare
+      Seller
     </div>
   );
 };
 
 
-export default Compare;
+export default Seller;

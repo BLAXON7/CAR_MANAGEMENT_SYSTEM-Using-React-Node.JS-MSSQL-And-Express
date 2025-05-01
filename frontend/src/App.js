@@ -8,6 +8,7 @@ import Compare from "./routes/Compare";
 import MarketPlace from "./routes/Marketplace";
 import Rentals from "./routes/Rentals";
 import Setting from "./routes/Settings";
+import Seller from "./routes/Seller";
 
 const App = () => {
   const [loggedIn, Islogged] = useState(() => {
@@ -25,6 +26,7 @@ const App = () => {
           <Route path="/Marketplace" element={<MarketPlace loggedIn={loggedIn} />} />
           <Route path="/Settings" element={<Setting loggedIn={loggedIn} />} />
           <Route path="/Rentals" element={<Rentals loggedIn={loggedIn} />} />
+          <Route path="/Sellers" element={<Rentals loggedIn={loggedIn} />} />
         </Routes>
       </div>
     </Router>

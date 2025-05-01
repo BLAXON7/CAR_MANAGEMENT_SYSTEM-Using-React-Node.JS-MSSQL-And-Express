@@ -32,7 +32,10 @@ const Nav = () => {
             <Link to="/Compare" className="hover:text-gray-300">Compare</Link>
           </li>
           <li>
-            <Link to="/Rentals" className="hover:text-gray-300">Rentals</Link>
+            <Link to="/Rentals" className="hover:text-gray-300">List Rental</Link>
+          </li>
+          <li>
+            <Link to="/Sellers" className="hover:text-gray-300">Sell Car</Link>
           </li>
           <li>
             <Link to="/Settings" className="hover:text-gray-300">Settings</Link>
