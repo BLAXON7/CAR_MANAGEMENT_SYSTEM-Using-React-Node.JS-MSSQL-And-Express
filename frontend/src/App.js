@@ -17,16 +17,34 @@ const App = () => {
     return localStorage.getItem("loggedIn") === "true";
   });
 
+  const setEmail = async () =>
+    {
+      try
+      {
+          const userid = localStorage.getItem("userid");
+          const res= await fetch(`http://localhost:5000/api/UserProfile?UserID=${encodeURIComponent(userid)}`);
+  
+          const data1=await res.json();
+              localStorage.setItem("Email",data1[0].Email);
+  
+      }
+     catch(err)
+     {
+      console.log(err);
+     }   
+  
+    }
+
   return (
     <Router>
       <div className="min-h-screen bg-white">
         <Nav />
         <Routes>
-          <Route path="/" element={<SignIn Islogged={Islogged} />} />
+          <Route path="/" element={<SignIn Islogged={Islogged} setEmail={setEmail} />} />
           <Route path="/Dashboard" element={<Dashboard loggedIn={loggedIn} />} />
           <Route path="/Compare" element={<Compare loggedIn={loggedIn} />} />
           <Route path="/Marketplace" element={<MarketPlace loggedIn={loggedIn} />} />
-          <Route path="/Settings" element={<Setting loggedIn={loggedIn} />} />
+          <Route path="/Settings" element={<Setting loggedIn={loggedIn} setEmail={setEmail} />} />
           <Route path="/Rentals" element={<Rentals loggedIn={loggedIn} />} />
           <Route path="/Sellers" element={<Seller loggedIn={loggedIn} />} />
           <Route path="/Purchased" element={<Purchased loggedIn={loggedIn} />} />

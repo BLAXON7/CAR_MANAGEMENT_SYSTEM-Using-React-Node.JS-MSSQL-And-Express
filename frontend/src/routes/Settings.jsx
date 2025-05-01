@@ -5,31 +5,14 @@ import "./Settings.css"
 
 const Setting = ({loggedIn}) => {
   const Navigate = useNavigate();
-  const userid=localStorage.getItem("userid");
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  const setEmail = async () =>
-  {
-    try
-    {
-        const res= await fetch(`http://localhost:5000/api/UserProfile?UserID=${encodeURIComponent(userid)}`);
-
-        const data1=await res.json();
-            localStorage.setItem("Email",data1[0].Email);
-
-    }
-   catch(err)
-   {
-    console.log(err);
-   }   
-
-  }
+  
 
   const HandleSubmit = async (event) => {
     try {
         event.preventDefault();
-        await setEmail();
         const email=localStorage.getItem("Email");
       const response = await fetch(`http://localhost:5000/api/ResetPassword?Email=${encodeURIComponent(email)}&OldPassword=${encodeURIComponent(oldPassword)}&NewPassword=${encodeURIComponent(newPassword)}`);
 

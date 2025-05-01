@@ -3,7 +3,7 @@ import {useNavigate } from "react-router-dom";
 
 import "./SignIn.css"
 
-const SignIn = ({Islogged}) => {
+const SignIn = ({Islogged,setEmail}) => {
     const Navigate = useNavigate();
     const [Login, SetLogin] = useState(true);
 
@@ -41,8 +41,7 @@ const handleSubmit = async (event) => {
             localStorage.setItem("username",data[0].UserName);
             localStorage.setItem("userid",data[0].userID);
             localStorage.setItem("userrole",data[0].Role);
-            
-
+            await setEmail();
             Navigate('/Dashboard');
         }
         else
@@ -66,6 +65,7 @@ const handleSubmit = async (event) => {
                 localStorage.setItem("userid",data[0].userID);
                 localStorage.setItem("userrole",data[0].Role);
                 localStorage.setItem("loggedIn", "true");
+                await setEmail();
                 Navigate('/Dashboard');
               } else {
                 alert('SignIn failed!');
