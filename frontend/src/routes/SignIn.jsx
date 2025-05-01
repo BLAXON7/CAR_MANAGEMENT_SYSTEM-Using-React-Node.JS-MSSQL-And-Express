@@ -40,6 +40,7 @@ const handleSubmit = async (event) => {
             Islogged(true);
             localStorage.setItem("username",data[0].UserName);
             localStorage.setItem("userid",data[0].userID);
+            localStorage.setItem("userrole",data[0].Role);
             
 
             Navigate('/Dashboard');
@@ -63,6 +64,7 @@ const handleSubmit = async (event) => {
                 Islogged(true);
                 localStorage.setItem("username",data[0].UserName);
                 localStorage.setItem("userid",data[0].userID);
+                localStorage.setItem("userrole",data[0].Role);
                 localStorage.setItem("loggedIn", "true");
                 Navigate('/Dashboard');
               } else {

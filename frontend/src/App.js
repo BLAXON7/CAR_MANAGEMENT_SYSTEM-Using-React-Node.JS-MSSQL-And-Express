@@ -9,6 +9,8 @@ import MarketPlace from "./routes/Marketplace";
 import Rentals from "./routes/Rentals";
 import Setting from "./routes/Settings";
 import Seller from "./routes/Seller";
+import Rented from "./routes/RentedCars";
+import Purchased from "./routes/PurchasedCars";
 
 const App = () => {
   const [loggedIn, Islogged] = useState(() => {
@@ -27,6 +29,8 @@ const App = () => {
           <Route path="/Settings" element={<Setting loggedIn={loggedIn} />} />
           <Route path="/Rentals" element={<Rentals loggedIn={loggedIn} />} />
           <Route path="/Sellers" element={<Seller loggedIn={loggedIn} />} />
+          <Route path="/Purchased" element={<Purchased loggedIn={loggedIn} />} />
+          <Route path="/Rented" element={<Rented loggedIn={loggedIn} />} />
         </Routes>
       </div>
     </Router>
