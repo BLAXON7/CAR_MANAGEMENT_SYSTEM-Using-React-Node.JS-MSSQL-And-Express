@@ -25,10 +25,8 @@ const SignIn = ({Islogged}) => {
 
 
 
-
 const handleSubmit = async (event) => {
     event.preventDefault();
-  
     if (Login) {
       try {
         const response = await fetch(`http://localhost:5000/api/Login?username=${login_username}&password=${login_pass}`, {
@@ -40,6 +38,10 @@ const handleSubmit = async (event) => {
         if(response.ok)
         {
             Islogged(true);
+            localStorage.setItem("username",data[0].UserName);
+            localStorage.setItem("userid",data[0].userID);
+            
+
             Navigate('/Dashboard');
         }
         else
@@ -54,12 +56,13 @@ const handleSubmit = async (event) => {
             const response = await fetch(`http://localhost:5000/api/SignUp?name=${encodeURIComponent(signup_name)}&phone=${signup_phone}&email=${encodeURIComponent(signup_email)}&password=${encodeURIComponent(signup_pass)}&username=${signup_user}&role=${signup_role}`, {
               method: "GET",
             });
-      
             const data = await response.json();
             console.log("SignIn Status:", data);
             if (response.ok && data.success) {
                 alert('SignIn Successful!');
                 Islogged(true);
+                localStorage.setItem("username",data[0].UserName);
+                localStorage.setItem("userid",data[0].userID);
                 localStorage.setItem("loggedIn", "true");
                 Navigate('/Dashboard');
               } else {
@@ -215,9 +218,7 @@ const handleSubmit = async (event) => {
           </div>
         </div>
         
-      );
-      
-      
+      );     
 };
 
 export default SignIn

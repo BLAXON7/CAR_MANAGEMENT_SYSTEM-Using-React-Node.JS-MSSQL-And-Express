@@ -1,0 +1,41 @@
+.body
+{
+    background-color: hsl(210, 40%, 96%); /* Tailwind's slate-100 */
+    width: 100vw;
+    height: 100vh;
+}
+.title
+{
+    display: block;
+    text-align:center;
+    font-size: xx-large;
+    font-family: oxanium;
+    font-weight: 900;
+    color: #0f172a;
+}
+.settings
+{
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+}
+.resetpass
+{
+    width: 500px;
+    border: #0f172a;
+    border-radius: 10px;
+    
+    height: 400px;
+    margin-top: 10px;
+    background-color:  #0f172a;    
+}
+.form_text
+{
+    color:  rgb(239, 252, 252);
+    font-size:x-large;
+    text-align: center;
+    padding: 20px;
+    font-weight: 700;
+    font-family: oxanium;
+   
+}

@@ -6,8 +6,10 @@ const Nav = () => {
 
   const handleLogout = async ()=>
   {
-      //localStorage.removeItem("userdata"); //----------------------
       Navigate('/');
+      localStorage.removeItem("username");
+      localStorage.removeItem("userid");
+      localStorage.removeItem("Email");
   }
   return (
     <nav className="w-full px-6 py-3 bg-slate-900 shadow-md font-oxanium">
