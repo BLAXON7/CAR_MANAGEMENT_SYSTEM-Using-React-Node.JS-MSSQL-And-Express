@@ -26,7 +26,7 @@ const App = () => {
           <Route path="/Marketplace" element={<MarketPlace loggedIn={loggedIn} />} />
           <Route path="/Settings" element={<Setting loggedIn={loggedIn} />} />
           <Route path="/Rentals" element={<Rentals loggedIn={loggedIn} />} />
-          <Route path="/Sellers" element={<Rentals loggedIn={loggedIn} />} />
+          <Route path="/Sellers" element={<Seller loggedIn={loggedIn} />} />
         </Routes>
       </div>
     </Router>
