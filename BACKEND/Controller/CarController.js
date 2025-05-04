@@ -122,18 +122,30 @@ exports.UpdateProfile = async (req, res) => {
 
   //// 4 ////
 exports.CompareCars = async (req, res) => {
-    const car_id1 = req.query.car_id1;
-    const car_id2 = req.query.car_id2;
+  const car_id1 = req.query.car_id1;
+  const car_id2 = req.query.car_id2;
+  
+  // Validate inputs
+  if (!car_id1 || !car_id2) {
+    return res.status(400).json({ error: 'Both car IDs are required' });
+  }
+  
+  try {
+    console.log(`Comparing cars: ${car_id1} and ${car_id2}`);
+    const cars = await CarCantroller.CompareCars(car_id1, car_id2);
     
-    try {
-      const users = await CarCantroller.CompareCars(car_id1, car_id2);
-      res.json(users);
+    if (!cars || cars.length === 0) {
+      return res.status(404).json({ error: 'No comparison data found for these cars' });
     }
-    catch(error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+    
+    console.log("Comparison data:", cars);
+    res.json(cars);
+  }
+  catch(error) {
+    console.error('Compare cars error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
   //// 5 ////
 exports.AddCarReview = async (req, res) => {
@@ -261,7 +273,7 @@ exports.AddSupportTicket = async (req, res) => {
     const SenderID = req.query.SenderID;
     const ReceiverID = req.query.ReceiverID;
     const Message = req.query.Message;
-    
+   
     try {
       const users = await CarCantroller.AddSupportTicket(SenderID, ReceiverID, Message);
       res.json(users);

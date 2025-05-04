@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600&display=swap');
+
+.compare-container {
+  padding: 2rem;
+  min-height: calc(100vh - 72px);
+  background-image: linear-gradient(111.1deg, rgba(20, 30, 48, 1) 2.5%, rgba(36, 59, 85, 1) 100.3%);
+  font-family: 'Oxanium', sans-serif;
+}
+
+.compare-title {
+  color: rgb(239, 252, 252);
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.car-selection {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.car-select-container {
+  background-color: #0f172a;
+  border-radius: 10px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+.car-select-label {
+  color: rgb(239, 252, 252);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.car-select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 5px;
+  background-color: #1e293b;
+  color: white;
+  border: 1px solid #334155;
+  font-family: 'Oxanium', sans-serif;
+}
+
+.car-select option {
+  background-color: #1e293b;
+}
+
+.compare-button-container {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.compare-button {
+  background-color: #2563eb;
+  color: white;
+  font-family: 'Oxanium', sans-serif;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.compare-button:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.compare-button:disabled {
+  background-color: #64748b;
+  cursor: not-allowed;
+}
+
+.comparison-table-container {
+  background-color: #0f172a;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 2rem;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th {
+  background-color: #1e293b;
+  color: rgb(239, 252, 252);
+  text-align: left;
+  padding: 1rem;
+  font-weight: 600;
+}
+
+.comparison-table td {
+  padding: 1rem;
+  border-top: 1px solid #334155;
+  color: white;
+}
+
+.feature-name {
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.better-value {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.worse-value {
+  color: #f87171;
+}
+
+.equal-value {
+  color: #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .car-selection {
+    flex-direction: column;
+  }
+  
+  .car-select-container {
+    max-width: 100%;
+  }
+}
+
+.error-message {
+  background-color: rgba(220, 38, 38, 0.8);
+  color: white;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-radius: 0.25rem;
+  text-align: center;
+}
+
+.description-cell {
+  padding: 1.5rem;
+  background-color: rgba(20, 20, 40, 0.5);
+}
+
+.car-description {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.car-description:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.car-description h4 {
+  color: #66c0f4;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.car-description p {
+  color: #a4b1cd;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

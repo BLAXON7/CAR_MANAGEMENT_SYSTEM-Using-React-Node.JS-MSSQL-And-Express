@@ -8,7 +8,7 @@ const AvailableCarsforSale = async() =>
 {
   try{
     const pool=await connectToDB();
-    const result = await pool.request().query('select * from AvailableCarsForSale');
+    const result = await pool.request().query('select * from AvailableCarsForSale1');
     return result.recordset;
   }
   catch(err)
@@ -22,7 +22,7 @@ const AvailableCarsforRent = async() =>
   {
     try{
       const pool=await connectToDB();
-      const result = await pool.request().query('select * from AvailableCarsForRent');
+      const result = await pool.request().query('select * from AvailableCarsForRent1');
       return result.recordset;
     }
     catch(err)
@@ -133,20 +133,49 @@ const UpdateProfile = async (userID, name, phone, email, pfp) => {
 };
 ///// 4 /////
 const CompareCars = async (car_id1, car_id2) => {
-    try {
-      const pool = await connectToDB(); 
-      const result = await pool
-        .request()
-        .input('CarID1', sql.Int, car_id1)
-        .input('CarID2', sql.Int, car_id2)
-        .execute('CompareCars')
-  
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
+  try {
+    // Convert strings to integers
+    const carId1 = parseInt(car_id1, 10);
+    const carId2 = parseInt(car_id2, 10);
+    
+    // Validate numbers
+    if (isNaN(carId1) || isNaN(carId2)) {
+      throw new Error('Invalid car IDs: must be valid numbers');
     }
-  };
+    
+    const pool = await connectToDB();
+    const result = await pool
+      .request()
+      .input('CarID1', sql.Int, carId1)
+      .input('CarID2', sql.Int, carId2)
+      .execute('CompareCars');
+    
+    // Use recordsets (plural) to get all result sets from the procedure
+    if (!result.recordsets || result.recordsets.length < 2) {
+      console.error('Missing comparison data sets:', result.recordsets?.length || 0);
+      
+      // Return whatever we have, even if just one car
+      const allResults = [];
+      if (result.recordsets) {
+        result.recordsets.forEach(set => {
+          if (set && set.length > 0) {
+            allResults.push(set[0]);
+          }
+        });
+      }
+      return allResults;
+    }
+    
+    // Get first record from each result set
+    return [
+      result.recordsets[0][0],
+      result.recordsets[1][0]
+    ];
+  } catch (err) {
+    console.error('Error executing CompareCars procedure:', err);
+    throw err;
+  }
+};
 
   //// 5 ////
 const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
