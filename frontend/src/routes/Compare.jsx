@@ -30,6 +30,7 @@ const Compare = ({loggedIn}) => {
       if (saleCarsResponse.ok && rentCarsResponse.ok) {
         const saleCarsData = await saleCarsResponse.json();
         const rentCarsData = await rentCarsResponse.json();
+
         
         // Format options for dropdown with just carID and display info
         const formattedCars = [...saleCarsData, ...rentCarsData].map(car => ({
