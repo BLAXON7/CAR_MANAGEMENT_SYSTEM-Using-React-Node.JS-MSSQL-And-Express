@@ -60,7 +60,6 @@ const Nav = () => {
               </li>
             </>
           )}
-
           <li>
             <Link to="/Settings" className="hover:text-gray-300">Settings</Link>
           </li>

@@ -413,46 +413,68 @@ exports.AddCar = async (req, res) => {
     
   };
 
-  exports.AddCarForSale = async (req, res) => {
-    const carID= req.query.carID;
-    const sellerID = req.query.sellerID;
-    const Price = req.query.Price;
-    const negotiable_price = req.query.negotiable_price;
-    const Loc = req.query.Loc;
-    const VIN = req.query.VIN;
-    const State = req.query.State;
-    const Condition=req.query.Condition;
-    try{
-      const users = await CarCantroller.AddCarForSale(carID, sellerID,VIN,Condition,Loc,State,Price, negotiable_price);
-      res.json(users);
+  // Fix GetClientID in CarController.js
+exports.GetClientID = async (req, res) => {
+  const userID = req.query.userID;
+  
+  try {
+    const result = await CarCantroller.GetClientID(userID);
+    
+    if (!result) {
+      return res.status(404).json({ error: 'Client ID not found for this user' });
     }
-    catch(error)
-    {
-      console.error('Car error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Error retrieving client ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
+// Fix AddCarForSale in CarController.js to use the right parameter names
+exports.AddCarForSale = async (req, res) => {
+  const carID = req.query.carID;
+  const Client_ID = req.query.Client_ID; // Changed from sellerID
+  const Price = req.query.Price;
+  const Negotiable = req.query.Negotiable; // Changed from negotiable_price
+  const Location = req.query.Location; // Changed from Loc
+  const VIN = req.query.VIN;
+  const State = req.query.State;
+  const Condition = req.query.Condition;
+  
+  try {
+    const result = await CarCantroller.AddCarForSale(
+      carID, Client_ID, VIN, Condition, Location, State, Price, Negotiable
+    );
+    res.json(result);
+  } catch(error) {
+    console.error('Car error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
   
 
   exports.AddCarForRent = async (req, res) => {
-    const carID = req.query.carID;
-    const renterID = req.query.renterID;
-    const start_date = req.query.start_date;
-    const end_date = req.query.end_date;
-    const total_price = req.query.total_price;
-    const security_deposit = req.query.security_deposit;
-    try{
-      const users = await CarCantroller.AddCarForRent(carID, renterID, start_date, end_date, total_price, security_deposit);
-      res.json(users);
-    }
-    catch(error)
-    {
-      console.error('Car error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
-
+  const carID = req.query.carID;
+  const Client_ID = req.query.Client_ID; 
+  const VIN = req.query.VIN;
+  const Condition = req.query.Condition;
+  const Location = req.query.Location;
+  const start_date = req.query.start_date;
+  const end_date = req.query.end_date;
+  const total_price = req.query.total_price;
+  const security_deposit = req.query.security_deposit;
+  
+  try {
+    const result = await CarCantroller.AddCarForRent(
+      carID, Client_ID, VIN, Condition, Location, start_date, end_date, total_price, security_deposit
+    );
+    res.json(result);
+  } catch(error) {
+    console.error('Car error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
   //// 21 ////
 exports.DeleteCar = async (req, res) => {
     const carID = req.query.carID;

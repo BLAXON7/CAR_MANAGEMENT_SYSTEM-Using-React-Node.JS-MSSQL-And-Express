@@ -1,3 +1,4 @@
+//const { GetClientID } = require('../Controller/CarController');
 const { sql , connectToDB } = require('../DB_config'); 
 
 
@@ -487,47 +488,70 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
     }
   };
 
-  const AddCarForSale = async (carID, sellerID,VIN,Condition,Loc,State,Price, negotiable_price) => {
-    try {
-      const pool = await connectToDB(); 
-      const result = await pool
-        .request()
-        .input('carID', sql.Int, carID)
-        .input('Client_ID', sql.Int, sellerID)
-        .input('VIN',sql.VarChar,VIN)
-        .input('Condition',sql.VarChar,Condition)
-        .input('Location', sql.VarChar, Loc)
-        .input('State', sql.VarChar, State)
-        .input('Price', sql.Decimal (10, 2), Price)
-        .input('Negotiable', sql.Decimal (10, 2), negotiable_price)
-        .execute('AddCarForSale'); 
-  
-      //return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
+// Add this function to CarModel.js
+const GetClientID = async (userID) => {
+  try {
+    const pool = await connectToDB();
+    const result = await pool
+      .request()
+      .input('userID', sql.Int, userID)
+      .query('SELECT Client_ID FROM CLIENT WHERE userID = @userID');
+    
+    if (result.recordset.length === 0) {
+      return null;
     }
     
-  };
-  const AddCarForRent = async (carID, renterID, start_date, end_date, total_price, security_deposit) => {
-    try {
-      const pool = await connectToDB();
-      const result = await pool
-        .request()
-        .input('CarID', sql.Int, carID)
-        .input('RenterID', sql.Int, renterID)
-        .input('Start_Date', sql.Date, start_date)
-        .input('End_Date', sql.Date, end_date)
-        .input('Total_Price', sql.Decimal (10, 2), total_price)
-        .input('Security_Deposit', sql.Decimal (10, 2), security_deposit)
-        .execute('AddCarForRent');
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
-    }
-  };
+    return result.recordset[0];
+  } catch (err) {
+    console.error('Error retrieving client ID:', err);
+    throw err;
+  }
+};
 
+// Update the AddCarForSale function to use consistent parameter names
+const AddCarForSale = async (carID, Client_ID, VIN, Condition, Location, State, Price, Negotiable) => {
+  try {
+    const pool = await connectToDB();
+    const request = pool.request()
+      .input('carID', sql.Int, carID)
+      .input('Client_ID', sql.Int, Client_ID)
+      .input('VIN', sql.VarChar(17), VIN)
+      .input('Condition', sql.VarChar(10), Condition)
+      .input('Location', sql.VarChar(255), Location)
+      .input('State', sql.VarChar(10), State)
+      .input('Price', sql.Decimal(10, 2), Price)
+      .input('Negotiable', sql.Bit, Negotiable === '1' ? 1 : 0);
+    
+    const result = await request.execute('AddCarForSale');
+    return result;
+  } catch (err) {
+    console.error('Error adding car for sale:', err);
+    throw err;
+  }
+};
+
+
+  const AddCarForRent = async (carID, Client_ID, VIN, Condition, Location, start_date, end_date, total_price, security_deposit) => {
+  try {
+    const pool = await connectToDB();
+    const request = pool.request()
+      .input('carID', sql.Int, carID)
+      .input('Client_ID', sql.Int, Client_ID) 
+      .input('VIN', sql.VarChar(17), VIN)
+      .input('Condition', sql.VarChar(10), Condition)
+      .input('Location', sql.VarChar(255), Location)
+      .input('start_date', sql.Date, start_date)
+      .input('end_date', sql.Date, end_date)
+      .input('total_price', sql.Decimal(10, 2), total_price)
+      .input('security_deposit', sql.Decimal(10, 2), security_deposit);
+    
+    const result = await request.execute('AddCarForRent');
+    return result;
+  } catch (err) {
+    console.error('Error adding car for rent:', err);
+    throw err;
+  }
+};
   //// 21 ////
   const DeleteCar = async (CarID) => {
     try {
@@ -751,10 +775,10 @@ const config = {
                       SignUpUser, UpdateProfile, CompareCars, AddCarReview, 
                       GetSellerDashboard, GetUserDashboard, GetRenterDashboard,
                       GetCarPricing, BookCar, UpdateCarPrice, GetCarPriceTrends,
-                      AddSupportTicket, 
+                      AddSupportTicket,GetClientID, 
                       GetUserProfile, ApplyDiscount, AddRentingAudit,
                       GetCarAnalysis, UpdateBuyerLevel, FilterCars1, FilterCars2,
-                      AddCar, DeleteCar, CancelBooking, GetCarReviews, GetUserMessages,
+                      AddCar,AddCarForRent,AddCarForSale, DeleteCar, CancelBooking, GetCarReviews, GetUserMessages,
                       ReturnCar, GetRentalReport, SearchCars, ResetPassword,
                       SearchCarsWithFeatures,AddCarForRent,AddCarForSale
                   };

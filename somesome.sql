@@ -645,43 +645,47 @@
 -- DROP PROCEDURE IF EXISTS AddCarForRent;
 -- GO
 
+
+-- DROP PROCEDURE IF EXISTS AddCarForRent;
+-- GO
+
 -- CREATE PROCEDURE AddCarForRent
---     @Client_Car_ID INT,
---     @start_date DATE,
---     @end_date DATE,
---     @total_price DECIMAL(10,2),
---     @security_deposit DECIMAL(10,2) = 0.00
+--    @carID INT,
+--    @Client_ID INT,
+--    @VIN VARCHAR(17),
+--    @Condition VARCHAR(10),
+--    @Location VARCHAR(255),
+--    @start_date DATE,
+--    @end_date DATE,
+--    @total_price DECIMAL(10,2),
+--    @security_deposit DECIMAL(10,2) = 0.00
 -- AS
 -- BEGIN
---     SET NOCOUNT ON;
-    
---     -- Validate dates
---     IF @end_date < @start_date
---     BEGIN
---         RAISERROR('End date must be after start date', 16, 1);
---         RETURN;
---     END
-    
---     -- Check if car exists
---     IF NOT EXISTS (SELECT 1 FROM Client_Car WHERE Client_Car_ID = @Client_Car_ID)
---     BEGIN
---         RAISERROR('Car not found', 16, 1);
---         RETURN;
---     END
-    
---     -- Insert into CARS_ON_RENT
---     INSERT INTO CARS_ON_RENT 
---         (Client_Car_ID, [start_date], end_date, total_price, security_deposit, [status])
---     VALUES 
---         (@Client_Car_ID, @start_date, @end_date, @total_price, @security_deposit, 'Available');
-    
---     -- Update car availability
---     UPDATE Client_Car
---     SET Availability = 0
---     WHERE Client_Car_ID = @Client_Car_ID;
-    
---     -- Return the new rental ID
---     SELECT SCOPE_IDENTITY() AS rental_id;
+--    SET NOCOUNT ON;
+   
+--    BEGIN TRY
+--        BEGIN TRANSACTION;
+       
+--        DECLARE @ClientCarID INT;
+
+--        -- First create the Client_Car entry
+--        INSERT INTO Client_Car (VIN, carID, Client_ID, Condition, Location)
+--        VALUES (@VIN, @carID, @Client_ID, @Condition, @Location);
+       
+--        SET @ClientCarID = SCOPE_IDENTITY();
+       
+--        -- Then create the CARS_ON_RENT entry
+--        INSERT INTO CARS_ON_RENT 
+--            (Client_Car_ID, [start_date], end_date, total_price, security_deposit, [status])
+--        VALUES 
+--            (@ClientCarID, @start_date, @end_date, @total_price, @security_deposit, 'Available');
+           
+--        COMMIT TRANSACTION;
+--    END TRY
+--    BEGIN CATCH
+--        IF @@TRANCOUNT > 0
+--            ROLLBACK TRANSACTION;
+--    END CATCH
 -- END;
 -- GO
 

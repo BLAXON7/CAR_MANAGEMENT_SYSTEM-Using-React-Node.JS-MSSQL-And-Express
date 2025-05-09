@@ -40,6 +40,7 @@ router.get ('/RentalReport', Controller.RentalReport);
 router.get ('/SearchCars', Controller.SearchCars);
 router.get ('/ResetPassword', Controller.ResetPassword);
 router.get ('/SearchCarsWithFeatures', Controller.SearchCarsWithFeatures);
+router.get('/GetClientID', Controller.GetClientID);
 //-----------------------------------------------------------------------------
 
 module.exports = router;
