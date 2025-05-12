@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import CarSearchModal from "./CarSearchModal";
 
 export function Renter() {
   const Navigate = useNavigate();
@@ -15,9 +16,10 @@ export function Renter() {
   });
  
   const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [showCarSearch, setShowCarSearch] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(null);
 
   // Check if user is logged in and has renter role
   useEffect(() => {
@@ -46,7 +48,37 @@ export function Renter() {
     }
   };
 
-  // Validate form before submission
+  const handleSelectCar = (car) => {
+    console.log("Received car in parent:", car); // Debug
+    console.log("Car ID value:", car.CarID);     // Debug specific ID value
+    console.log("Car keys:", Object.keys(car));  // Show all properties
+    
+    setSelectedCar(car);
+    
+    const carID = car.CarID || car.carID || car.carid || car.carId;
+    
+    console.log("Extracted carID:", carID);      // Debug the extracted value
+    
+    if (!carID) {
+      console.error("Could not find car ID in the selected car object:", car);
+    }
+    
+    const numericCarID = carID ? Number(carID) : "";
+    console.log("Setting carID in form:", numericCarID); // Debug the value being set
+    
+    setFormData(prev => {
+      const updated = { 
+        ...prev, 
+        carID: numericCarID
+      };
+      console.log("Updated form data:", updated); // Debug final form state
+      return updated;
+    });
+    
+    setShowCarSearch(false);
+  };
+
+  // Validate form before submission - same as before
   const validateForm = () => {
     // Check for required fields
     if (!formData.carID) return "Car ID is required";
@@ -95,6 +127,7 @@ export function Renter() {
   };
 
   const handleSubmit = async(e) => {
+    // Same implementation as before
     e.preventDefault();
     setError(null);
     setSuccess(false);
@@ -167,7 +200,6 @@ export function Renter() {
         throw new Error(`Failed to add car for rent: ${errorText}`);
       }
       
-      
       // Reset the form
       setSuccess(true);
       setFormData({
@@ -180,8 +212,8 @@ export function Renter() {
         totalPrice: "",
         securityDeposit: "100"
       });
-      
-      
+      setSelectedCar(null);
+     
     }
     catch (error) {
       console.error("Add car API error:", error);
@@ -221,19 +253,36 @@ export function Renter() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="w-full">
-            <label className="block mb-1 text-sm text-[#E0E0E0] font-bold">Car ID</label>
-            <input
-              type="number"
-              name="carID"
-              value={formData.carID}
-              onChange={handleChange}
-              placeholder="Enter Car ID"
-              required
-              min="1"
-              className="w-full bg-transparent placeholder:text-[#E0E0E0] text-[#E0E0E0] text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-            />
+            <label className="block mb-1 text-sm text-[#E0E0E0] font-bold">Car</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                name="carID"
+                value={formData.carID}
+                onChange={handleChange}
+                placeholder="Car ID"
+                required
+                min="1"
+                className="w-full bg-transparent placeholder:text-[#E0E0E0] text-[#E0E0E0] text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowCarSearch(true)}
+                className="bg-slate-800 px-4 py-2 text-sm text-[#E0E0E0] rounded-md hover:bg-slate-700"
+              >
+                Search
+              </button>
+            </div>
+            {selectedCar && (
+              <div className="mt-2 p-2 bg-[#1e293b] rounded-md">
+                <p className="text-sm text-[#E0E0E0]">
+                  <span className="font-bold">Selected:</span> {selectedCar.MakeName} {selectedCar.ModelName} {selectedCar.VariantName} ({selectedCar.Year})
+                </p>
+              </div>
+            )}
           </div>
           
+          {/* Rest of the form remains the same */}
           <div className="w-full">
             <label className="block mb-1 text-sm text-[#E0E0E0] font-bold">VIN</label>
             <input
@@ -290,7 +339,7 @@ export function Renter() {
                 className="w-full bg-[#1e293b] placeholder:text-[#E0E0E0] text-[#E0E0E0] text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
               />
             </div>
-            
+
             <div className="w-full">
               <label className="block mb-1 text-sm text-[#E0E0E0] font-bold">End Date</label>
               <input
@@ -345,6 +394,14 @@ export function Renter() {
           </button>
         </form>
       </div>
+      
+      {/* Car search modal */}
+      <CarSearchModal 
+        isOpen={showCarSearch} 
+        onClose={() => setShowCarSearch(false)} 
+        onSelectCar={handleSelectCar} 
+        context="Renter"
+      />
     </div>
   );
 }

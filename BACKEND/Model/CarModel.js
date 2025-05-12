@@ -471,22 +471,30 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   };
 
   //// 20 ////
-  const AddCar = async ( Variant, Year, Description, Color) => {
-    try {
-      const pool = await connectToDB();
-      const result = await pool
-        .request()
-        .input('VariantID', sql.Int, Variant)
-        .input('Color', sql.VarChar(50), Color)
-        .input('Year', sql.Int, Year)
-        .input('Description', sql.Text, Description)
-        .execute('AddCar');
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
-    }
-  };
+  
+const AddCar = async (MakeName, Country, ModelName, Category, VariantName, FuelType, Transmission, Color, Year, Description) => {
+  try {
+    const pool = await connectToDB();
+    const result = await pool
+      .request()
+      .input('MakeName', sql.VarChar(100), MakeName)
+      .input('Country', sql.VarChar(100), Country || 'Unknown')
+      .input('ModelName', sql.VarChar(100), ModelName)
+      .input('Category', sql.VarChar(100), Category)
+      .input('VariantName', sql.VarChar(100), VariantName)
+      .input('FuelType', sql.VarChar(50), FuelType)
+      .input('Transmission', sql.VarChar(50), Transmission)
+      .input('Color', sql.VarChar(50), Color)
+      .input('Year', sql.Int, Year)
+      .input('Description', sql.Text, Description)
+      .execute('AddCar');
+    return result.recordset;
+  } catch (err) {
+    console.error('Error executing stored procedure:', err);
+    throw err;
+  }
+};
+
 
 // Add this function to CarModel.js
 const GetClientID = async (userID) => {
@@ -671,20 +679,19 @@ const AddCarForSale = async (carID, Client_ID, VIN, Condition, Location, State, 
 
   //// 28 ////
   const SearchCars = async (SearchTerm) => {
-    try {
-      const pool = await connectToDB(); 
-      const result = await pool
-        .request()
-        .input('SearchTerm', sql.VarChar (100), SearchTerm)
-        .execute('SearchCars'); 
-  
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
-    }
-    
-  };
+  try {
+    const pool = await connectToDB(); 
+    const result = await pool
+      .request()
+      .input('SearchTerm', sql.VarChar(100), SearchTerm)
+      .execute('SearchCars'); 
+
+    return result.recordset;
+  } catch (err) {
+    console.error('Error executing SearchCars procedure:', err);
+    throw err;
+  }
+}
 
   //// 29 ////
   const ResetPassword = async (Email, OldPassword, NewPassword) => {
@@ -706,23 +713,32 @@ const AddCarForSale = async (carID, Client_ID, VIN, Condition, Location, State, 
   };
 
   //// 30 ////
-  const SearchCarsWithFeatures = async (SearchTerm, MinPrice, MaxPrice) => {
-    try {
-      const pool = await connectToDB(); 
-      const result = await pool
-        .request()
-        .input('SearchTerm', sql.VarChar (100), SearchTerm)
-        .input('MinPrice', sql.Decimal (10, 2), MinPrice)
-        .input('MaxPrice', sql.Decimal (10, 2), MaxPrice)
-        .execute('SearchCarsWithFeatures'); 
- 
-      return result.recordset;
-    } catch (err) {
-      console.error('Error executing stored procedure:', err);
-      throw err;
-    }
-    
-  };
+  const SearchCarsWithFeatures = async (
+  SearchTerm = null, 
+  MinPrice = null, 
+  MaxPrice = null, 
+  Features = null,
+  ShowRentals = 1,
+  ShowSales = 1
+) => {
+  try {
+    const pool = await connectToDB(); 
+    const result = await pool
+      .request()
+      .input('SearchTerm', sql.VarChar(100), SearchTerm)
+      .input('MinPrice', sql.Decimal(10, 2), MinPrice)
+      .input('MaxPrice', sql.Decimal(10, 2), MaxPrice)
+      .input('Features', sql.VarChar(100), Features)
+      .input('ShowRentals', sql.Bit, ShowRentals)
+      .input('ShowSales', sql.Bit, ShowSales)
+      .execute('SearchCarsWithFeatures'); 
+
+    return result.recordset;
+  } catch (err) {
+    console.error('Error executing SearchCarsWithFeatures procedure:', err);
+    throw err;
+  }
+};
 
 //// Triggers ////
 

@@ -396,22 +396,62 @@ exports.FilterCars1 = async (req, res) => {
   };
 
   //// 20 ////
-exports.AddCar = async (req, res) => {
-    const VariantID = req.query.Variant;
-    const Year = req.query.Year;
-    const Description = req.query.Description;
-	  const  Color = req.query.Color;
-    try{
-      const users = await CarCantroller.AddCar(VariantID, Year, Description, Color);
-      res.json(users);
-    }
-    catch(error)
-    {
-      console.error('Car error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+  exports.AddCar = async (req, res) => {
+  try {
+    console.log("Request query:", req.query); // Debug logging
+    
+    // Ensure all required parameters are present and properly formatted
+    const MakeName = req.query.MakeName;
+    if (!MakeName) {
+      return res.status(400).json({ error: 'Make name is required' });
     }
     
-  };
+    const Country = req.query.Country || 'Unknown';
+    const ModelName = req.query.ModelName;
+    if (!ModelName) {
+      return res.status(400).json({ error: 'Model name is required' });
+    }
+    
+    const Category = req.query.Category || null;
+    const VariantName = req.query.VariantName;
+    if (!VariantName) {
+      return res.status(400).json({ error: 'Variant name is required' });
+    }
+    
+    const FuelType = req.query.FuelType || null;
+    const Transmission = req.query.Transmission || null;
+    const Color = req.query.Color;
+    if (!Color) {
+      return res.status(400).json({ error: 'Color is required' });
+    }
+    
+    const Year = parseInt(req.query.Year);
+    if (!Year || isNaN(Year)) {
+      return res.status(400).json({ error: 'Valid year is required' });
+    }
+    
+    const Description = req.query.Description;
+    if (!Description) {
+      return res.status(400).json({ error: 'Description is required' });
+    }
+
+    // Debug log
+    console.log("Parameters for AddCar:", {
+      MakeName, Country, ModelName, Category, VariantName, 
+      FuelType, Transmission, Color, Year, Description
+    });
+    
+    const result = await CarCantroller.AddCar(
+      MakeName, Country, ModelName, Category, VariantName, 
+      FuelType, Transmission, Color, Year, Description
+    );
+    
+    res.json(result);
+  } catch(error) {
+    console.error('Car error:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
 
   // Fix GetClientID in CarController.js
 exports.GetClientID = async (req, res) => {
@@ -575,17 +615,28 @@ exports.RentalReport = async (req, res) => {
 
 //// 28 ////
 exports.SearchCars = async (req, res) => {
-    const SearchTerm = req.query.SearchTerm;
+  const SearchTerm = req.query.SearchTerm;
+  
+  if (!SearchTerm || SearchTerm.trim() === '') {
+    return res.status(400).json({ error: 'Search term is required' });
+  }
+  
+  try {
+    console.log(`Searching cars with term: "${SearchTerm}"`);
+    const cars = await CarCantroller.SearchCars(SearchTerm);
     
-    try {
-      const users = await CarCantroller.SearchCars (SearchTerm);
-      res.json(users);
+    if (!cars || cars.length === 0) {
+      return res.json([]);  // Return empty array instead of error for no results
     }
-    catch(error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+    
+    res.json(cars);
+  }
+  catch(error) {
+    console.error('Search cars error:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
 
 //// 29 ////
 exports.ResetPassword = async (req, res) => {
@@ -605,16 +656,38 @@ exports.ResetPassword = async (req, res) => {
 
   //// 30 ////
 exports.SearchCarsWithFeatures = async (req, res) => {
-    const SearchTerm = req.query.SearchTerm;
-    const MinPrice = req.query.MinPrice;
-    const MaxPrice = req.query.MaxPrice;
+  const SearchTerm = req.query.SearchTerm || null;
+  const MinPrice = req.query.MinPrice || null;
+  const MaxPrice = req.query.MaxPrice || null;
+  const Features = req.query.Features || null;
+  
+  // Convert string parameters to proper boolean values for bit parameters
+  const ShowRentals = req.query.ShowRentals === 'false' ? 0 : 1;
+  const ShowSales = req.query.ShowSales === 'false' ? 0 : 1;
+  
+  try {
+    console.log("Searching cars with features:", {
+      SearchTerm,
+      MinPrice,
+      MaxPrice,
+      Features,
+      ShowRentals,
+      ShowSales
+    });
     
-    try {
-      const users = await CarCantroller.SearchCarsWithFeatures (SearchTerm, MinPrice, MaxPrice);
-      res.json(users);
-    }
-    catch(error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
+    const cars = await CarCantroller.SearchCarsWithFeatures(
+      SearchTerm,
+      MinPrice, 
+      MaxPrice,
+      Features,
+      ShowRentals,
+      ShowSales
+    );
+    
+    res.json(cars);
+  }
+  catch(error) {
+    console.error('Search cars with features error:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};

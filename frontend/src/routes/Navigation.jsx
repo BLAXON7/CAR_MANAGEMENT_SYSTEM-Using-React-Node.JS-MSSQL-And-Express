@@ -25,6 +25,13 @@ const Nav = () => {
           <li>
             <Link to="/Dashboard" className="hover:text-gray-300">Dashboard</Link>
           </li>
+          
+
+          {(userRole === "Admin") && (
+            <li>
+              <Link to="/AddCar" className="hover:text-gray-300">AddCar</Link>
+            </li>
+          )}
 
           {(userRole === "Seller" || userRole === "Renter" || userRole === "Customer") && (
             <li>

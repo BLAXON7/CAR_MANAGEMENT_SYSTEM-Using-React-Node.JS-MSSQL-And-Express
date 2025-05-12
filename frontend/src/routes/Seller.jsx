@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import CarSearchModal from "./CarSearchModal";
 
 export function Seller() {
   const Navigate = useNavigate();
@@ -12,10 +13,12 @@ export function Seller() {
     Price: "",
     Negotiable: "0" // Default to non-negotiable (0)
   });
- 
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [showCarSearch, setShowCarSearch] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(null);
 
   // Check if user is logged in and has seller role
   useEffect(() => {
@@ -42,6 +45,37 @@ export function Seller() {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+  };
+
+  const handleSelectCar = (car) => {
+    console.log("Received car in parent:", car); // Debug
+    console.log("Car ID value:", car.CarID);     // Debug specific ID value
+    console.log("Car keys:", Object.keys(car));  // Show all properties
+    
+    setSelectedCar(car);
+    
+    const carID = car.CarID || car.carID || car.carid || car.carId;
+    
+    console.log("Extracted carID:", carID);      // Debug the extracted value
+    
+    if (!carID) {
+      console.error("Could not find car ID in the selected car object:", car);
+    }
+    
+    // Force carID to be a number type for the form
+    const numericCarID = carID ? Number(carID) : "";
+    console.log("Setting carID in form:", numericCarID); // Debug the value being set
+    
+    setFormData(prev => {
+      const updated = { 
+        ...prev, 
+        carID: numericCarID
+      };
+      console.log("Updated form data:", updated); // Debug final form state
+      return updated;
+    });
+    
+    setShowCarSearch(false);
   };
 
   // Validate form before submission
@@ -77,81 +111,96 @@ export function Seller() {
     return null; // No validation errors
   };
 
-const handleSubmit = async(e) => {
-  e.preventDefault();
-  setError(null);
-  setSuccess(false);
-  
-  // Run validation
-  const validationError = validateForm();
-  if (validationError) {
-    setError(validationError);
-    return;
-  }
-  
-  setLoading(true);
-  
-  // Get the user ID from localStorage (from login)
-  const userID = localStorage.getItem("userid");
-  
-  if (!userID) {
-    setError("You must be logged in to add a car");
-    setLoading(false);
-    return;
-  }
-  
-  try {
-    // First, get the Client_ID for this user - fix this part
-    const sellerIDResponse = await fetch(`http://localhost:5000/api/GetClientID?userID=${userID}`);
+  // Submit handler (same as before)
+  const handleSubmit = async(e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
     
-    if (!sellerIDResponse.ok) {
-      const errorText = await sellerIDResponse.text();
-      throw new Error(`Failed to retrieve seller ID: ${errorText}`);
+    // Run validation
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
     }
     
-    const sellerData = await sellerIDResponse.json();
+    setLoading(true);
     
-    // Debug - check what's coming back
-    console.log("Seller data:", sellerData);
+    // Get the user ID from localStorage (from login)
+    const userID = localStorage.getItem("userid");
     
-    // Make sure we have a Client_ID
-    if (!sellerData || !sellerData.Client_ID) {
-      throw new Error("Your seller profile isn't properly set up. Please contact support.");
+    if (!userID) {
+      setError("You must be logged in to add a car");
+      setLoading(false);
+      return;
     }
     
-    const clientID = sellerData.Client_ID;
-    
-    // Build query string with all parameters
-    const queryParams = new URLSearchParams({
-      carID: formData.carID,
-      Client_ID: clientID, // Send Client_ID instead of userID
-      VIN: formData.VIN,
-      Condition: formData.Condition,
-      Location: formData.Location,
-      State: formData.State,
-      Price: formData.Price,
-      Negotiable: formData.Negotiable
-    }).toString();
-    
-    // Log the query for debugging
-    console.log("Sending request with params:", queryParams);
-    
-    const response = await fetch(`http://localhost:5000/api/AddCarForSale?${queryParams}`, {
-      method: "GET",
-    });
-    
-    if(response.ok) {
-      setSuccess(true);
+    try {
+      // First, get the Client_ID for this user - fix this part
+      const sellerIDResponse = await fetch(`http://localhost:5000/api/GetClientID?userID=${userID}`);
+      
+      if (!sellerIDResponse.ok) {
+        const errorText = await sellerIDResponse.text();
+        throw new Error(`Failed to retrieve seller ID: ${errorText}`);
+      }
+      
+      const sellerData = await sellerIDResponse.json();
+      
+      // Debug - check what's coming back
+      console.log("Seller data:", sellerData);
+      
+      // Make sure we have a Client_ID
+      if (!sellerData || !sellerData.Client_ID) {
+        throw new Error("Your seller profile isn't properly set up. Please contact support.");
+      }
+      
+      const clientID = sellerData.Client_ID;
+      
+      // Build query string with all parameters
+      const queryParams = new URLSearchParams({
+        carID: formData.carID,
+        Client_ID: clientID, // Send Client_ID instead of userID
+        VIN: formData.VIN,
+        Condition: formData.Condition,
+        Location: formData.Location,
+        State: formData.State,
+        Price: formData.Price,
+        Negotiable: formData.Negotiable
+      }).toString();
+      
+      // Log the query for debugging
+      console.log("Sending request with params:", queryParams);
+      
+      const response = await fetch(`http://localhost:5000/api/AddCarForSale?${queryParams}`, {
+        method: "GET",
+      });
+      
+      if(response.ok) {
+        setSuccess(true);
+        // Reset form after successful submission
+        setFormData({
+          carID: "",
+          VIN: "",
+          Condition: "",
+          Location: "",
+          State: "NEW",
+          Price: "",
+          Negotiable: "0"
+        });
+        setSelectedCar(null);
+      } else {
+        const errorData = await response.text();
+        throw new Error(errorData || "Failed to add car for sale");
+      }
     }
-  }
-  catch (error) {
-    console.error("Add car API error:", error);
-    setError(error.message || "An error occurred. Please check your connection and try again.");
-  } 
-  finally {
-    setLoading(false);
-  }
-}
+    catch (error) {
+      console.error("Add car API error:", error);
+      setError(error.message || "An error occurred. Please check your connection and try again.");
+    } 
+    finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div
@@ -159,10 +208,9 @@ const handleSubmit = async(e) => {
       style={{
         backgroundImage:
           "linear-gradient(111.1deg, rgba(69,150,164,1) 2.5%, rgba(17,20,34,1) 100.3%)",
-        maxHeight: "80vh",  // Set a fixed maximum height (80% of viewport)
-        overflowY: "auto",  // Enable vertical scrolling
-        height: "fit-content" // Allow content to determine initial height
-  
+        maxHeight: "80vh",
+        overflowY: "auto",
+        height: "fit-content"
       }}
     >
       <div className="bg-[#0f172a] rounded-xl p-6 w-full max-w-md my-16" style={{ height: "auto", minHeight: "500px", overflowY: "auto" }}>
@@ -183,19 +231,36 @@ const handleSubmit = async(e) => {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="w-full">
-            <label className="block mb-1 text-sm text-[#E0E0E0] font-bold">Car ID</label>
-            <input
-              type="number"
-              name="carID"
-              value={formData.carID}
-              onChange={handleChange}
-              placeholder="Enter Car ID"
-              required
-              min="1"
-              className="w-full bg-transparent placeholder:text-[#E0E0E0] text-[#E0E0E0] text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-            />
+            <label className="block mb-1 text-sm text-[#E0E0E0] font-bold">Car</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                name="carID"
+                value={formData.carID}
+                onChange={handleChange}
+                placeholder="Car ID"
+                required
+                min="1"
+                className="w-full bg-transparent placeholder:text-[#E0E0E0] text-[#E0E0E0] text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowCarSearch(true)}
+                className="bg-slate-800 px-4 py-2 text-sm text-[#E0E0E0] rounded-md hover:bg-slate-700"
+              >
+                Search
+              </button>
+            </div>
+            {selectedCar && (
+              <div className="mt-2 p-2 bg-[#1e293b] rounded-md">
+                <p className="text-sm text-[#E0E0E0]">
+                  <span className="font-bold">Selected:</span> {selectedCar.MakeName} {selectedCar.ModelName} {selectedCar.VariantName} ({selectedCar.Year})
+                </p>
+              </div>
+            )}
           </div>
           
+          {/* Rest of the form remains mostly the same */}
           <div className="w-full">
             <label className="block mb-1 text-sm text-[#E0E0E0] font-bold">VIN</label>
             <input
@@ -290,6 +355,14 @@ const handleSubmit = async(e) => {
           </button>
         </form>
       </div>
+      
+      {/* Car search modal */}
+      <CarSearchModal 
+        isOpen={showCarSearch} 
+        onClose={() => setShowCarSearch(false)} 
+        onSelectCar={handleSelectCar} 
+        context="Seller"
+      />
     </div>
   );
 }

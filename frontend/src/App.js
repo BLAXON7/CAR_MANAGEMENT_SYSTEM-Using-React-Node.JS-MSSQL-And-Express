@@ -11,6 +11,8 @@ import Setting from "./routes/Settings";
 import Seller from "./routes/Seller";
 import Rented from "./routes/RentedCars";
 import Purchased from "./routes/PurchasedCars";
+import AddCar from "./routes/AddCar";
+import CarSearchModal from "./routes/CarSearchModal";
 
 const App = () => {
   const [loggedIn, Islogged] = useState(() => {
@@ -49,6 +51,8 @@ const App = () => {
           <Route path="/Sellers" element={<Seller loggedIn={loggedIn} />} />
           <Route path="/Purchased" element={<Purchased loggedIn={loggedIn} />} />
           <Route path="/Rented" element={<Rented loggedIn={loggedIn} />} />
+          <Route path="/AddCar" element={<AddCar loggedIn={loggedIn} />} />
+          <Route path="/CarSearchModal" element={<CarSearchModal loggedIn={loggedIn} />} />
         </Routes>
       </div>
     </Router>

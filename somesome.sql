@@ -1,7 +1,35 @@
 --CREATE DATABASE Car_Rental_System_try
 --GO
---USE Car_Rental_System_try
---GO
+
+----if userBio table already created alter the role column otherwise just create the table
+
+USE Car_Rental_System_try
+GO
+
+-- First, identify the name of the existing constraint
+DECLARE @constraintName NVARCHAR(128)
+SELECT @constraintName = name
+FROM sys.check_constraints
+WHERE parent_object_id = OBJECT_ID('UserBio')
+AND OBJECT_NAME(parent_object_id) = 'UserBio'
+AND definition LIKE '%Role%';
+
+-- Drop the existing constraint if it exists
+IF @constraintName IS NOT NULL
+BEGIN
+    DECLARE @sql NVARCHAR(MAX) = 'ALTER TABLE UserBio DROP CONSTRAINT ' + @constraintName;
+    EXEC sp_executesql @sql;
+END
+
+-- Add the new constraint with the updated values
+ALTER TABLE UserBio
+ADD CONSTRAINT CHK_UserBio_Role CHECK ([Role] IN ('Seller', 'Renter', 'Customer', 'Admin'));
+
+---- for the admin 
+use Car_Rental_System_try
+go
+exec SignUpUser 'ali', 'baber', 'Admin', '03001234567', 'baber@gmail.com','123456';
+
 
 --CREATE TABLE Users 
 --(
@@ -15,7 +43,7 @@
 --   CNIC_No CHAR(16),
 --   Date_of_Birth DATE CHECK (Date_of_Birth < GETDATE()),
 --   [Name] VARCHAR(255) NOT NULL,
---   [Role] VARCHAR(20) CHECK ([Role] IN ('Seller', 'Renter', 'Customer')) NOT NULL,
+--   [Role] VARCHAR(20) CHECK ([Role] IN ('Seller', 'Renter', 'Customer','Admin)) NOT NULL,
 --   Profile_Pic VARCHAR(255),
 --   Verification_Status BIT DEFAULT 0,
 --   FOREIGN KEY (userID) REFERENCES Users(userID) ON DELETE CASCADE
@@ -596,55 +624,105 @@
 --    END
 --END;
 --GO
+
 -- 4 AddCar
--- DROP PROCEDURE IF EXISTS AddCar;
--- GO
--- CREATE PROCEDURE AddCar
---    @VariantID INT,
---    @Color VARCHAR(50),
---    @Year INT,
---    @Description TEXT
--- AS
--- BEGIN
---    SET NOCOUNT ON;
+USE Car_Rental_System_try
+GO
 
---    INSERT INTO Car (VariantID, Color, Year, Description)
---    VALUES (@VariantID, @Color, @Year, @Description);
--- END;
--- Go
+-- Drop the procedure if it exists
+DROP PROCEDURE IF EXISTS AddCar;
+GO
 
--- --5 AddCarForSale
--- DROP PROCEDURE IF EXISTS AddCarForSale;
--- GO
--- CREATE PROCEDURE AddCarForSale
---    @carID INT,
---    @Client_ID INT,
---    @VIN VARCHAR(17),
---    @Condition VARCHAR(10),
---    @Location VARCHAR(255),
---    @State VARCHAR(10),
---    @Price DECIMAL(10,2),
---    @Negotiable BIT = 0
--- AS
--- BEGIN
---    SET NOCOUNT ON;
+CREATE PROCEDURE AddCar
+    @MakeName VARCHAR(100),
+    @Country VARCHAR(100) = 'Unknown',
+    @ModelName VARCHAR(100),
+    @Category VARCHAR(100) = NULL,
+    @VariantName VARCHAR(100),
+    @FuelType VARCHAR(50) = NULL,
+    @Transmission VARCHAR(50) = NULL,
+    @Color VARCHAR(50),
+    @Year INT,
+    @Description TEXT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @MakeID INT, @ModelID INT, @VariantID INT, @CarID INT;
+        
+        -- Check if Make exists, otherwise create it
+        SELECT @MakeID = MakeID FROM Make WHERE MakeName = @MakeName;
+        
+        IF @MakeID IS NULL
+        BEGIN
+            INSERT INTO Make (MakeName, Country)
+            VALUES (@MakeName, @Country);
+            
+            SET @MakeID = SCOPE_IDENTITY();
+        END;
+        
+        -- Check if Model exists, otherwise create it
+        SELECT @ModelID = ModelID 
+        FROM Model 
+        WHERE MakeID = @MakeID AND ModelName = @ModelName;
+        
+        IF @ModelID IS NULL
+        BEGIN
+            INSERT INTO Model (MakeID, ModelName, Category)
+            VALUES (@MakeID, @ModelName, @Category);
+            
+            SET @ModelID = SCOPE_IDENTITY();
+        END;
+        
+        -- Check if Variant exists, otherwise create it
+        SELECT @VariantID = VariantID 
+        FROM Variant 
+        WHERE ModelID = @ModelID AND VariantName = @VariantName;
+        
+        IF @VariantID IS NULL
+        BEGIN
+            INSERT INTO Variant (ModelID, VariantName, FuelType, Transmission)
+            VALUES (@ModelID, @VariantName, @FuelType, @Transmission);
+            
+            SET @VariantID = SCOPE_IDENTITY();
+        END;
+        
+        -- Insert the car record
+        INSERT INTO Car (VariantID, Color, Year, Description)
+        VALUES (@VariantID, @Color, @Year, @Description);
+        
+        SET @CarID = SCOPE_IDENTITY();
+        
+        -- Return the car-related IDs
+        SELECT 
+            @MakeID AS MakeID,
+            @ModelID AS ModelID, 
+            @VariantID AS VariantID,
+            @CarID AS CarID;
+       
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+            
+        -- Return error information
+        SELECT 
+            ERROR_NUMBER() AS ErrorNumber,
+            ERROR_SEVERITY() AS ErrorSeverity,
+            ERROR_STATE() AS ErrorState,
+            ERROR_PROCEDURE() AS ErrorProcedure,
+            ERROR_LINE() AS ErrorLine,
+            ERROR_MESSAGE() AS ErrorMessage;
+    END CATCH
+END
+GO
 
---    DECLARE @ClientCarID INT;
-
---    INSERT INTO Client_Car (VIN, carID, Client_ID, Condition, Location)
---    VALUES (@VIN, @carID, @Client_ID, @Condition, @Location);
-
---    SET @ClientCarID = SCOPE_IDENTITY();
-
---    INSERT INTO CARS_ON_SALE (Client_Car_ID, [State], Price, negotiable_price)
---    VALUES (@ClientCarID, @State, @Price, @Negotiable);
--- END;
--- GO
 
 -- -- Drop the procedure if it already exists
--- DROP PROCEDURE IF EXISTS AddCarForRent;
--- GO
-
 
 -- DROP PROCEDURE IF EXISTS AddCarForRent;
 -- GO
@@ -1142,21 +1220,36 @@
 
 
 -- 29 SearchCars
--- DROP PROCEDURE IF EXISTS SearchCars;
--- GO
---CREATE PROCEDURE SearchCars
---    @SearchTerm VARCHAR(100)
---AS
---BEGIN
---    SELECT DISTINCT TOP 10 M.MakeName, MO.ModelName, V.VariantName
---    FROM Make M
---    JOIN Model MO ON M.MakeID = MO.MakeID
---    JOIN Variant V ON MO.ModelID = V.ModelID
---    WHERE M.MakeName LIKE '%' + @SearchTerm + '%'
---       OR MO.ModelName LIKE '%' + @SearchTerm + '%'
---       OR V.VariantName LIKE '%' + @SearchTerm + '%';
---END;
---GO
+use Car_Rental_System_try
+GO
+DROP PROCEDURE IF EXISTS SearchCars;
+GO
+CREATE PROCEDURE SearchCars
+    @SearchTerm VARCHAR(100)
+AS
+BEGIN
+    SELECT 
+        C.CarID,
+        MA.MakeName,
+        MO.ModelName,
+        V.VariantName,
+        C.Year,
+        C.Color,
+        V.Transmission,
+        C.Description
+    FROM Car C
+    JOIN Variant V ON C.VariantID = V.VariantID
+    JOIN Model MO ON V.ModelID = MO.ModelID
+    JOIN Make MA ON MO.MakeID = MA.MakeID
+    WHERE MA.MakeName LIKE '%' + @SearchTerm + '%'
+       OR MO.ModelName LIKE '%' + @SearchTerm + '%'
+       OR V.VariantName LIKE '%' + @SearchTerm + '%'
+       OR C.Color LIKE '%' + @SearchTerm + '%'
+    ORDER BY MA.MakeName, MO.ModelName;
+END;
+GO
+
+
 
 -- 30 ResetPassword
 -- DROP PROCEDURE IF EXISTS ResetPassword;
@@ -1195,33 +1288,158 @@
 --GO
 
 -- 31 SearchCarsWithFeatures
---DROP PROCEDURE IF EXISTS SearchCarsWithFeatures;
---GO
---CREATE PROCEDURE SearchCarsWithFeatures
---    @SearchTerm VARCHAR(100) = NULL,
---    @MinPrice DECIMAL(10,2) = NULL,
---    @MaxPrice DECIMAL(10,2) = NULL,
---    @Features VARCHAR(100) = NULL
---AS
---BEGIN
---    SELECT DISTINCT CC.Client_Car_ID, M.MakeName, MO.ModelName, V.VariantName, CS.Price
---    FROM Client_Car CC
---    JOIN Car C ON CC.carID = C.CarID
---    JOIN Variant V ON C.VariantID = V.VariantID
---    JOIN Model MO ON V.ModelID = MO.ModelID
---    JOIN Make M ON MO.MakeID = M.MakeID
---    JOIN CARS_ON_SALE CS ON CS.Client_Car_ID = CC.Client_Car_ID
---    WHERE
---        (@SearchTerm IS NULL OR M.MakeName LIKE '%' + @SearchTerm + '%' OR MO.ModelName LIKE '%' + @SearchTerm + '%') AND
---        (@MinPrice IS NULL OR CS.Price >= @MinPrice) AND
---        (@MaxPrice IS NULL OR CS.Price <= @MaxPrice) AND
---        (@Features IS NULL OR
---            V.VariantName LIKE '%' + @Features + '%' OR
---            CC.Condition LIKE '%' + @Features + '%' OR
---            V.FuelType LIKE '%' + @Features + '%' OR
---            V.Transmission LIKE '%' + @Features + '%');
---END;
---GO
+USE Car_Rental_System_try
+GO
+
+DROP PROCEDURE IF EXISTS SearchCarsWithFeatures;
+GO
+
+CREATE PROCEDURE SearchCarsWithFeatures
+    @SearchTerm VARCHAR(100) = NULL,
+    @MinPrice DECIMAL(10,2) = NULL,
+    @MaxPrice DECIMAL(10,2) = NULL,
+    @Features VARCHAR(100) = NULL,
+    @ShowRentals BIT = 1,
+    @ShowSales BIT = 1
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Create a temporary table with VARCHAR(MAX) instead of TEXT
+    CREATE TABLE #MatchingCars (
+        CarID INT,
+        MakeName VARCHAR(100),
+        ModelName VARCHAR(100),
+        VariantName VARCHAR(100),
+        Year INT,
+        Color VARCHAR(50),
+        Price DECIMAL(10,2),
+        Transmission VARCHAR(50),
+        FuelType VARCHAR(50),
+        Condition VARCHAR(10),
+        Description VARCHAR(MAX), -- Changed from TEXT to VARCHAR(MAX)
+        ListingType VARCHAR(10),
+        Availability BIT
+    );
+    
+    -- Insert cars from CARS_ON_SALE (removed DISTINCT)
+    IF @ShowSales = 1
+    BEGIN
+        INSERT INTO #MatchingCars
+        SELECT 
+            C.CarID,
+            M.MakeName,
+            MO.ModelName,
+            V.VariantName,
+            C.Year,
+            C.Color,
+            CS.Price,
+            V.Transmission,
+            V.FuelType,
+            CC.Condition,
+            CAST(C.Description AS VARCHAR(MAX)), -- Cast to VARCHAR(MAX)
+            'Sale' AS ListingType,
+            CC.Availability
+        FROM Car C
+        JOIN Variant V ON C.VariantID = V.VariantID
+        JOIN Model MO ON V.ModelID = MO.ModelID
+        JOIN Make M ON MO.MakeID = M.MakeID
+        JOIN Client_Car CC ON CC.carID = C.CarID
+        JOIN CARS_ON_SALE CS ON CS.Client_Car_ID = CC.Client_Car_ID
+        WHERE
+            (@SearchTerm IS NULL OR 
+                M.MakeName LIKE '%' + @SearchTerm + '%' OR 
+                MO.ModelName LIKE '%' + @SearchTerm + '%' OR
+                V.VariantName LIKE '%' + @SearchTerm + '%' OR
+                C.Color LIKE '%' + @SearchTerm + '%') AND
+            (@MinPrice IS NULL OR CS.Price >= @MinPrice) AND
+            (@MaxPrice IS NULL OR CS.Price <= @MaxPrice) AND
+            (@Features IS NULL OR
+                V.VariantName LIKE '%' + @Features + '%' OR
+                CC.Condition LIKE '%' + @Features + '%' OR
+                V.FuelType LIKE '%' + @Features + '%' OR
+                V.Transmission LIKE '%' + @Features + '%' OR
+                MO.Category LIKE '%' + @Features + '%');
+    END;
+    
+    -- Insert cars from CARS_ON_RENT (removed DISTINCT)
+    IF @ShowRentals = 1
+    BEGIN
+        INSERT INTO #MatchingCars
+        SELECT 
+            C.CarID,
+            M.MakeName,
+            MO.ModelName,
+            V.VariantName,
+            C.Year,
+            C.Color,
+            CR.total_price,
+            V.Transmission,
+            V.FuelType,
+            CC.Condition,
+            CAST(C.Description AS VARCHAR(MAX)), -- Cast to VARCHAR(MAX)
+            'Rental' AS ListingType,
+            CASE WHEN CR.[status] = 'Available' THEN 1 ELSE 0 END AS Availability
+        FROM Car C
+        JOIN Variant V ON C.VariantID = V.VariantID
+        JOIN Model MO ON V.ModelID = MO.ModelID
+        JOIN Make M ON MO.MakeID = M.MakeID
+        JOIN Client_Car CC ON CC.carID = C.CarID
+        JOIN CARS_ON_RENT CR ON CR.Client_Car_ID = CC.Client_Car_ID
+        WHERE
+            (@SearchTerm IS NULL OR 
+                M.MakeName LIKE '%' + @SearchTerm + '%' OR 
+                MO.ModelName LIKE '%' + @SearchTerm + '%' OR
+                V.VariantName LIKE '%' + @SearchTerm + '%' OR
+                C.Color LIKE '%' + @SearchTerm + '%') AND
+            (@MinPrice IS NULL OR CR.total_price >= @MinPrice) AND
+            (@MaxPrice IS NULL OR CR.total_price <= @MaxPrice) AND
+            (@Features IS NULL OR
+                V.VariantName LIKE '%' + @Features + '%' OR
+                CC.Condition LIKE '%' + @Features + '%' OR
+                V.FuelType LIKE '%' + @Features + '%' OR
+                V.Transmission LIKE '%' + @Features + '%' OR
+                MO.Category LIKE '%' + @Features + '%');
+    END;
+    
+    -- Use a GROUP BY to handle duplicate rows instead of DISTINCT
+    SELECT 
+        CarID,
+        MakeName,
+        ModelName,
+        VariantName,
+        Year,
+        Color,
+        Price,
+        Transmission,
+        FuelType,
+        Condition,
+        Description,
+        ListingType,
+        Availability
+    FROM #MatchingCars
+    GROUP BY 
+        CarID,
+        MakeName,
+        ModelName,
+        VariantName,
+        Year,
+        Color,
+        Price,
+        Transmission,
+        FuelType,
+        Condition,
+        Description,
+        ListingType,
+        Availability
+    ORDER BY MakeName, ModelName, VariantName;
+    
+    -- Clean up
+    DROP TABLE #MatchingCars;
+END;
+GO
+
+
 
 -- -- 32 compareCars
 -- DROP PROCEDURE IF EXISTS CompareCars;
@@ -1552,5 +1770,5 @@
 -- (6, '2025-06-05', '2025-06-12', 4200.00, 1200.00, 'Available');
 
 use Car_Rental_System_try
-go
-EXEC CompareCars @CarID1 = 1, @CarID2 = 3;
+GO
+exec GetCarAnalysis 1;
