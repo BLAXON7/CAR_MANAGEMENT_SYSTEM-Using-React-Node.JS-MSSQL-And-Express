@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
     "frontend": "file:",
     "lucide-react": "^0.503.0",
     "react": "^19.0.0",
