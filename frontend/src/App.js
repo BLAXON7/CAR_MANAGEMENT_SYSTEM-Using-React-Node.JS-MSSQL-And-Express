@@ -5,7 +5,7 @@ import SignIn from "./routes/SignIn";
 import Dashboard from "./routes/Dashboard";
 import Nav from "./routes/Navigation";
 import Compare from "./routes/Compare";
-import MarketPlace from "./routes/Marketplace";
+
 import Rentals from "./routes/Rentals";
 import Setting from "./routes/Settings";
 import Seller from "./routes/Seller";
@@ -13,6 +13,10 @@ import Rented from "./routes/RentedCars";
 import Purchased from "./routes/PurchasedCars";
 import AddCar from "./routes/AddCar";
 import CarSearchModal from "./routes/CarSearchModal";
+import MarketPlace from "./routes/Marketplace";
+import MyPurchases from "./routes/MyPurchases";
+import MyRentals from "./routes/MyRentals";
+import Transactions from "./routes/Transactions";
 
 const App = () => {
   const [loggedIn, Islogged] = useState(() => {
@@ -53,6 +57,9 @@ const App = () => {
           <Route path="/Rented" element={<Rented loggedIn={loggedIn} />} />
           <Route path="/AddCar" element={<AddCar loggedIn={loggedIn} />} />
           <Route path="/CarSearchModal" element={<CarSearchModal loggedIn={loggedIn} />} />
+          <Route path="/my-purchases" element={<MyPurchases loggedIn={loggedIn} />} />
+          <Route path="/my-rentals" element={<MyRentals loggedIn={loggedIn} />} />
+          <Route path="/transactions" element={<Transactions loggedIn={loggedIn} />} />
         </Routes>
       </div>
     </Router>
