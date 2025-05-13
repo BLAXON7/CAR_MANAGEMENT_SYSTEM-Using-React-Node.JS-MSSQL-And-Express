@@ -1,6 +1,89 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './market-place.css';
+import carPlaceholder from './image.png';
+
+const ReviewModal = ({ onClose, onSubmit, transactionId }) => {
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState('');
+  const [hoveredRating, setHoveredRating] = useState(0);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl w-full max-w-lg mx-4 transform transition-all">
+        <div className="p-6 space-y-4">
+          {/* Header */}
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900">Success!</h2>
+            <p className="text-green-600">Transaction completed successfully.</p>
+          </div>
+          
+          {/* Transaction Details */}
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <h3 className="font-semibold text-gray-900 mb-1">Transaction Details</h3>
+            <div className="text-sm text-gray-600 space-y-1">
+              <p>Transaction ID: #{transactionId}</p>
+              <p>Date: {new Date().toLocaleDateString()}</p>
+              <p>Status: Completed</p>
+            </div>
+          </div>
+
+          {/* Rating */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Rate your experience</label>
+            <div className="flex gap-3 justify-center my-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoveredRating(star)}
+                  onMouseLeave={() => setHoveredRating(0)}
+                  className="transition-transform hover:scale-110"
+                >
+                  <span className={`text-4xl ${
+                    star <= (hoveredRating || rating) ? 'text-yellow-400' : 'text-gray-300'
+                  }`}>
+                    ★
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p className="text-center text-sm text-gray-600">
+              {rating ? `${rating} out of 5 stars` : 'Click to rate'}
+            </p>
+          </div>
+
+          {/* Written Review */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">Write a review</label>
+            <textarea
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              className="w-full h-20 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Share your experience..."
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={() => onSubmit({ rating, review })}
+              className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Submit Review
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CarDetailsModal = ({ car, onClose, onContactSeller, loggedIn, isRental }) => {
   const navigate = useNavigate();
@@ -66,9 +149,21 @@ const CarDetailsModal = ({ car, onClose, onContactSeller, loggedIn, isRental }) 
               </div>
             </div>
 
-            {/* Car Image Placeholder */}
-            <div className="w-full h-64 bg-gray-200 rounded-lg mb-6">
-              {/* Add actual car image here when available */}
+            {/* Car Image */}
+            <div className="w-full h-64 bg-gray-200 rounded-lg mb-6 overflow-hidden">
+              {car.image_url ? (
+                <img 
+                  src={car.image_url} 
+                  alt={`${car.MakeName} ${car.ModelName}`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img 
+                  src={carPlaceholder} 
+                  alt="Default car placeholder"
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
 
             {/* Quick Info Pills */}
@@ -257,6 +352,8 @@ const MarketPlace = ({ loggedIn }) => {
     maxPrice: ''
   });
   const [selectedCar, setSelectedCar] = useState(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [currentTransactionId, setCurrentTransactionId] = useState('');
 
   useEffect(() => {
     // Check if user is logged in
@@ -453,17 +550,17 @@ const MarketPlace = ({ loggedIn }) => {
     setSelectedCar(null);
   };
 
+  const generateTransactionId = () => {
+    const timestamp = new Date().getTime();
+    const random = Math.floor(Math.random() * 1000);
+    return `${timestamp}-${random}`;
+  };
+
   const handleContactSeller = async (car) => {
     try {
       const userId = localStorage.getItem("userid");
       if (!userId) {
         navigate('/');
-        return;
-      }
-
-      // Make sure we have the seller's username
-      if (!car.UserName) {
-        alert('Seller information is missing. Please try again later.');
         return;
       }
 
@@ -475,7 +572,7 @@ const MarketPlace = ({ loggedIn }) => {
         body: JSON.stringify({
           clientId: userId,
           carId: car.Sale_Cars_ID,
-          sellerUsername: car.UserName // Changed from sellerId to sellerUsername
+          sellerUsername: car.UserName
         })
       });
 
@@ -483,13 +580,13 @@ const MarketPlace = ({ loggedIn }) => {
       
       if (data.success) {
         setSelectedCar(null);
-        alert('Successfully contacted seller!');
+        setCurrentTransactionId(generateTransactionId());
+        setShowReviewModal(true);
       } else {
-        alert(data.message || 'Failed to contact seller. Please try again.');
+        console.error('Failed to process purchase:', data.message);
       }
     } catch (error) {
-      console.error('Error contacting seller:', error);
-      alert('Error contacting seller. Please try again.');
+      console.error('Error processing purchase:', error);
     }
   };
 
@@ -501,13 +598,17 @@ const MarketPlace = ({ loggedIn }) => {
         return;
       }
 
-      // Here you would implement the actual rental logic
-      // For now, we'll just show an alert
-      alert('Rental functionality coming soon!');
+      setSelectedCar(null);
+      setCurrentTransactionId(generateTransactionId());
+      setShowReviewModal(true);
     } catch (error) {
-      console.error('Error renting car:', error);
-      alert('Error renting car. Please try again.');
+      console.error('Error processing rental:', error);
     }
+  };
+
+  const handleReviewSubmit = (reviewData) => {
+    console.log('Review submitted:', reviewData);
+    setShowReviewModal(false);
   };
 
   if (loading) {
@@ -693,6 +794,19 @@ const MarketPlace = ({ loggedIn }) => {
                 >
                   {/* Car Image */}
                   <div className="h-48 bg-gray-200 relative">
+                    {car.image_url ? (
+                      <img 
+                        src={car.image_url} 
+                        alt={`${car.MakeName} ${car.ModelName}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img 
+                        src={carPlaceholder} 
+                        alt="Default car placeholder"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     <div className="absolute top-4 right-4 space-x-2">
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStateColor(car.State)}`}>
                         {car.State}
@@ -756,16 +870,10 @@ const MarketPlace = ({ loggedIn }) => {
                       {/* Action Buttons */}
                       <div className="flex gap-3 pt-4">
                         <button 
-                          onClick={() => {
-                            if (!loggedIn) {
-                              navigate('/');
-                              return;
-                            }
-                            handleContactSeller(car);
-                          }}
+                          onClick={() => handleContactSeller(car)}
                           className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
                         >
-                          Contact Seller
+                          Purchase
                         </button>
                         <button 
                           onClick={() => handleViewDetails(car)}
@@ -928,6 +1036,19 @@ const MarketPlace = ({ loggedIn }) => {
                 >
                   {/* Car Image */}
                   <div className="h-48 bg-gray-200 relative">
+                    {car.image_url ? (
+                      <img 
+                        src={car.image_url} 
+                        alt={`${car.MakeName} ${car.ModelName}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img 
+                        src={carPlaceholder} 
+                        alt="Default car placeholder"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
                     <div className="absolute top-4 right-4 space-x-2">
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         car.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -1041,6 +1162,15 @@ const MarketPlace = ({ loggedIn }) => {
             onContactSeller={activeTab === 'sale' ? handleContactSeller : handleRentCar}
             loggedIn={loggedIn}
             isRental={activeTab === 'rent'}
+          />
+        )}
+
+        {/* Review Modal */}
+        {showReviewModal && (
+          <ReviewModal
+            onClose={() => setShowReviewModal(false)}
+            onSubmit={handleReviewSubmit}
+            transactionId={currentTransactionId}
           />
         )}
       </div>

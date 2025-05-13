@@ -8,7 +8,7 @@ const getMyPurchases = async (req, res) => {
         // Run the query on the view
         const result = await pool.request()
             .query(
-                `SELECT * FROM View_Transactions_Car_Purchase`
+                `SELECT * FROM Purchased_cars`
             );
 
         console.log('My Purchases:');

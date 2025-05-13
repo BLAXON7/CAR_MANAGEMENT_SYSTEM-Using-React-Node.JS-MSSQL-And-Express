@@ -8,7 +8,7 @@ const getMyRentals = async (req, res) => {
         // Query the view
         const result = await pool.request()
             .query(
-                `SELECT * FROM View_Rental_Transactions_Details`
+                `SELECT * FROM View_Cars_On_Rent_UniqueVIN`
             );
 
         console.log('My Rentals:');

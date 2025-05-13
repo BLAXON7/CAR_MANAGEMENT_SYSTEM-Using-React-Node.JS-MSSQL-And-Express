@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './my-purchases.css';
+import carPlaceholder from './image.png';
 
-const MyPurchases = ({ loggedIn, userType }) => {
+const MyPurchases = ({ loggedIn }) => {
   const navigate = useNavigate();
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ const MyPurchases = ({ loggedIn, userType }) => {
         if (data.success) {
           // Filter purchases for the current user
           const userPurchases = data.data.filter(
-            purchase => purchase.Sender_ID === parseInt(userId)
+            purchase => purchase.Buyer_ID === parseInt(userId)
           );
           setPurchases(userPurchases);
         } else {
@@ -110,14 +111,28 @@ const MyPurchases = ({ loggedIn, userType }) => {
         
         <div className="purchases-grid">
           {purchases.map((purchase) => (
-            <div key={purchase.Sale_Cars_ID} className="purchase-card">
+            <div key={purchase.transaction_id} className="purchase-card">
               <div className="purchase-image">
-                {/* Car image placeholder */}
+                {purchase.image_url ? (
+                  <img 
+                    src={purchase.image_url} 
+                    alt={`${purchase.MakeName} ${purchase.ModelName}`}
+                    className="w-full h-48 object-cover"
+                  />
+                ) : (
+                  <img 
+                    src={carPlaceholder} 
+                    alt="Default car placeholder"
+                    className="w-full h-48 object-cover"
+                  />
+                )}
                 <div className="absolute top-4 right-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    purchase.State === 'NEW' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                    purchase.Car_Condition >= 8 ? 'bg-green-100 text-green-800' :
+                    purchase.Car_Condition >= 6 ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
                   }`}>
-                    {purchase.State}
+                    Condition: {purchase.Car_Condition}/10
                   </span>
                 </div>
               </div>
@@ -130,7 +145,7 @@ const MyPurchases = ({ loggedIn, userType }) => {
                     </h3>
                     <p className="text-sm text-gray-500">{purchase.VariantName}</p>
                   </div>
-                  <p className="purchase-price">{formatPrice(purchase.Price)}</p>
+                  <p className="purchase-price">{formatPrice(purchase.Purchase_Price)}</p>
                 </div>
 
                 <div className="purchase-details">
@@ -139,27 +154,28 @@ const MyPurchases = ({ loggedIn, userType }) => {
                     <span>{purchase.Location}</span>
                   </div>
                   <div className="purchase-detail">
-                    <span>🚗</span>
-                    <span>{purchase.Transmission} • {purchase.FuelType}</span>
+                    <span>🎨</span>
+                    <span>Color: {purchase.Color}</span>
                   </div>
                   <div className="purchase-detail">
                     <span>📅</span>
                     <span>Year: {purchase.Year}</span>
                   </div>
                   <div className="purchase-detail">
-                    <span>⭐</span>
-                    <span>Condition: {purchase.Condition}/10</span>
+                    <span>🔢</span>
+                    <span>VIN: {purchase.VIN}</span>
                   </div>
                 </div>
 
                 <div className={`purchase-status ${
-                  purchase.transaction_status === 'Completed' ? 'status-completed' : 'status-pending'
+                  purchase.Transaction_Status === 'Completed' ? 'status-completed' : 'status-pending'
                 }`}>
-                  {purchase.transaction_status}
+                  {purchase.Transaction_Status}
                 </div>
 
                 <div className="purchase-date">
-                  <p>Purchased on: {formatDate(purchase.transaction_date)}</p>
+                  <p>Purchased from: {purchase.Seller_Name}</p>
+                  <p>Purchase Date: {formatDate(purchase.Purchase_Date)}</p>
                   <p className="mt-1">Payment Method: {purchase.payment_method}</p>
                 </div>
               </div>

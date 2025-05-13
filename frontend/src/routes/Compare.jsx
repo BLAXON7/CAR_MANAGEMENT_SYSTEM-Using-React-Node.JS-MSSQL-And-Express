@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import './Compare.css';
+import './Settings.css';
 
 const Compare = ({loggedIn}) => {
   const Navigate = useNavigate();
@@ -125,131 +126,133 @@ const Compare = ({loggedIn}) => {
   };
 
   return (
-    <div className="compare-container">
-      <h1 className="compare-title">Compare Cars</h1>
+    <div className="body">
+      <h1 className="title">Compare Cars</h1>
       
-      {error && (
-        <div className="error-message">{error}</div>
-      )}
-      
-      <div className="car-selection">
-        <div className="car-select-container">
-          <label className="car-select-label">Select First Car</label>
-          <select 
-            className="car-select"
-            value={selectedCar1}
-            onChange={(e) => setSelectedCar1(e.target.value)}
-            disabled={loading}
-          >
-            <option value="">Select a car</option>
-            {cars.map(car => (
-              <option key={`car1-${car.carID}`} value={car.carID}>
-                {car.displayName} - {car.price ? `$${car.price}` : 'For Rent'}
-              </option>
-            ))}
-          </select>
+      <div className="compare-container" style={{ background: 'transparent' }}>
+        {error && (
+          <div className="error-message">{error}</div>
+        )}
+        
+        <div className="car-selection">
+          <div className="car-select-container">
+            <label className="car-select-label text-white">Select First Car</label>
+            <select 
+              className="car-select bg-transparent text-white border border-slate-200 rounded-md px-3 py-2"
+              value={selectedCar1}
+              onChange={(e) => setSelectedCar1(e.target.value)}
+              disabled={loading}
+            >
+              <option value="" className="bg-slate-800">Select a car</option>
+              {cars.map(car => (
+                <option key={`car1-${car.carID}`} value={car.carID} className="bg-slate-800">
+                  {car.displayName} - {car.price ? `$${car.price}` : 'For Rent'}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="car-select-container">
+            <label className="car-select-label text-white">Select Second Car</label>
+            <select 
+              className="car-select bg-transparent text-white border border-slate-200 rounded-md px-3 py-2"
+              value={selectedCar2}
+              onChange={(e) => setSelectedCar2(e.target.value)}
+              disabled={loading}
+            >
+              <option value="" className="bg-slate-800">Select a car</option>
+              {cars.map(car => (
+                <option key={`car2-${car.carID}`} value={car.carID} className="bg-slate-800">
+                  {car.displayName} - {car.price ? `$${car.price}` : 'For Rent'}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         
-        <div className="car-select-container">
-          <label className="car-select-label">Select Second Car</label>
-          <select 
-            className="car-select"
-            value={selectedCar2}
-            onChange={(e) => setSelectedCar2(e.target.value)}
-            disabled={loading}
+        <div className="compare-button-container">
+          <button 
+            className="rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            onClick={compareSelected}
+            disabled={loading || !selectedCar1 || !selectedCar2}
           >
-            <option value="">Select a car</option>
-            {cars.map(car => (
-              <option key={`car2-${car.carID}`} value={car.carID}>
-                {car.displayName} - {car.price ? `$${car.price}` : 'For Rent'}
-              </option>
-            ))}
-          </select>
+            {loading ? "Comparing..." : "Compare Cars"}
+          </button>
         </div>
-      </div>
-      
-      <div className="compare-button-container">
-        <button 
-          className="compare-button"
-          onClick={compareSelected}
-          disabled={loading || !selectedCar1 || !selectedCar2}
-        >
-          {loading ? "Comparing..." : "Compare Cars"}
-        </button>
-      </div>
-      
-      {comparisonData && comparisonData.length >= 2 && (
-        <div className="comparison-table-container">
-          <table className="comparison-table">
-            <thead>
-              <tr>
-                <th>Feature</th>
-                <th>{comparisonData[0]?.Make || 'Car 1'} {comparisonData[0]?.Model || ''}</th>
-                <th>{comparisonData[1]?.Make || 'Car 2'} {comparisonData[1]?.Model || ''}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.keys(comparisonData[0])
-                .filter(key => key !== 'CarID' && key !== 'carID' && key !== 'Description') // Filter out unnecessary fields
-                .map(key => {
-                  // Get values for comparison
-                  const value1 = comparisonData[0][key];
-                  const value2 = comparisonData[1][key];
-                  
-                  // Determine if values are numeric and can be compared
-                  const isNumber1 = typeof value1 === 'number' && !isNaN(value1);
-                  const isNumber2 = typeof value2 === 'number' && !isNaN(value2);
-                  const canCompare = isNumber1 && isNumber2;
-                  
-                  // Determine which is better (for some values, lower is better)
-                  const higherIsBetter = isHigherBetter(key);
-                  
-                  let class1 = "equal-value";
-                  let class2 = "equal-value";
-                  
-                  if (canCompare && value1 !== value2) {
-                    if (higherIsBetter) {
-                      class1 = value1 > value2 ? "better-value" : "worse-value";
-                      class2 = value2 > value1 ? "better-value" : "worse-value";
-                    } else {
-                      class1 = value1 < value2 ? "better-value" : "worse-value";
-                      class2 = value2 < value1 ? "better-value" : "worse-value";
-                    }
-                  }
-
-                  return (
-                    <tr key={key}>
-                      <td className="feature-name">{key}</td>
-                      <td className={class1}>
-                        {formatValue(value1, key)}
-                      </td>
-                      <td className={class2}>
-                        {formatValue(value2, key)}
-                      </td>
-                    </tr>
-                  );
-                })}
-                
-              {/* Add description row separately if it exists */}
-              {comparisonData[0].Description && (
+        
+        {comparisonData && comparisonData.length >= 2 && (
+          <div className="comparison-table-container bg-transparent">
+            <table className="comparison-table text-white">
+              <thead>
                 <tr>
-                  <td className="feature-name">Description</td>
-                  <td colSpan="2" className="description-cell">
-                    <div className="car-description">
-                      <h4>{comparisonData[0].Make} {comparisonData[0].Model}</h4>
-                      <p>{comparisonData[0].Description}</p>
-                    </div>
-                    <div className="car-description">
-                      <h4>{comparisonData[1].Make} {comparisonData[1].Model}</h4>
-                      <p>{comparisonData[1].Description}</p>
-                    </div>
-                  </td>
+                  <th>Feature</th>
+                  <th>{comparisonData[0]?.Make || 'Car 1'} {comparisonData[0]?.Model || ''}</th>
+                  <th>{comparisonData[1]?.Make || 'Car 2'} {comparisonData[1]?.Model || ''}</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {Object.keys(comparisonData[0])
+                  .filter(key => key !== 'CarID' && key !== 'carID' && key !== 'Description') // Filter out unnecessary fields
+                  .map(key => {
+                    // Get values for comparison
+                    const value1 = comparisonData[0][key];
+                    const value2 = comparisonData[1][key];
+                    
+                    // Determine if values are numeric and can be compared
+                    const isNumber1 = typeof value1 === 'number' && !isNaN(value1);
+                    const isNumber2 = typeof value2 === 'number' && !isNaN(value2);
+                    const canCompare = isNumber1 && isNumber2;
+                    
+                    // Determine which is better (for some values, lower is better)
+                    const higherIsBetter = isHigherBetter(key);
+                    
+                    let class1 = "equal-value";
+                    let class2 = "equal-value";
+                    
+                    if (canCompare && value1 !== value2) {
+                      if (higherIsBetter) {
+                        class1 = value1 > value2 ? "better-value" : "worse-value";
+                        class2 = value2 > value1 ? "better-value" : "worse-value";
+                      } else {
+                        class1 = value1 < value2 ? "better-value" : "worse-value";
+                        class2 = value2 < value1 ? "better-value" : "worse-value";
+                      }
+                    }
+
+                    return (
+                      <tr key={key}>
+                        <td className="feature-name">{key}</td>
+                        <td className={class1}>
+                          {formatValue(value1, key)}
+                        </td>
+                        <td className={class2}>
+                          {formatValue(value2, key)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  
+                {/* Add description row separately if it exists */}
+                {comparisonData[0].Description && (
+                  <tr>
+                    <td className="feature-name">Description</td>
+                    <td colSpan="2" className="description-cell">
+                      <div className="car-description">
+                        <h4>{comparisonData[0].Make} {comparisonData[0].Model}</h4>
+                        <p>{comparisonData[0].Description}</p>
+                      </div>
+                      <div className="car-description">
+                        <h4>{comparisonData[1].Make} {comparisonData[1].Model}</h4>
+                        <p>{comparisonData[1].Description}</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
