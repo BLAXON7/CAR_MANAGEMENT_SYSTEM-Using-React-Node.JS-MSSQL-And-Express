@@ -1,13 +1,13 @@
-# DB_LAB_PROJECT
+# DB_LAB_PROJECT <br>
 
-CAR RENTAL AND MANAGEMENT SYSTEM
+CAR RENTAL AND MANAGEMENT SYSTEM<br>
 
-DEVELOPERS:
+DEVELOPERS:<br>
 
-AHMED NASIR | BABER ALI | EZAAN ULLAH KHAN
+AHMED NASIR | BABER ALI | EZAAN ULLAH KHAN<br>
 
---It will not run straight away....
-->After cloning 
+--It will not run straight away.... <br>
+->After cloning <br>
     1. First use new.sql to create all the tables,views and procedures.... dont use somesome.sql !! This step is imp. as otherwise nothing will work related to database.<br>
     2. In backend run npm install<br>
     3. In front end run
