@@ -41,6 +41,11 @@ router.get ('/SearchCars', Controller.SearchCars);
 router.get ('/ResetPassword', Controller.ResetPassword);
 router.get ('/SearchCarsWithFeatures', Controller.SearchCarsWithFeatures);
 router.get('/GetClientID', Controller.GetClientID);
+router.get('/SubmitCarSuggestion', Controller.submitCarSuggestion);
+router.get('/GetPendingCarSuggestions', Controller.getPendingCarSuggestions);
+router.get('/ProcessCarSuggestion', Controller.processCarSuggestion);
+router.get('/GetUserCarSuggestions', Controller.getUserCarSuggestions);
+
 //-----------------------------------------------------------------------------
 
 module.exports = router;

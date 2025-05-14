@@ -691,3 +691,92 @@ exports.SearchCarsWithFeatures = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 };
+
+
+exports.submitCarSuggestion = async (req, res) => {
+  const userID = req.query.userID;
+  const makeName = req.query.MakeName;
+  const country = req.query.Country || 'Unknown';
+  const modelName = req.query.ModelName;
+  const category = req.query.Category || null;
+  const variantName = req.query.VariantName;
+  const fuelType = req.query.FuelType || null;
+  const transmission = req.query.Transmission || null;
+  const color = req.query.Color;
+  const year = parseInt(req.query.Year);
+  const description = req.query.Description;
+  
+  // Validate required inputs
+  if (!userID || !makeName || !modelName || !variantName || !color || !year || !description) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  try {
+    const result = await CarCantroller.submitCarSuggestion(
+      userID, makeName, country, modelName, category, variantName, 
+      fuelType, transmission, color, year, description
+    );
+    res.json(result);
+  } catch (error) {
+    console.error('Error submitting car suggestion:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+// Get pending car suggestions (admin only)
+exports.getPendingCarSuggestions = async (req, res) => {
+  const adminID = req.query.adminID;
+  
+  if (!adminID) {
+    return res.status(400).json({ error: 'Admin ID is required' });
+  }
+  
+  try {
+    const suggestions = await CarCantroller.getPendingCarSuggestions(adminID);
+    res.json(suggestions);
+  } catch (error) {
+    console.error('Error getting pending car suggestions:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+// Process (approve/reject) a car suggestion (admin only)
+exports.processCarSuggestion = async (req, res) => {
+  const adminID = req.query.adminID;
+  const suggestionID = req.query.suggestionID;
+  const status = req.query.status;
+  const adminComment = req.query.adminComment;
+  
+  if (!adminID || !suggestionID || !status) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  
+  if (status !== 'Approved' && status !== 'Rejected') {
+    return res.status(400).json({ error: 'Status must be either "Approved" or "Rejected"' });
+  }
+  
+  try {
+    const result = await CarCantroller.processCarSuggestion(adminID, suggestionID, status, adminComment);
+    res.json(result);
+  } catch (error) {
+    console.error('Error processing car suggestion:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};
+
+// Get user's car suggestions
+exports.getUserCarSuggestions = async (req, res) => {
+  const userID = req.query.userID;
+  
+  if (!userID) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+  
+  try {
+    const suggestions = await CarCantroller.getUserCarSuggestions(userID);
+    res.json(suggestions);
+  } catch (error) {
+    console.error('Error getting user car suggestions:', error);
+    res.status(500).json({ error: 'Internal Server Error', details: error.message });
+  }
+};

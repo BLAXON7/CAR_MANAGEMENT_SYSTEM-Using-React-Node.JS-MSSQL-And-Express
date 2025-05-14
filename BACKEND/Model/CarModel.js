@@ -740,6 +740,83 @@ const AddCarForSale = async (carID, Client_ID, VIN, Condition, Location, State, 
   }
 };
 
+
+
+// Submit a car suggestion
+const submitCarSuggestion = async (userID, makeName, country, modelName, category, variantName, fuelType, transmission, color, year, description) => {
+  try {
+    const pool = await connectToDB();
+    const result = await pool.request()
+      .input('UserID', sql.Int, userID)
+      .input('MakeName', sql.VarChar(100), makeName)
+      .input('Country', sql.VarChar(100), country)
+      .input('ModelName', sql.VarChar(100), modelName)
+      .input('Category', sql.VarChar(100), category)
+      .input('VariantName', sql.VarChar(100), variantName)
+      .input('FuelType', sql.VarChar(50), fuelType)
+      .input('Transmission', sql.VarChar(50), transmission)
+      .input('Color', sql.VarChar(50), color)
+      .input('Year', sql.Int, year)
+      .input('Description', sql.VarChar(8000), description) // Using VARCHAR(MAX) instead of TEXT
+      .execute('SubmitCarSuggestion');
+      
+    return result.recordset;
+  } catch (err) {
+    console.error('submitCarSuggestion error:', err);
+    throw err;
+  }
+};
+
+// Get pending car suggestions (admin only)
+const getPendingCarSuggestions = async (adminID) => {
+  try {
+    const pool = await connectToDB();
+    const result = await pool.request()
+      .input('AdminID', sql.Int, adminID)
+      .execute('GetPendingCarSuggestions');
+      
+    return result.recordset;
+  } catch (err) {
+    console.error('getPendingCarSuggestions error:', err);
+    throw err;
+  }
+};
+
+// Process car suggestion (approve/reject)
+const processCarSuggestion = async (adminID, suggestionID, status, adminComment) => {
+  try {
+    const pool = await connectToDB();
+    const result = await pool.request()
+      .input('AdminID', sql.Int, adminID)
+      .input('SuggestionID', sql.Int, suggestionID)
+      .input('Status', sql.VarChar(20), status)
+      .input('AdminComment', sql.VarChar(8000), adminComment) // Using VARCHAR(MAX) instead of TEXT
+      .execute('ProcessCarSuggestion');
+      
+    return result.recordset;
+  } catch (err) {
+    console.error('processCarSuggestion error:', err);
+    throw err;
+  }
+};
+
+// Get user's car suggestions
+const getUserCarSuggestions = async (userID) => {
+  try {
+    const pool = await connectToDB();
+    const result = await pool.request()
+      .input('UserID', sql.Int, userID)
+      .execute('GetUserCarSuggestions');
+      
+    return result.recordset;
+  } catch (err) {
+    console.error('getUserCarSuggestions error:', err);
+    throw err;
+  }
+};
+
+
+
 //// Triggers ////
 
 
@@ -796,5 +873,6 @@ const config = {
                       GetCarAnalysis, UpdateBuyerLevel, FilterCars1, FilterCars2,
                       AddCar,AddCarForRent,AddCarForSale, DeleteCar, CancelBooking, GetCarReviews, GetUserMessages,
                       ReturnCar, GetRentalReport, SearchCars, ResetPassword,
-                      SearchCarsWithFeatures,AddCarForRent,AddCarForSale
+                      SearchCarsWithFeatures,AddCarForRent,AddCarForSale,submitCarSuggestion,
+                      getPendingCarSuggestions, processCarSuggestion, getUserCarSuggestions
                   };

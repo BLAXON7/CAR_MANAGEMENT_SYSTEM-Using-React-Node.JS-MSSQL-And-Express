@@ -27,9 +27,14 @@ const Nav = () => {
 
           {/* Admin Routes */}
           {userRole === "Admin" && (
-            <li>
-              <Link to="/AddCar" className="hover:text-gray-300">Add Car</Link>
-            </li>
+            <>
+                <li>
+                  <Link to="/AddCar" className="hover:text-gray-300">AddCar</Link>
+                </li>
+                <li>
+                  <Link to="/CarSuggestions" className="hover:text-gray-300">Review Suggestions</Link>
+                </li>
+              </>
           )}
 
           {/* Common Routes for Seller, Renter, and Customer */}
@@ -40,6 +45,9 @@ const Nav = () => {
               </li>
               <li>
                 <Link to="/Compare" className="hover:text-gray-300">Compare</Link>
+              </li>
+              <li>
+                <Link to="/SuggestCar" className="hover:text-gray-300">Suggest Car</Link>
               </li>
             </>
           )}

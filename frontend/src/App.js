@@ -16,6 +16,8 @@ import CarSearchModal from "./routes/CarSearchModal";
 import MarketPlace from "./routes/Marketplace";
 import MyPurchases from "./routes/MyPurchases";
 import MyRentals from "./routes/MyRentals";
+import SuggestCar from "./routes/SuggestCar";
+import CarSuggestions from "./routes/CarSuggestions";
 
 
 const App = () => {
@@ -59,6 +61,8 @@ const App = () => {
           <Route path="/CarSearchModal" element={<CarSearchModal loggedIn={loggedIn} />} />
           <Route path="/my-purchases" element={<MyPurchases loggedIn={loggedIn} />} />
           <Route path="/my-rentals" element={<MyRentals loggedIn={loggedIn} />} />
+          <Route path="/SuggestCar" element={<SuggestCar loggedIn={loggedIn} />} />
+          <Route path="/CarSuggestions" element={<CarSuggestions loggedIn={loggedIn} />} />
         </Routes>
       </div>
     </Router>
