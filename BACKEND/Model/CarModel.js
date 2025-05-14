@@ -197,6 +197,34 @@ const AddCarReview = async (userID, car_id, rating_Count, review_ID) => {
   }
   
 };
+const GetAllAvailableCars = async () => {
+  try {
+    const pool = await connectToDB();
+    const result = await pool.request().query(`
+      SELECT 
+        c.CarID,
+        m.MakeName,
+        mo.ModelName,
+        v.VariantName,
+        c.Year,
+        c.Color,
+        v.FuelType,
+        v.Transmission,
+        c.Description
+      FROM Car c
+      JOIN Variant v ON c.VariantID = v.VariantID
+      JOIN Model mo ON v.ModelID = mo.ModelID
+      JOIN Make m ON mo.MakeID = m.MakeID
+      LEFT JOIN Client_Car cc ON c.CarID = cc.carID
+      WHERE cc.carID IS NULL  -- Only show cars not yet added to Client_Car
+    `);
+    
+    return result.recordset;
+  } catch (err) {
+    console.error('Error fetching available cars:', err);
+    throw err;
+  }
+};
 
   //// 6 ////
   const GetSellerDashboard = async (userID) => {
@@ -874,5 +902,5 @@ const config = {
                       AddCar,AddCarForRent,AddCarForSale, DeleteCar, CancelBooking, GetCarReviews, GetUserMessages,
                       ReturnCar, GetRentalReport, SearchCars, ResetPassword,
                       SearchCarsWithFeatures,AddCarForRent,AddCarForSale,submitCarSuggestion,
-                      getPendingCarSuggestions, processCarSuggestion, getUserCarSuggestions
+                      getPendingCarSuggestions, processCarSuggestion, getUserCarSuggestions , GetAllAvailableCars
                   };

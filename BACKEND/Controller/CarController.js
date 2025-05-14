@@ -15,6 +15,18 @@ exports.getusers = async (req,res) =>
     }
 };
 
+exports.GetAllAvailableCars = async (req, res) => {
+  try {
+    const cars = await CarCantroller.GetAllAvailableCars();
+    res.json(cars);
+  }
+  catch(error) {
+    console.error('Error fetching available cars:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
 exports.loginUser = async (req, res) => {
   const username = req.query.username;
   const password = req.query.password;

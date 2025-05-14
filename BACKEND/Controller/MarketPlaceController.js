@@ -1,6 +1,5 @@
 const { sql , connectToDB } = require('../DB_config'); 
 
-
 const getUniqueCarsOnSale = async (req, res) => {
     try {
       const pool = await connectToDB();
@@ -23,30 +22,17 @@ const getUniqueCarsOnSale = async (req, res) => {
         message: 'Failed to fetch unique cars on sale',
       });
     }
-  };
-const purchaseCar = async (req, res) => {
-    const { carId,clientId,sellerUsername } = req.body;
-  //correctrly format data consolelog
-  console.log("Car ID:", carId);
-  console.log("Client ID:", clientId);
-  console.log("Seller Username:", sellerUsername);
-
-    res.status(200).json({
-        success: true,
-        message: 'Car purchased successfully',
-    });
-   
-  };
+};
 
 const getUniqueCarsOnRent = async (req, res) => {
     try {
         const pool = await connectToDB();
         const result = await pool.request().query(
-          `SELECT * FROM View_Cars_On_Rent_UniqueVIN`
+          `SELECT * FROM myrentals`
         );
 
-      console.log('Unique Cars on Rent:');
-      console.log(result.recordset);
+        console.log('Unique Cars on Rent:');
+        console.log(result.recordset);
 
         res.status(200).json({
             success: true,
@@ -62,5 +48,4 @@ const getUniqueCarsOnRent = async (req, res) => {
     }
 };
 
-  
-  module.exports = { getUniqueCarsOnSale , purchaseCar, getUniqueCarsOnRent};
+module.exports = { getUniqueCarsOnSale, getUniqueCarsOnRent };

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Controller = require('../Controller/CarController');
 
-
+router.get('/GetAllAvailableCars', Controller.GetAllAvailableCars);
 router.get('/Users',Controller.getusers);
 router.get('/Salecars',Controller.SaleCars);
 router.get('/Rentcars',Controller.RentCars);

@@ -25,7 +25,6 @@ const CarSearchModal = ({ isOpen, onClose, onSelectCar, context }) => {
       }
       
       const data = await response.json();
-      console.log("Search results:", data); // Debug: Log the received data
       setCars(data);
     } catch (error) {
       console.error("Error searching cars:", error);
@@ -47,18 +46,33 @@ const CarSearchModal = ({ isOpen, onClose, onSelectCar, context }) => {
     const loadInitialCars = async () => {
       setLoading(true);
       try {
-        // Use SearchCarsWithFeatures instead with empty search
+        // Get both listed cars and newly added cars
         const showRentals = context === "Renter" ? 1 : 0;
         const showSales = context === "Seller" ? 1 : 0;
-        const response = await fetch(`http://localhost:5000/api/SearchCarsWithFeatures?ShowRentals=${showRentals}&ShowSales=${showSales}`);
         
-        if (!response.ok) {
+        const [featuredResponse, availableResponse] = await Promise.all([
+          fetch(`http://localhost:5000/api/SearchCarsWithFeatures?ShowRentals=${showRentals}&ShowSales=${showSales}`),
+          fetch(`http://localhost:5000/api/GetAllAvailableCars`)
+        ]);
+
+        if (!featuredResponse.ok || !availableResponse.ok) {
           throw new Error("Failed to load cars");
         }
         
-        const data = await response.json();
-        console.log("Initial cars data:", data); // Debug: Log the received data
-        setCars(data);
+        const featuredData = await featuredResponse.json();
+        const availableData = await availableResponse.json();
+        
+        // Combine both sets of cars, avoiding duplicates
+        const existingCarIds = new Set(featuredData.map(car => car.CarID));
+        const uniqueAvailableCars = availableData.filter(car => !existingCarIds.has(car.CarID));
+        
+        // Mark the source of each car for UI purposes
+        const combinedCars = [
+          ...featuredData.map(car => ({ ...car, source: 'listed' })),
+          ...uniqueAvailableCars.map(car => ({ ...car, source: 'new' }))
+        ];
+        
+        setCars(combinedCars);
       } catch (error) {
         console.error("Error loading cars:", error);
         setError("Failed to load available cars. Please try again.");
@@ -126,26 +140,33 @@ const CarSearchModal = ({ isOpen, onClose, onSelectCar, context }) => {
               <div 
                 key={car.CarID} 
                 className="bg-[#1e293b] p-4 rounded-lg cursor-pointer hover:bg-[#2d3748] transition-colors"
-                
                 onClick={() => {
-                const normalizedCar = {
+                  const normalizedCar = {
                     ...car,
                     CarID: car.CarID || car.carID || car.carid || car.carId
-                };
-                console.log("Selected car with normalized ID:", normalizedCar);
-                onSelectCar(normalizedCar);
+                  };
+                  onSelectCar(normalizedCar);
                 }}
-
               >
                 <div className="flex justify-between">
                   <div>
-                    <h4 className="text-[#E0E0E0] font-bold">
-                      {car.MakeName} {car.ModelName} {car.VariantName}
-                    </h4>
+                    <div className="flex items-center">
+                      <h4 className="text-[#E0E0E0] font-bold">
+                        {car.MakeName} {car.ModelName} {car.VariantName}
+                      </h4>
+                      {car.source === 'new' && (
+                        <span className="ml-2 bg-green-800 text-green-100 text-xs px-2 py-0.5 rounded">
+                          New Addition
+                        </span>
+                      )}
+                    </div>
                     <p className="text-gray-400 text-sm">
                       {car.Year} • {car.Color} • {car.Transmission || "N/A"}
                     </p>
-                    <p className="text-gray-400 text-sm mt-1">{car.Description?.substring(0, 100)}{car.Description?.length > 100 ? '...' : ''}</p>
+                    <p className="text-gray-400 text-sm mt-1">
+                      {car.Description?.substring(0, 100)}
+                      {car.Description?.length > 100 ? '...' : ''}
+                    </p>
                   </div>
                   <div className="text-right">
                     <span className="text-xs bg-[#334155] text-[#E0E0E0] px-2 py-1 rounded">
