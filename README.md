@@ -7,11 +7,11 @@ DEVELOPERS:<br>
 AHMED NASIR | BABER ALI | EZAAN ULLAH KHAN<br>
 
 --It will not run straight away.... <br>
-->After cloning <br>
-    1. First use new.sql to create all the tables,views and procedures.... dont use somesome.sql !! This step is imp. as otherwise nothing will work related to database.<br>
-    2. In backend run 
+->After cloning <br><br>
+1. First use new.sql to create all the tables,views and procedures.... dont use somesome.sql !! This step is imp. as otherwise nothing will work related to database.<br>
+2. In backend run 
     
-    npm install<br>
+        npm install
     
 3. In front end run
     
@@ -20,13 +20,13 @@ AHMED NASIR | BABER ALI | EZAAN ULLAH KHAN<br>
     
 After that backend will start when you write 
 
-    node ./server.js
+        node ./server.js
         
   with backend folder as terminal directory.
   
 And frontend will run with 
 
-    npm start 
+        npm start 
 with frontend folder as terminal directory.
 
       
