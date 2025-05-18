@@ -9,11 +9,14 @@ AHMED NASIR | BABER ALI | EZAAN ULLAH KHAN<br>
 --It will not run straight away.... <br>
 ->After cloning <br>
     1. First use new.sql to create all the tables,views and procedures.... dont use somesome.sql !! This step is imp. as otherwise nothing will work related to database.<br>
-    2. In backend run npm install<br>
-    3. In front end run
+    2. In backend run 
     
-    npm install cors
-    npm install axios framer-motion @heroicons/react react-router-dom
+    npm install<br>
+    
+3. In front end run
+    
+        npm install cors
+        npm install axios framer-motion @heroicons/react react-router-dom
     
 After that backend will start when you write 
 
