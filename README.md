@@ -20,13 +20,13 @@ AHMED NASIR | BABER ALI | EZAAN ULLAH KHAN<br>
     
     After that backend will start when you write 
     
-            node ./server.js
+       node ./server.js
             
     with backend folder as terminal directory.
       
     And frontend will run with 
     
-            npm start 
+       npm start 
     with frontend folder as terminal directory.
 
       
